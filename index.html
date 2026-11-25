@@ -3,66 +3,131 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Jornadas de fin de año del CEIA Juanita Zúñiga Fuentes">
+<meta name="robots" content="noindex">
 <title>APP CEIA 2027 · Jornadas fin de año</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#0E1222;color:#F4F6FB;font:17px/1.55 Inter,system-ui,Arial,sans-serif;min-height:100vh}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:
-  radial-gradient(900px 600px at 12% -5%,rgba(102,126,234,.22),transparent 60%),
-  radial-gradient(800px 600px at 95% 10%,rgba(79,172,254,.16),transparent 60%)}
-main{max-width:860px;margin:auto;padding:52px 24px 64px}
-.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8EA0C4;font-weight:700;margin:0}
-h1{font-size:clamp(30px,6vw,46px);margin:10px 0 4px;letter-spacing:-.02em;line-height:1.05}
-.lema{font-size:clamp(19px,3.4vw,26px);color:#8FA6FF;font-weight:600;margin:0 0 10px}
-p.sub{color:#C3CCE0;margin:0 0 30px}
-.card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:22px 24px;margin-bottom:16px}
-h2{font-size:17px;margin:0 0 12px;color:#DCE3FF}
-table{width:100%;border-collapse:collapse;font-size:15px}
-td,th{padding:9px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.09);vertical-align:top}
-th{color:#8EA0C4;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
-tr:last-child td{border-bottom:none}
-.btn{display:inline-flex;align-items:center;gap:9px;background:#6E8BFF;color:#0E1222;text-decoration:none;
-  font-weight:800;padding:14px 22px;border-radius:11px;min-height:44px;font-size:15px}
-.btn:hover{background:#8AA1FF}
-.muted{color:#8E97AC;font-size:14px;margin:14px 0 0}
-.pronto{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  background:rgba(246,173,85,.16);border:1px solid rgba(246,173,85,.45);color:#F8CD9A;padding:4px 10px;border-radius:999px}
-footer{color:#7F8EB0;font-size:13px;margin-top:34px}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=1">
 </head>
 <body>
+
+<header class="top">
+  <div class="in">
+    <a href="#" style="text-decoration:none;color:inherit" class="marca">APP CEIA 2027
+      <small>“Jornadas fin de año” · CEIA Juanita Zúñiga Fuentes</small></a>
+    <nav>
+      <span id="barraUsuario" hidden style="display:flex;gap:10px;align-items:center">
+        <span id="quienSoy" style="font-size:12.5px;text-align:right;line-height:1.25"></span>
+        <button class="btn sm" id="btnSalir" type="button">No soy yo</button>
+      </span>
+      <a class="btn sm" href="#panel">Dirección</a>
+    </nav>
+  </div>
+</header>
+
 <main>
-  <p class="eyebrow">CEIA Juanita Zúñiga Fuentes · SLEP Los Álamos · Parral</p>
-  <h1>APP CEIA 2027</h1>
-  <p class="lema">“Jornadas fin de año”</p>
-  <p class="sub">Las jornadas de mañana, tarde y noche no pueden reunirse, así que el trabajo se hace
-    en línea y a tu ritmo: <strong>cada funcionario responde en su horario</strong>.</p>
 
-  <div class="card">
-    <h2>Las jornadas</h2>
-    <table>
-      <tr><th>Fecha</th><th>Jornada</th><th>Dura</th></tr>
-      <tr><td>Lunes 30 de noviembre</td><td>PEI día 1 · ¿Dónde estamos?</td><td>30 min</td></tr>
-      <tr><td>Martes 1 de diciembre</td><td>PEI día 2 · Casos y acciones</td><td>40 min</td></tr>
-    </table>
-  </div>
+  <!-- 1 · Ingreso -->
+  <section id="vIngreso" class="card" hidden style="max-width:520px;margin:30px auto">
+    <p class="eyebrow">Jornadas de fin de año</p>
+    <h1>Bienvenido(a)</h1>
+    <p class="lead">Las tres jornadas no pueden reunirse, así que el trabajo se hace en línea y a tu ritmo.
+      Identifícate una vez: este equipo te va a recordar.</p>
+    <form id="formIngreso" autocomplete="on">
+      <label class="lbl" for="inNombre">Tu nombre, como aparece en la nómina</label>
+      <input class="in" id="inNombre" name="nombre" autocomplete="name" placeholder="Ej: Araya Chandía Juan José" required>
+      <label class="lbl" for="inCodigo">Tu código personal de 4 dígitos</label>
+      <input class="in" id="inCodigo" name="codigo" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="····">
+      <p class="muted" style="margin:8px 0 16px">Te lo entrega la dirección. Si no lo tienes, pídelo antes de empezar.</p>
+      <button class="btn pri" type="submit" style="width:100%">Entrar</button>
+      <p class="err" id="errIngreso" hidden></p>
+    </form>
+    <p class="muted" style="margin-top:16px">Tus respuestas no se publican aquí: solo las ve la dirección,
+      para el informe de la jornada.</p>
+  </section>
 
-  <div class="card">
-    <h2>Presentación del PEI 2027–2030</h2>
-    <p style="margin:0 0 16px;color:#C3CCE0">44 láminas con narración en audio, 15 minutos y 50 segundos.
-      Puedes escucharla por partes y seguir donde quedaste.</p>
-    <a class="btn" href="pei/index.html">▶ Escuchar la presentación</a>
-  </div>
+  <!-- 2 · Calendario -->
+  <section id="vCalendario" hidden>
+    <div class="card">
+      <p class="eyebrow">Calendario de las jornadas</p>
+      <h1>Elige el día</h1>
+      <p class="lead">Los días con actividad están marcados. Toca uno para ver quiénes participan
+        y abrir el dosier del taller.</p>
+      <div id="miAvance"></div>
+      <div class="leyenda">
+        <span><i class="pt" style="background:var(--verde)"></i> Ya respondiste</span>
+        <span><i class="pt" style="background:var(--ambar)"></i> Abierta hoy</span>
+        <span><i class="pt" style="background:var(--azul)"></i> Por venir</span>
+      </div>
+    </div>
+    <div class="card" id="calendario"></div>
+    <div id="listaJornadas"></div>
+  </section>
 
-  <div class="card">
-    <h2>Actividad de las jornadas <span class="pronto">Pronto</span></h2>
-    <p style="margin:0;color:#C3CCE0">Aquí se abrirá el calendario para elegir el día, buscar tu nombre
-      y responder las matrices del taller.</p>
-  </div>
+  <!-- 3 · Día: nómina -->
+  <section id="vDia" hidden>
+    <div class="card" id="diaCab"></div>
+    <div class="card" id="diaAvance"></div>
+    <div class="card">
+      <h2>Nómina del día</h2>
+      <p class="muted">Los 35 funcionarios participan todos los días. El ✓ marca a quienes ya respondieron.</p>
+      <div class="nomina" id="nomina"></div>
+    </div>
+    <div id="diaBoton"></div>
+  </section>
 
-  <p class="muted">Tus respuestas no se publican en este sitio: solo las ve la dirección, para el informe
-    de la jornada.</p>
-  <footer>Unidad Técnico Pedagógica · CEIA Juanita Zúñiga Fuentes</footer>
+  <!-- 4 · Jornada: dosier y matrices -->
+  <section id="vJornada" hidden>
+    <div class="card" id="jCab"></div>
+    <div class="cols">
+      <div>
+        <div class="card" id="jDosier"></div>
+        <div class="card" id="jCaso" hidden></div>
+        <div class="card">
+          <h2>Matrices de la jornada</h2>
+          <p class="muted">Lo que escribes se guarda en este equipo mientras avanzas. Máximo 2.000 palabras por respuesta.</p>
+          <form id="formJ"></form>
+        </div>
+      </div>
+      <aside class="card tutor">
+        <h2>💡 Tutor de la jornada</h2>
+        <p class="muted" style="margin:0 0 10px">Te da pistas, no respuestas.</p>
+        <label class="sr" for="tutorPregunta">Pregunta sobre la que consultas</label>
+        <select class="in" id="tutorPregunta" style="font-size:13px"></select>
+        <div class="msgs" id="tutorMsgs" aria-live="polite"></div>
+        <div class="chips" id="tutorChips"></div>
+        <form id="tutorForm" style="display:flex;gap:8px;align-items:flex-end">
+          <label class="sr" for="tutorTexto">Escribe tu consulta</label>
+          <textarea class="in" id="tutorTexto" rows="2" maxlength="800" placeholder="Pregúntale algo al tutor…" style="min-height:52px"></textarea>
+          <button class="btn pri" type="submit" aria-label="Enviar" style="padding:12px 15px">➤</button>
+        </form>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 5 · Panel de la dirección -->
+  <section id="vPanel" hidden>
+    <div class="card">
+      <button class="linkbtn" onclick="location.hash=''">← Volver</button>
+      <h1>Panel de la dirección</h1>
+      <p class="lead">El avance de las jornadas y la Ficha de Registro de Evidencia ADP. Solo con clave.</p>
+      <form id="formPanel" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <span style="flex:1 1 220px">
+          <label class="lbl" for="inClave" style="margin-top:0">Clave de la dirección</label>
+          <input class="in" id="inClave" type="password" autocomplete="current-password">
+        </span>
+        <button class="btn pri" type="submit">Ver avance</button>
+      </form>
+      <p class="err" id="errPanel" hidden></p>
+    </div>
+    <div id="panelBody"></div>
+  </section>
+
 </main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js?v=1"></script>
 </body>
 </html>
