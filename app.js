@@ -473,7 +473,7 @@ function verJornada(j) {
     if (!caso) {
       $('#jCaso').innerHTML = `<div class="aviso">Todavía no tienes un caso asignado. Avisa a la dirección.</div>`;
     } else {
-      sim = {caso, paso: 0, decidido: [], abierto: false};
+      sim = {caso, paso: -1, decidido: [], abierto: false};
       pintarCaso();
     }
   }
@@ -1003,6 +1003,7 @@ function pintarCaso() {
   const hitos = caso.hitos || [];
   const total = hitos.length;
 
+  if (paso < 0) return pintarApertura();
   if (paso >= total) return pintarCierre();
 
   const h = hitos[paso];
@@ -1076,6 +1077,46 @@ function pintarCaso() {
   if (sig) sig.addEventListener('click', () => { sim.paso++; sim.abierto = false; pintarCaso(); });
 }
 
+/** Apertura: el lugar donde el estudiante ya no está. Seis segundos, sin
+ *  explicar nada. El clip no se carga hasta que se toca. */
+function pintarApertura() {
+  const {caso} = sim;
+  const n = caso.numero;
+  $('#jCaso').innerHTML = `
+    <div class="simCab">
+      <div>
+        <p class="eyebrow">Caso ${n} de 3 · análisis mes a mes</p>
+        <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
+      </div>
+    </div>
+
+    <article class="tarjeta apertura">
+      <button class="lienzo tapa" type="button" id="simClip" data-n="${n}"
+              aria-label="Reproducir la apertura del caso">
+        <img src="video/caso-${n}.jpg" alt="" loading="lazy">
+        <span class="play" aria-hidden="true">▶</span>
+        <span class="dur">0:06</span>
+      </button>
+      <div class="apTx">
+        <p class="lead" style="margin:0">${esc(caso.ficha)}</p>
+        <div class="aviso" style="margin:14px 0 0"><b>Vas a recorrer el año mes a mes.</b>
+          En cada mes vas a ver solo lo que se sabía en ese momento y vas a decidir qué harías tú,
+          desde tu función. Recién después verás qué pasó en realidad.</div>
+      </div>
+      <footer><button type="button" class="btn pri" id="simIr">Empezar por el primer mes →</button></footer>
+    </article>`;
+
+  $('#simClip').addEventListener('click', (e) => {
+    const b = e.currentTarget;
+    const d = document.createElement('div');
+    d.className = 'lienzo';
+    d.innerHTML = `<video src="video/caso-${b.dataset.n}.mp4" poster="video/caso-${b.dataset.n}.jpg"
+      controls autoplay playsinline></video>`;
+    b.replaceWith(d);
+  }, {once:true});
+  $('#simIr').addEventListener('click', () => { sim.paso = 0; pintarCaso(); });
+}
+
 function pintarCierre() {
   const {caso, decidido} = sim;
   const hitos = caso.hitos || [];
@@ -1131,7 +1172,7 @@ function pintarCierre() {
     <p class="muted" style="margin:14px 0 0">Tus decisiones se guardan junto con tus respuestas: a la dirección le
       sirve saber en qué mes cada función habría actuado, no quién acertó.</p>`;
 
-  $('#simOtra').addEventListener('click', () => { sim.paso = 0; sim.abierto = false; pintarCaso(); });
+  $('#simOtra').addEventListener('click', () => { sim.paso = -1; sim.abierto = false; sim.decidido = []; pintarCaso(); });
 }
 
 /** Resumen de lo decidido, para que viaje junto a las respuestas. */
