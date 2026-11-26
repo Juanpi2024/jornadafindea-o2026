@@ -7,6 +7,7 @@
 
 const API = 'https://igmmdzrumksuuueqtnex.supabase.co/functions/v1/talleres';
 const MAX_PALABRAS = 2000;
+const VIDEO_PEI = '_9ueGDS01u0';   // resumen del PEI, generado con NotebookLM
 const LS_YO = 'jfa_yo_v1';
 const LS_PEND = 'jfa_pendientes_v1';
 const LS_BORR = 'jfa_borrador_';
@@ -320,26 +321,50 @@ function verDia(j) {
     <h2>Material de la jornada</h2>
     <p class="muted">Puedes verlo y escucharlo ahora mismo, sin identificarte.
       Es el documento sobre el que vas a trabajar.</p>
-    <a class="mini" href="pei/index.html" target="_blank" rel="noopener">
-      <span class="lienzo">
-        <span class="lam">
-          <span class="lamTag">CEIA Juanita Zúñiga Fuentes · Parral</span>
-          <span class="lamTit">Proyecto Educativo Institucional<br>2027–2030</span>
-          <span class="lamSub">Principales novedades · Jornada de apropiación</span>
+    <div class="materiales">
+      <a class="mini" href="pei/index.html" target="_blank" rel="noopener">
+        <span class="lienzo">
+          <span class="lam">
+            <span class="lamTag">CEIA Juanita Zúñiga Fuentes · Parral</span>
+            <span class="lamTit">Proyecto Educativo Institucional<br>2027–2030</span>
+            <span class="lamSub">Principales novedades · Jornada de apropiación</span>
+          </span>
+          <span class="play" aria-hidden="true">▶</span>
+          <span class="dur">15:50</span>
         </span>
-        <span class="play" aria-hidden="true">▶</span>
-        <span class="dur">15:50</span>
-      </span>
-      <span class="miniPie">
-        <b>Presentación del PEI 2027–2030, narrada</b>
-        <small>44 láminas con audio · avanza a tu ritmo, puedes pausar y volver atrás</small>
-      </span>
-    </a>
+        <span class="miniPie">
+          <b>Presentación del PEI, narrada</b>
+          <small>44 láminas con audio · avanza a tu ritmo, puedes pausar y volver atrás</small>
+        </span>
+      </a>
+
+      <div class="mini" id="videoPei">
+        <button class="lienzo tapa" type="button" data-yt="${VIDEO_PEI}"
+                aria-label="Reproducir el resumen en video del PEI">
+          <img src="https://i.ytimg.com/vi/${VIDEO_PEI}/hqdefault.jpg" alt="" loading="lazy">
+          <span class="play" aria-hidden="true">▶</span>
+          <span class="dur">YouTube</span>
+        </button>
+        <span class="miniPie">
+          <b>Resumen del PEI en video</b>
+          <small>Versión corta y conversada, si prefieres escuchar antes de leer</small>
+        </span>
+      </div>
+    </div>
     ${j.descripcion ? `<div class="info" style="margin-top:12px">${esc(j.descripcion)}</div>` : ''}
     <div class="aviso" style="margin-top:12px">
       <b>Horario de esta jornada:</b> abre a las 08:00 y cierra a la medianoche del
       ${esc(fdateLarga(j.fecha))}. Respóndela dentro de tu turno de trabajo.
     </div>`;
+
+  const tapa = document.querySelector('#videoPei .tapa');
+  if (tapa) tapa.addEventListener('click', () => {
+    const d = document.createElement('div');
+    d.className = 'lienzo';
+    d.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${tapa.dataset.yt}?autoplay=1&rel=0"
+      title="Resumen del PEI en video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    tapa.replaceWith(d);
+  }, {once:true});
 
   $('#buscaNomina').value = '';
   pintarNomina(j, '');
