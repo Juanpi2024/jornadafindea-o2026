@@ -505,7 +505,7 @@ function verJornada(j) {
   $('#jCaso').hidden = !usaCaso;
   if (usaCaso) {
     if (!caso) {
-      $('#jCaso').innerHTML = `<div class="aviso">Todavía no tienes un caso asignado. Avisa a la dirección.</div>`;
+      $('#jCaso').innerHTML = `<div class="aviso">Todavía no tienes un caso asignado. Avisa al equipo directivo.</div>`;
     } else {
       sim = {caso, paso: -1, decidido: [], abierto: false};
       pintarCaso();
@@ -619,7 +619,7 @@ async function enviar(j) {
     return;
   }
   const items = j.preguntas.map(p => ({id:p.id, enunciado:p.enunciado, informe:p.informe||'', respuesta:resp[p.id]||''}));
-  // El recorrido mes a mes viaja junto a las respuestas: a la dirección le sirve
+  // El recorrido mes a mes viaja junto a las respuestas: al equipo directivo le sirve
   // saber en qué mes habría actuado cada función.
   const rec = resumenSim();
   if (rec) items.push({id:'sim', enunciado:'Recorrido mes a mes del caso: en qué mes habría actuado', informe:'', respuesta:rec});
@@ -1215,7 +1215,7 @@ function pintarCierre() {
       ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>Cómo terminó:</b> ${esc(caso.resultado)}</div>` : ''}
     </article>
 
-    <p class="muted" style="margin:14px 0 0">Tus decisiones se guardan junto con tus respuestas: a la dirección le
+    <p class="muted" style="margin:14px 0 0">Tus decisiones se guardan junto con tus respuestas: al equipo directivo le
       sirve saber en qué mes cada función habría actuado, no quién acertó.</p>`;
 
   $('#simOtra').addEventListener('click', () => { sim.paso = -1; sim.abierto = false; sim.decidido = []; pintarCaso(); });

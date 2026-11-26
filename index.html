@@ -19,10 +19,10 @@
       <small>“Jornadas fin de año” · CEIA Juanita Zúñiga Fuentes</small></a>
     <nav>
       <span id="barraUsuario" hidden style="display:flex;gap:10px;align-items:center">
-        <span id="quienSoy" style="font-size:12.5px;text-align:right;line-height:1.25"></span>
+        <span id="quienSoy"></span>
         <button class="btn sm" id="btnSalir" type="button">No soy yo</button>
       </span>
-      <a class="btn sm" href="#panel">Dirección</a>
+      <a class="btn sm" href="#panel">Equipo directivo</a>
     </nav>
   </div>
 </header>
@@ -43,7 +43,7 @@
       <button class="btn pri" type="submit" style="width:100%">Entrar</button>
       <p class="err" id="errCodigo" hidden></p>
     </form>
-    <p class="muted" style="margin-top:16px">Tus respuestas no se publican aquí: solo las ve la dirección,
+    <p class="muted" style="margin-top:16px">Tus respuestas no se publican aquí: solo las ve el equipo directivo,
       para el informe de la jornada.</p>
   </section>
 
@@ -100,15 +100,15 @@
     </div>
   </section>
 
-  <!-- 5 · Panel de la dirección -->
+  <!-- 5 · Panel del equipo directivo -->
   <section id="vPanel" hidden>
     <div class="card">
       <button class="linkbtn" onclick="location.hash=''">← Volver</button>
-      <h1>Panel de la dirección</h1>
+      <h1>Panel del equipo directivo</h1>
       <p class="lead">El avance de las jornadas y la Ficha de Registro de Evidencia ADP. Solo con clave.</p>
       <form id="formPanel" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
         <span style="flex:1 1 220px">
-          <label class="lbl" for="inClave" style="margin-top:0">Clave de la dirección</label>
+          <label class="lbl" for="inClave" style="margin-top:0">Clave del equipo directivo</label>
           <input class="in" id="inClave" type="password" autocomplete="current-password">
         </span>
         <button class="btn pri" type="submit">Ver avance</button>
