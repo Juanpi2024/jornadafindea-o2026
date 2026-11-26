@@ -340,9 +340,13 @@ function verCalendario() {
     const candado = st === 'lista' ? '✓' : st === 'abierta' ? '🔓' : '🔒';
     const tit = st === 'abierta' ? 'Abierta hoy' : st === 'lista' ? 'Ya respondida'
               : st === 'porvenir' ? 'Se abre el ' + fdateLarga(j.fecha) : 'Cerrada: la actividad era el ' + fdateLarga(j.fecha);
-    return `<a class="dia jor ${tono}${hoyCl}" href="#dia-${esc(j.id)}" title="${esc(j.titulo)} · ${esc(tit)}">
+    // La sigla identifica el tema de la jornada en la casilla: PEI, RICE…
+    const sigla = j.sigla || j.titulo.split(' ')[0];
+    const resto = j.titulo.replace(sigla, '').split('·')[0].trim() || j.subtitulo || '';
+    return `<a class="dia jor tema-${esc(sigla.toLowerCase())} ${tono}${hoyCl}" href="#dia-${esc(j.id)}"
+      title="${esc(j.titulo)} · ${esc(tit)}">
       <span class="cand" aria-hidden="true">${candado}</span>
-      ${num}<span class="eti">${esc(j.titulo.replace(/^PEI /,'').slice(0,22))}</span></a>`;
+      ${num}<span class="sigla">${esc(sigla)}</span><span class="eti">${esc(resto.slice(0,16))}</span></a>`;
   };
 
   const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;
@@ -553,7 +557,7 @@ function verJornada(j) {
   vista('vJornada');
   const reg = hechas(j.id);
   const prev = (reg && itemsAObjeto(reg.items)) || ls.get(LS_BORR + j.id, {});
-  const caso = app.datos.caso;
+  const caso = (app.datos.casos || {})[j.id] || app.datos.caso;
   const usaCaso = j.preguntas.some(p => p.id.startsWith('c'));
 
   $('#jCab').innerHTML = `
@@ -581,13 +585,16 @@ function verJornada(j) {
     <p class="muted" style="margin:10px 0 0">Además del trabajo común, tienes preguntas propias de tu función
       y el caso donde esa función era clave. Nadie compara perfiles entre sí.</p>` : '';
 
-  // Presentación y documentos
+  // Presentación y documentos: cada tema trae el suyo.
+  const mat = MATERIAL[j.sigla || 'PEI'] || null;
   $('#jDosier').innerHTML = `
     ${banda}
     <h2${pf?' style="margin-top:18px"':''}>Dosier del día</h2>
-    <a class="btn" style="width:100%;margin-bottom:8px" href="pei/index.html" target="_blank" rel="noopener">
-      ▶ Presentación del PEI con audio · 44 láminas, 15:50</a>
-    <p class="muted" style="margin:0">Escúchala antes de responder. Puedes pausarla y seguir donde quedaste.</p>`;
+    ${mat ? `<a class="btn" style="width:100%;margin-bottom:8px" href="${esc(mat.url)}" target="_blank" rel="noopener">
+      ▶ ${esc(mat.titulo)}</a>
+    <p class="muted" style="margin:0">${esc(mat.nota)}</p>`
+    : `<div class="aviso" style="margin:0">La presentación y los videos de esta jornada se publican aquí
+      antes del día. Puedes responder igual: las preguntas no dependen de ese material.</div>`}`;
 
   // El caso, mes a mes
   $('#jCaso').hidden = !usaCaso;
@@ -710,7 +717,7 @@ async function enviar(j) {
   // El recorrido mes a mes viaja junto a las respuestas: al equipo directivo le sirve
   // saber en qué mes habría actuado cada función.
   const rec = resumenSim();
-  if (rec) items.push({id:'sim', enunciado:'Recorrido mes a mes del caso: en qué mes habría actuado', informe:'', respuesta:rec});
+  if (rec) items.push({id:'sim', enunciado:'Recorrido del caso: en qué punto habría actuado', informe:'', respuesta:rec});
   // Datos internos para el panel. Empiezan con "_" y no se muestran como respuestas.
   if (abrioDosier) items.push({id:'_tiempo', enunciado:'Minutos en la plataforma', informe:'',
     respuesta: String(Math.max(1, Math.round((Date.now() - abrioDosier)/1000)))});
@@ -980,6 +987,12 @@ async function abrirPanel(e) {
    y se imprimen bien.
    ==================================================================== */
 
+// El dosier de cada tema. El de RICE se agrega cuando llegue el material.
+const MATERIAL = {
+  PEI: {url:'pei/index.html', titulo:'Presentación del PEI con audio · 44 láminas, 15:50',
+        nota:'Escúchala antes de responder. Puedes pausarla y seguir donde quedaste.'},
+};
+
 const PAL = ['#6E8BFF','#4FD1C5','#F6AD55','#A78BFA','#F56C6C','#63B3ED'];
 const mediana = (a) => { if (!a.length) return 0; const b=[...a].sort((x,y)=>x-y); const m=b.length>>1;
   return b.length%2 ? b[m] : Math.round((b[m-1]+b[m])/2); };
@@ -1108,8 +1121,8 @@ function pintarPanel() {
         <p class="muted" style="margin:10px 0 0">El número es cuántos de ese perfil ya participaron.</p></div>
     </div>
 
-    <div class="card"><h2>En qué mes habría actuado cada uno</h2>
-      <p class="muted">Del recorrido mes a mes del caso. Es el dato que no existía antes:
+    <div class="card"><h2>En qué punto habría actuado cada uno</h2>
+      <p class="muted">Del recorrido del caso. Es el dato que no existía antes:
         muestra cuánto antes se habría movido la ficha si cada función hubiera tenido cómo.</p>
       ${columnas(meses)}
       ${meses.length ? `<div class="leyenda">${meses.map(m => `<span><b>${esc(m.k)}</b>: ${
@@ -1320,7 +1333,9 @@ const OPCIONES = [
   {id:'otro',     txt:'No me corresponde a mí',   sub:'En mi puesto no tengo cómo intervenir en esto.'}
 ];
 
-const COLOR = {grave:'var(--rojo)', alerta:'var(--ambar)', bien:'var(--verde)', neutro:'var(--azul)'};
+const COLOR = {critico:'#A31515', grave:'var(--rojo)', alerta:'var(--ambar)',
+               bien:'var(--verde)', neutro:'var(--azul)'};
+const NIVEL = {critico:'Crítico', grave:'Grave', alerta:'Señal', bien:'Sin novedad'};
 
 function pintarCaso() {
   const {caso, paso, decidido, abierto} = sim;
@@ -1355,7 +1370,7 @@ function pintarCaso() {
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${caso.numero} de 3 · análisis mes a mes</p>
+        <p class="eyebrow">Caso ${caso.numero} de 3 · análisis ${esc(caso.eje || "mes a mes")}</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
       <span class="simPaso">${paso+1} <i>/ ${total}</i></span>
@@ -1369,13 +1384,13 @@ function pintarCaso() {
     <article class="tarjeta" style="--acento:${col}">
       <header>
         <span class="mes">${esc(h.cuando)}</span>
-        <span class="nivel" style="background:${col}">${h.nivel==='grave'?'Crítico':h.nivel==='alerta'?'Señal':h.nivel==='bien'?'Sin novedad':'Decisión'}</span>
+        <span class="nivel" style="background:${col}">${NIVEL[h.nivel] || 'Decisión'}</span>
       </header>
       <p class="rel">${esc(h.que)}</p>
       ${datos ? `<div class="datos">${datos}</div>` : ''}
 
       <div class="pregunta">
-        <p class="pq">Con lo que sabes hasta <b>este</b> mes, y desde tu función: ¿qué haces?</p>
+        <p class="pq">Con lo que sabes hasta <b>aquí</b>, y desde tu función: ¿qué haces?</p>
         <p class="pqn">No hay respuesta correcta. Lo que interesa es en qué punto <b>tú</b> sentiste
           que había suficiente para moverte, porque ese punto es distinto en cada función.</p>
         <div class="opciones">${opciones}</div>
@@ -1384,7 +1399,7 @@ function pintarCaso() {
       ${abierto ? `
         <div class="revela">
           <p class="rk">Qué se sabía en ese momento</p>
-          <p class="rt">${esc(h.quien || 'No quedó registro de este mes.')}</p>
+          <p class="rt">${esc(h.quien || 'No quedó registro de este punto.')}</p>
         </div>
         ${h.oportunidad ? `<div class="oport">
           <p class="ok">Aquí hay algo que se puede construir</p>
@@ -1412,11 +1427,12 @@ function pintarCaso() {
  *  explicar nada. El clip no se carga hasta que se toca. */
 function pintarApertura() {
   const {caso} = sim;
-  const n = caso.numero;
+  const n = caso.video || ('caso-' + caso.numero);
+  const eje = caso.eje || 'mes a mes';
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${n} de 3 · análisis mes a mes</p>
+        <p class="eyebrow">Caso ${caso.numero} de 3 · análisis ${esc(eje)}</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
     </div>
@@ -1424,24 +1440,26 @@ function pintarApertura() {
     <article class="tarjeta apertura">
       <button class="lienzo tapa" type="button" id="simClip" data-n="${n}"
               aria-label="Reproducir la apertura del caso">
-        <img src="video/caso-${n}.jpg" alt="" loading="lazy">
+        <img src="video/${n}.jpg" alt="" loading="lazy"
+             onerror="this.closest('.tapa').remove()">
         <span class="play" aria-hidden="true">▶</span>
         <span class="dur">0:06</span>
       </button>
       <div class="apTx">
         <p class="lead" style="margin:0">${esc(caso.ficha)}</p>
-        <div class="aviso" style="margin:14px 0 0"><b>Vas a recorrer el año mes a mes.</b>
-          En cada mes vas a ver solo lo que se sabía en ese momento y vas a decidir qué harías tú,
-          desde tu función. Recién después verás qué pasó en realidad.</div>
+        <div class="aviso" style="margin:14px 0 0"><b>Vas a recorrer el caso ${esc(eje)}.</b>
+          En cada paso ves solo lo que se sabía en ese momento y decides qué harías tú, desde tu
+          función. Esto no es para buscar culpables: es para encontrar qué nos habría ayudado.</div>
       </div>
-      <footer><button type="button" class="btn pri" id="simIr">Empezar por el primer mes →</button></footer>
+      <footer><button type="button" class="btn pri" id="simIr">Empezar por el primer paso →</button></footer>
     </article>`;
 
-  $('#simClip').addEventListener('click', (e) => {
+  const clip = $('#simClip');
+  if (clip) clip.addEventListener('click', (e) => {
     const b = e.currentTarget;
     const d = document.createElement('div');
     d.className = 'lienzo';
-    d.innerHTML = `<video src="video/caso-${b.dataset.n}.mp4" poster="video/caso-${b.dataset.n}.jpg"
+    d.innerHTML = `<video src="video/${b.dataset.n}.mp4" poster="video/${b.dataset.n}.jpg"
       controls autoplay playsinline></video>`;
     b.replaceWith(d);
   }, {once:true});
