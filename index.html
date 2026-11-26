@@ -96,19 +96,6 @@
           <form id="formJ"></form>
         </div>
       </div>
-      <aside class="card tutor">
-        <h2>💡 Tutor de la jornada</h2>
-        <p class="muted" style="margin:0 0 10px">Te da pistas, no respuestas.</p>
-        <label class="sr" for="tutorPregunta">Pregunta sobre la que consultas</label>
-        <select class="in" id="tutorPregunta" style="font-size:13px"></select>
-        <div class="msgs" id="tutorMsgs" aria-live="polite"></div>
-        <div class="chips" id="tutorChips"></div>
-        <form id="tutorForm" style="display:flex;gap:8px;align-items:flex-end">
-          <label class="sr" for="tutorTexto">Escribe tu consulta</label>
-          <textarea class="in" id="tutorTexto" rows="2" maxlength="800" placeholder="Pregúntale algo al tutor…" style="min-height:52px"></textarea>
-          <button class="btn pri" type="submit" aria-label="Enviar" style="padding:12px 15px">➤</button>
-        </form>
-      </aside>
     </div>
   </section>
 
@@ -129,6 +116,33 @@
     </div>
     <div id="panelBody"></div>
   </section>
+
+
+  <!-- Tutor flotante: vive encima de la página, no ocupa columna -->
+  <div id="tutorFlota" hidden>
+    <div class="globo" id="tutorGlobo" hidden></div>
+    <button class="burbuja" id="tutorBtn" type="button" aria-label="Abrir el tutor de la jornada">
+      <span aria-hidden="true">💬</span>
+    </button>
+  </div>
+
+  <aside class="panelTutor" id="tutorPanel" hidden aria-label="Tutor de la jornada">
+    <header class="ptCab">
+      <div><b>Tutor de la jornada</b><small>Te da pistas, no respuestas.</small></div>
+      <button class="ptX" id="tutorCerrar" type="button" aria-label="Cerrar el tutor">✕</button>
+    </header>
+    <div class="ptCuerpo">
+      <label class="sr" for="tutorPregunta">Pregunta sobre la que consultas</label>
+      <select class="in" id="tutorPregunta" style="font-size:13px"></select>
+      <div class="msgs" id="tutorMsgs" aria-live="polite"></div>
+      <div class="chips" id="tutorChips"></div>
+      <form id="tutorForm" style="display:flex;gap:8px;align-items:flex-end">
+        <label class="sr" for="tutorTexto">Escribe tu consulta</label>
+        <textarea class="in" id="tutorTexto" rows="2" maxlength="800" placeholder="Pregúntale algo al tutor…" style="min-height:52px"></textarea>
+        <button class="btn pri" type="submit" aria-label="Enviar" style="padding:12px 15px">➤</button>
+      </form>
+    </div>
+  </aside>
 
 </main>
 

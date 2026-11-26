@@ -72,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (f) elegir(f.dataset.nombre);
   });
   $('#buscaNomina').addEventListener('input', (e) => pintarNomina(app.jornada, e.target.value));
+  $('#tutorBtn').addEventListener('click', () => abrirTutor());
+  $('#tutorGlobo').addEventListener('click', () => abrirTutor($('#tutorGlobo').dataset.p || ''));
+  $('#tutorCerrar').addEventListener('click', cerrarTutor);
   window.addEventListener('hashchange', ruta);
   window.addEventListener('online', reintentar);
   arrancar();
@@ -81,6 +84,9 @@ const VISTAS = ['vCodigo','vCalendario','vDia','vJornada','vPanel'];
 function vista(id) {
   VISTAS.forEach(v => { const n = $('#'+v); if (n) n.hidden = (v !== id); });
   $('#barraUsuario').hidden = !app.yo;
+  const enDosier = (id === 'vJornada');
+  $('#tutorFlota').hidden = !enDosier;
+  if (!enDosier) { $('#tutorPanel').hidden = true; esconderGlobo(); }
 }
 
 /** Arranque público: el calendario y la nómina se ven sin pedir nada.
@@ -415,8 +421,10 @@ function verJornada(j) {
   document.querySelectorAll('#formJ textarea[data-c]').forEach(t => {
     const p = () => contador(t); t.addEventListener('input', p); p();
   });
-  document.querySelectorAll('#formJ [data-pista]').forEach(b =>
-    b.addEventListener('click', () => { $('#tutorPregunta').value = b.dataset.pista; pedirTutor('pista'); }));
+  // Al pararse en una pregunta, el tutor asoma un globo. No consulta nada:
+  // es solo una invitación. El gasto ocurre si la persona decide tocarlo.
+  document.querySelectorAll('#formJ [name]').forEach(c =>
+    c.addEventListener('focus', () => asomar(c.getAttribute('name'))));
 
   prepararTutor(j);
   window.scrollTo(0,0);
@@ -431,9 +439,7 @@ function itemsAObjeto(items) {
 function campo(p, n, val) {
   const req = p.opcional ? '' : 'required';
   const secc = p.informe ? `<span class="secc">${esc({fortalezas:'Fortalezas',areasMejora:'Mejoras',acciones:'Acciones',impacto:'Impacto'}[p.informe]||p.informe)}</span>` : '';
-  const pista = p.tipo === 'confirmacion' ? '' :
-    `<button type="button" class="chip" data-pista="${esc(p.id)}" style="margin-left:6px;min-height:30px;padding:4px 10px;font-size:11.5px">💡 Pista</button>`;
-  const cab = `<p class="enun"><span class="qn">${n}</span><span style="flex:1">${esc(p.enunciado)}${pista}</span>${secc}</p>`;
+  const cab = `<p class="enun"><span class="qn">${n}</span><span style="flex:1">${esc(p.enunciado)}</span>${secc}</p>`;
 
   if (p.tipo === 'escala') {
     const o = [1,2,3,4,5].map(v =>
@@ -522,6 +528,55 @@ async function reintentar() {
   if (quedan.length < p.length) { toast('✓ Se enviaron las respuestas que estaban pendientes.'); cargar(); }
 }
 
+/* ---------------------------------------------------- asistente flotante */
+/* El globo es gratis: sale de la app, nunca del servidor. Solo invita.
+   La consulta de verdad se paga cuando la persona abre el tutor y pregunta. */
+let globoTimer = null;
+let globoVisto = {};
+
+const INVITA = [
+  'Si tienes dudas con esta, pregúntame.',
+  '¿Te trabaste? Puedo darte una pista.',
+  '¿No se entiende la pregunta? Te la explico.',
+  'Cuando tengas un borrador, te lo reviso.',
+  '¿Quieres saber qué dice el PEI de esto?'
+];
+
+function esconderGlobo() {
+  if (globoTimer) { clearTimeout(globoTimer); globoTimer = null; }
+  const g = $('#tutorGlobo');
+  if (g) g.hidden = true;
+}
+
+/** Asoma el globo junto a una pregunta. Una vez por pregunta, para no cansar. */
+function asomar(pid) {
+  if (!pid || globoVisto[pid]) return;
+  if (!$('#tutorPanel').hidden) return;        // ya está conversando
+  globoVisto[pid] = true;
+  const g = $('#tutorGlobo');
+  const i = Object.keys(globoVisto).length - 1;
+  g.dataset.p = pid;
+  g.innerHTML = `<b>Tutor</b>${esc(INVITA[i % INVITA.length])}`;
+  g.hidden = false;
+  $('#tutorBtn').classList.add('late');
+  if (globoTimer) clearTimeout(globoTimer);
+  globoTimer = setTimeout(() => {
+    g.hidden = true;
+    $('#tutorBtn').classList.remove('late');
+  }, 9000);
+}
+
+function abrirTutor(pid) {
+  esconderGlobo();
+  $('#tutorBtn').classList.remove('late');
+  if (pid) { const sel = $('#tutorPregunta'); if ([...sel.options].some(o => o.value === pid)) sel.value = pid; }
+  $('#tutorPanel').hidden = false;
+  const c = $('#tutorMsgs'); if (c) c.scrollTop = c.scrollHeight;
+  setTimeout(() => { try { $('#tutorTexto').focus(); } catch(e){} }, 60);
+}
+
+function cerrarTutor() { $('#tutorPanel').hidden = true; }
+
 /* ---------------------------------------------------------- tutor */
 const MODOS = {
   pista:   {chip:'💡 Dame una pista',    msg:'Dame una pista para esta pregunta.'},
@@ -531,6 +586,9 @@ const MODOS = {
 };
 
 function prepararTutor(j) {
+  globoVisto = {};
+  $('#tutorPanel').hidden = true;
+  esconderGlobo();
   const ps = j.preguntas.filter(p => p.tipo !== 'confirmacion');
   $('#tutorPregunta').innerHTML = ps.map((p,i) =>
     `<option value="${esc(p.id)}">${i+1}. ${esc(p.enunciado.slice(0,62))}${p.enunciado.length>62?'…':''}</option>`).join('');
