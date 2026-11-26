@@ -433,26 +433,14 @@ function verJornada(j) {
       ▶ Presentación del PEI con audio · 44 láminas, 15:50</a>
     <p class="muted" style="margin:0">Escúchala antes de responder. Puedes pausarla y seguir donde quedaste.</p>`;
 
-  // Ficha del caso
+  // El caso, mes a mes
   $('#jCaso').hidden = !usaCaso;
   if (usaCaso) {
     if (!caso) {
       $('#jCaso').innerHTML = `<div class="aviso">Todavía no tienes un caso asignado. Avisa a la dirección.</div>`;
     } else {
-      const pend = /POR COMPLETAR/i.test(caso.titulo);
-      $('#jCaso').innerHTML = `
-        <h2>Tu caso: N° ${caso.numero} de 3</h2>
-        ${pend ? `<div class="aviso">Este caso todavía no tiene su contenido real cargado.</div>` : ''}
-        <div class="aviso" style="margin-bottom:12px"><b>Caso real, anonimizado.</b> No aparece ningún nombre y no debes
-          escribir ninguno. Analizamos el procedimiento del establecimiento, nunca a un colega ni a un estudiante.</div>
-        <p class="lead">${esc(caso.ficha)}</p>
-        ${(caso.hitos||[]).map(h => {
-          const col = h.nivel==='grave' ? 'var(--rojo)' : h.nivel==='alerta' ? 'var(--ambar)' : 'var(--verde)';
-          return `<div class="hito"><span class="bar"><i style="background:${col}"></i><u></u></span>
-            <span class="tx"><b style="color:${col}">${esc(h.cuando)}</b>
-            <span>${esc(h.que)}</span><small>${esc(h.quien||'')}</small></span></div>`;
-        }).join('')}
-        ${caso.resultado ? `<div class="info"><b>Resultado:</b> ${esc(caso.resultado)}</div>` : ''}`;
+      sim = {caso, paso: 0, decidido: [], abierto: false};
+      pintarCaso();
     }
   }
 
@@ -551,6 +539,10 @@ async function enviar(j) {
     return;
   }
   const items = j.preguntas.map(p => ({id:p.id, enunciado:p.enunciado, informe:p.informe||'', respuesta:resp[p.id]||''}));
+  // El recorrido mes a mes viaja junto a las respuestas: a la dirección le sirve
+  // saber en qué mes habría actuado cada función.
+  const rec = resumenSim();
+  if (rec) items.push({id:'sim', enunciado:'Recorrido mes a mes del caso: en qué mes habría actuado', informe:'', respuesta:rec});
   const btn = $('#formJ').querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent = 'Enviando…';
   try {
@@ -950,4 +942,174 @@ function csv() {
   const a = document.createElement('a');
   a.href = u; a.download = 'jornadas_respuestas.csv'; a.click();
   setTimeout(() => URL.revokeObjectURL(u), 2000);
+}
+
+
+/* ====================================================================
+   El caso, mes a mes
+   La ficha completa regala el final: con el desenlace a la vista
+   cualquiera dice "había que actuar antes". Aquí el mes se vive con la
+   información que existía ESE mes, se decide, y recién entonces se ve
+   qué pasó. Al final cada uno se compara consigo mismo, no con un colega.
+   ==================================================================== */
+
+let sim = null;
+
+const OPCIONES = [
+  {id:'nada',     txt:'Todavía nada',            sub:'Puede ser algo puntual. Espero a ver cómo sigue.'},
+  {id:'registro', txt:'Lo registro y lo informo', sub:'Lo dejo por escrito y se lo paso a quien corresponda.'},
+  {id:'contacto', txt:'Lo abordo yo',             sub:'Desde mi función, hablo o me acerco directamente.'},
+  {id:'otro',     txt:'No me corresponde a mí',   sub:'En mi puesto no tengo cómo intervenir en esto.'}
+];
+
+const COLOR = {grave:'var(--rojo)', alerta:'var(--ambar)', bien:'var(--verde)', neutro:'var(--azul)'};
+
+function pintarCaso() {
+  const {caso, paso, decidido, abierto} = sim;
+  const hitos = caso.hitos || [];
+  const total = hitos.length;
+
+  if (paso >= total) return pintarCierre();
+
+  const h = hitos[paso];
+  const col = COLOR[h.nivel] || 'var(--azul)';
+  const yaDecidio = decidido[paso] != null;
+
+  const puntos = hitos.map((x, i) => {
+    const cl = i < paso ? 'ok' : i === paso ? 'hoy' : '';
+    return `<span class="pt ${cl}" style="${i < paso ? 'background:'+(COLOR[x.nivel]||'var(--azul)') : ''}"></span>`;
+  }).join('');
+
+  const datos = (h.datos || []).map(d => `
+    <div class="dato">
+      <span class="dk">${esc(d.k)}</span>
+      <span class="dv">${esc(d.v)}</span>
+      ${d.pct != null ? `<span class="dbar"><i style="width:${Math.max(3,Math.min(100,d.pct))}%;background:${col}"></i></span>` : ''}
+    </div>`).join('');
+
+  const opciones = OPCIONES.map(o => `
+    <button type="button" class="opc${decidido[paso]===o.id?' sel':''}" data-o="${o.id}" ${abierto?'disabled':''}>
+      <span class="mk"></span>
+      <span><b>${esc(o.txt)}</b><small>${esc(o.sub)}</small></span>
+    </button>`).join('');
+
+  $('#jCaso').innerHTML = `
+    <div class="simCab">
+      <div>
+        <p class="eyebrow">Caso ${caso.numero} de 3 · análisis mes a mes</p>
+        <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
+      </div>
+      <span class="simPaso">${paso+1} <i>/ ${total}</i></span>
+    </div>
+
+    <div class="aviso" style="margin:12px 0 16px"><b>Caso real, anonimizado.</b> No aparece ningún nombre y no
+      debes escribir ninguno. Analizamos el procedimiento del establecimiento, nunca a un colega ni a un estudiante.</div>
+
+    <div class="simPuntos">${puntos}</div>
+
+    <article class="tarjeta" style="--acento:${col}">
+      <header>
+        <span class="mes">${esc(h.cuando)}</span>
+        <span class="nivel" style="background:${col}">${h.nivel==='grave'?'Crítico':h.nivel==='alerta'?'Señal':h.nivel==='bien'?'Sin novedad':'Decisión'}</span>
+      </header>
+      <p class="rel">${esc(h.que)}</p>
+      ${datos ? `<div class="datos">${datos}</div>` : ''}
+
+      <div class="pregunta">
+        <p class="pq">Con lo que sabes hasta <b>este</b> mes, y desde tu función: ¿qué haces?</p>
+        <div class="opciones">${opciones}</div>
+      </div>
+
+      ${abierto ? `
+        <div class="revela">
+          <p class="rk">Lo que ocurrió en realidad</p>
+          <p class="rt">${esc(h.quien || 'No hay registro de que alguien interviniera.')}</p>
+        </div>` : ''}
+
+      <footer>
+        ${abierto
+          ? `<button type="button" class="btn pri" id="simSig">${paso+1 < total ? 'Avanzar al mes siguiente →' : 'Ver cómo me fue →'}</button>`
+          : `<button type="button" class="btn pri" id="simVer" ${yaDecidio?'':'disabled'}>
+               ${yaDecidio ? 'Ver qué pasó' : 'Elige una opción para continuar'}</button>`}
+      </footer>
+    </article>`;
+
+  document.querySelectorAll('#jCaso .opc').forEach(b =>
+    b.addEventListener('click', () => { sim.decidido[sim.paso] = b.dataset.o; pintarCaso(); }));
+  const ver = $('#simVer');
+  if (ver) ver.addEventListener('click', () => { sim.abierto = true; pintarCaso(); });
+  const sig = $('#simSig');
+  if (sig) sig.addEventListener('click', () => { sim.paso++; sim.abierto = false; pintarCaso(); });
+}
+
+function pintarCierre() {
+  const {caso, decidido} = sim;
+  const hitos = caso.hitos || [];
+
+  // Primer mes en que la persona habría movido la ficha.
+  const miMes = decidido.findIndex(d => d === 'registro' || d === 'contacto');
+  // Primer mes en que el caso ya estaba en rojo.
+  const mesGrave = hitos.findIndex(h => h.nivel === 'grave');
+  const nombre = (hitos[miMes] || {}).cuando;
+  const nombreGrave = (hitos[mesGrave] || {}).cuando;
+
+  const ventaja = (miMes >= 0 && mesGrave >= 0) ? mesGrave - miMes : null;
+
+  const veredicto = miMes < 0
+    ? `<p class="vt">No interviniste en ningún mes. Puede ser lo correcto si en tu puesto efectivamente
+       no hay por dónde: eso también es un hallazgo, y vale la pena que quede escrito.</p>`
+    : ventaja > 0
+      ? `<p class="vt">Tú habrías movido la ficha en <b>${esc(nombre)}</b>.
+         El caso llegó a rojo en <b>${esc(nombreGrave)}</b>.
+         Eso es una ventaja de <b>${ventaja} ${ventaja===1?'mes':'meses'}</b>.</p>
+         <p class="vs">La pregunta que sigue no es quién falló. Es qué tendría que existir en el CEIA para que
+         esa intervención ocurriera sola, sin depender de que alguien se diera cuenta.</p>`
+      : `<p class="vt">Habrías intervenido en <b>${esc(nombre)}</b>, cuando el caso ya estaba en rojo.
+         Mirado desde dentro del mes, casi nunca es evidente: por eso el procedimiento no puede depender
+         de que alguien lo note a tiempo.</p>`;
+
+  const linea = hitos.map((h, i) => {
+    const col = COLOR[h.nivel] || 'var(--azul)';
+    const d = decidido[i];
+    const act = d === 'registro' || d === 'contacto';
+    return `<div class="fila">
+      <span class="fm">${esc(h.cuando)}</span>
+      <span class="fb" style="background:${col}"></span>
+      <span class="fd ${act?'act':''}">${d ? esc((OPCIONES.find(o=>o.id===d)||{}).txt) : '—'}</span>
+    </div>`;
+  }).join('');
+
+  $('#jCaso').innerHTML = `
+    <div class="simCab">
+      <div>
+        <p class="eyebrow">Caso ${caso.numero} de 3 · tu recorrido</p>
+        <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
+      </div>
+      <button type="button" class="linkbtn" id="simOtra">Volver a empezar</button>
+    </div>
+
+    <article class="tarjeta cierre">
+      ${veredicto}
+      <div class="linea">${linea}</div>
+      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>Cómo terminó:</b> ${esc(caso.resultado)}</div>` : ''}
+    </article>
+
+    <p class="muted" style="margin:14px 0 0">Tus decisiones se guardan junto con tus respuestas: a la dirección le
+      sirve saber en qué mes cada función habría actuado, no quién acertó.</p>`;
+
+  $('#simOtra').addEventListener('click', () => { sim.paso = 0; sim.abierto = false; pintarCaso(); });
+}
+
+/** Resumen de lo decidido, para que viaje junto a las respuestas. */
+function resumenSim() {
+  if (!sim || !sim.caso) return null;
+  const hitos = sim.caso.hitos || [];
+  if (!sim.decidido.filter(Boolean).length) return null;
+  const partes = hitos.map((h, i) => {
+    const d = sim.decidido[i];
+    return `${h.cuando}: ${d ? (OPCIONES.find(o=>o.id===d)||{}).txt : 'sin responder'}`;
+  });
+  const mi = sim.decidido.findIndex(d => d === 'registro' || d === 'contacto');
+  return (mi >= 0 ? `Habría intervenido en ${hitos[mi].cuando}. ` : 'No habría intervenido en ningún mes. ')
+    + partes.join(' | ');
 }
