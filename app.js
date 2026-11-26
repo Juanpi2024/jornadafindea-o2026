@@ -214,6 +214,24 @@ async function cargar(silencioso) {
   }
 }
 
+/* Presentación de un bloque, cuando necesita decir de dónde viene y para qué.
+   Se muestra bajo el título de la parte, antes de la primera pregunta. */
+const NOTA_PARTE = {
+  '2 · Condiciones de seguridad': `<div class="solicita">
+    <p class="sqk">Solicitud del Comité Paritario de Higiene y Seguridad</p>
+    <p>Aprovechamos esta jornada para pedirte algo del comité: que mires tu propio puesto de trabajo.
+      <b>No es una inspección ni una evaluación de tu desempeño</b> — nadie va a ser observado.
+      Lo que nos sirve es lo que tú ves todos los días y nosotros no.</p>
+    <p class="sqf">Con lo que respondan los 35 armamos la matriz de riesgos y el plan del próximo año.</p>
+  </div>`,
+  '3 · Mi función en el PEI': `<div class="solicita">
+    <p class="sqk">Las mismas preguntas para los seis perfiles</p>
+    <p>Este bloque no evalúa a nadie ni revisa si cumpliste tus funciones. Busca <b>dibujar el mapa</b>:
+      qué te toca a ti, qué le pasas a otro y dónde ese camino no está claro.
+      Lo responden las seis funciones del establecimiento, dirección incluida.</p>
+  </div>`
+};
+
 /* ---------------------------------------------------------- calendario */
 function hechas(jornadaId) {
   if (!app.datos) return null;
@@ -505,6 +523,7 @@ function verJornada(j) {
   let n = 0;
   $('#formJ').innerHTML = partes.map(g => `
     <fieldset class="q" style="border-color:#2C3A61"><legend>${esc(g.nombre)}</legend>
+    ${NOTA_PARTE[g.nombre] || ''}
     ${g.ps.map(p => campo(p, ++n, prev[p.id])).join('')}</fieldset>`).join('')
     + `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px">
         <button class="btn pri" type="submit">${reg ? 'Actualizar mis respuestas' : 'Enviar mis respuestas'}</button>
