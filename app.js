@@ -293,6 +293,15 @@ function verDia(j) {
       <div><b>${nom.length - list}</b><span class="muted">pendientes</span></div>
     </div><div class="barra"><i style="width:${nom.length?Math.round(list/nom.length*100):0}%"></i></div>`;
 
+  // El material de estudio es público: se ve y se escucha sin identificarse.
+  $('#diaMaterial').innerHTML = `
+    <h2>Material de la jornada</h2>
+    <p class="muted">Puedes verlo y escucharlo ahora mismo, sin identificarte. Son los documentos
+      sobre los que vas a trabajar.</p>
+    <a class="btn" style="width:100%;margin-bottom:8px" href="pei/index.html" target="_blank" rel="noopener">
+      ▶ Presentación del PEI con audio · 44 láminas, 15:50</a>
+    ${j.descripcion ? `<div class="info" style="margin-top:10px">${esc(j.descripcion)}</div>` : ''}`;
+
   $('#buscaNomina').value = '';
   pintarNomina(j, '');
 
