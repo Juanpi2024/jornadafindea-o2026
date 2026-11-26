@@ -131,8 +131,11 @@ function ruta() {
   if (h.startsWith('dia-')) { const j = jornadaPorId(h.slice(4)); if (j) return verDia(j); }
   if (h.startsWith('resp-')) {
     const j = jornadaPorId(h.slice(5));
-    if (j && app.yo && app.datos) return verJornada(j);
-    if (j) return verDia(j);
+    if (j) {
+      const st = estadoJornada(j);
+      if (app.yo && app.datos && (st === 'abierta' || st === 'lista')) return verJornada(j);
+      return verDia(j);     // cerrada, o todavía sin identificarse
+    }
   }
   verCalendario();
 }
@@ -233,22 +236,38 @@ const NOTA_PARTE = {
 };
 
 /* ---------------------------------------------------------- calendario */
+
+/* Feriados y media jornada. Van aquí y no en la base porque son pocos, fijos
+   y conviene verlos de un vistazo al revisar el calendario. */
+const FERIADOS = {
+  '2026-12-08': 'Inmaculada Concepción',
+  '2026-12-25': 'Navidad'
+};
+const MEDIA_JORNADA = {
+  '2026-12-24': 'Solo jornada de mañana',
+  '2026-12-30': 'Solo jornada de mañana'
+};
+const esViernes = (f) => new Date(f + 'T12:00:00').getDay() === 5;
+
 function hechas(jornadaId) {
   if (!app.datos) return null;
   return (app.datos.respondidas || []).find(r => r.jornadaId === jornadaId) || null;
 }
+
+/** La actividad se abre SOLO el día que corresponde. Antes está cerrada
+ *  porque todavía no toca; después, porque ya pasó. */
+const abiertaHoy = (j) => !!app.cfg && app.cfg.hoy === j.fecha;
+
 function estadoJornada(j) {
+  if (abiertaHoy(j)) return hechas(j.id) ? 'lista' : 'abierta';
   if (hechas(j.id)) return 'lista';
-  const hoy = app.cfg.hoy;
-  if (hoy < j.fecha) return 'futura';
-  if (hoy > j.fecha) return 'atrasada';
-  return 'abierta';
+  return app.cfg.hoy < j.fecha ? 'porvenir' : 'cerrada';
 }
 const ETIQ = {
-  lista:   {t:'✓ Respondida',  c:'lista'},
-  abierta: {t:'● Abierta hoy', c:'abierta'},
-  atrasada:{t:'! Plazo vencido', c:'abierta'},
-  futura:  {t:'○ Por venir',   c:''}
+  lista:    {t:'✓ Respondida',       c:'lista'},
+  abierta:  {t:'🔓 Abierta hoy',     c:'abierta'},
+  porvenir: {t:'🔒 Se abre el día',  c:''},
+  cerrada:  {t:'🔒 Cerrada',         c:''}
 };
 
 function verCalendario() {
@@ -265,42 +284,60 @@ function verCalendario() {
   // de arrastrar un mes entero de días sin nada.
   const ult = new Date(js[js.length-1].fecha + 'T12:00:00');
   const anio = ult.getFullYear();
-  const mes = 11;                                   // diciembre
+  const mes = 11;
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
   const celda = (fecha, numero, deOtroMes) => {
     const k = iso(fecha);
     const j = porFecha[k];
-    const esHoy = k === hoy ? ' hoy' : '';
-    if (!j) return deOtroMes ? '<span class="dia vacio"></span>' : `<span class="dia${esHoy}">${numero}</span>`;
-    const st = estadoJornada(j);
-    const tono = st==='lista' ? 'lista' : (st==='abierta'||st==='atrasada') ? 'abierta' : '';
+    const hoyCl = k === hoy ? ' hoy' : '';
     const sufijo = deOtroMes ? ` <small class="mesAnt">${MESES[fecha.getMonth()].slice(0,3)}</small>` : '';
-    return `<a class="dia ${tono}${esHoy}${deOtroMes?' otroMes':''}" href="#dia-${esc(j.id)}" title="${esc(j.titulo)}">
-      <span class="num">${numero}${sufijo}</span>
-      <span class="eti">${esc(j.titulo.replace(/^PEI /,'').slice(0,22))}</span></a>`;
+    const num = `<span class="num">${numero}${sufijo}</span>`;
+
+    // El feriado manda sobre todo lo demás, incluso si cae viernes.
+    if (FERIADOS[k]) {
+      return `<span class="dia feriado${hoyCl}" title="Feriado · ${esc(FERIADOS[k])}">
+        ${num}<span class="eti">${esc(FERIADOS[k])}</span></span>`;
+    }
+    // Los viernes no son día de trabajo: van apagados y sin candado.
+    if (esViernes(k)) {
+      return `<span class="dia viernes${hoyCl}" title="Viernes · no es día de trabajo">${num}</span>`;
+    }
+    if (!j) {
+      const med = MEDIA_JORNADA[k];
+      return `<span class="dia${med?' media':''}${hoyCl}" ${med?`title="${esc(med)}"`:''}>
+        ${num}${med?'<span class="eti">½ mañana</span>':''}</span>`;
+    }
+
+    const st = estadoJornada(j);
+    const tono = st === 'lista' ? 'lista' : st === 'abierta' ? 'abierta' : 'trancada';
+    const candado = st === 'lista' ? '✓' : st === 'abierta' ? '🔓' : '🔒';
+    const tit = st === 'abierta' ? 'Abierta hoy' : st === 'lista' ? 'Ya respondida'
+              : st === 'porvenir' ? 'Se abre el ' + fdateLarga(j.fecha) : 'Cerrada: la actividad era el ' + fdateLarga(j.fecha);
+    return `<a class="dia jor ${tono}${hoyCl}" href="#dia-${esc(j.id)}" title="${esc(j.titulo)} · ${esc(tit)}">
+      <span class="cand" aria-hidden="true">${candado}</span>
+      ${num}<span class="eti">${esc(j.titulo.replace(/^PEI /,'').slice(0,22))}</span></a>`;
   };
 
-  const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;   // 0 = lunes
+  const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;
   const total = new Date(anio, mes+1, 0).getDate();
   let celdas = '';
   for (let k = primero; k > 0; k--) {
-    const d = new Date(anio, mes, 1 - k);                      // días de noviembre que preceden
-    celdas += celda(d, d.getDate(), true);
+    const dd = new Date(anio, mes, 1 - k);
+    celdas += celda(dd, dd.getDate(), true);
   }
-  for (let d = 1; d <= total; d++) celdas += celda(new Date(anio, mes, d), d, false);
+  for (let dd = 1; dd <= total; dd++) celdas += celda(new Date(anio, mes, dd), dd, false);
 
   $('#calendario').innerHTML = `<div class="mes"><h3>${MESES[mes]} ${anio}</h3>
     <div class="sem">${DIAS.map(x=>`<span>${x}</span>`).join('')}</div>
-    <div class="dias">${celdas}</div></div>`;
-
-  $('#avisoHorario').innerHTML = `
-    <div class="aviso">
-      <b>Esto se responde en tu horario de trabajo.</b>
-      Cada jornada se abre a las <b>08:00</b> y se cierra a la <b>medianoche del mismo día</b>.
-      No es tarea para la casa: es parte de tu jornada laboral y queda como evidencia
-      de lo que hiciste ese día en el establecimiento.
-      <small>Mañana, tarde y noche responden el mismo día, cada uno dentro de su turno.</small>
+    <div class="dias">${celdas}</div></div>
+    <div class="claves">
+      <span><i class="mt abierta"></i>🔓 abierta hoy</span>
+      <span><i class="mt trancada"></i>🔒 cerrada</span>
+      <span><i class="mt lista"></i>✓ ya respondida</span>
+      <span><i class="mt feriado"></i>feriado</span>
+      <span><i class="mt media"></i>½ solo mañana</span>
+      <span><i class="mt viernes"></i>viernes, no se trabaja</span>
     </div>`;
 
   if (app.yo && app.datos) {
@@ -308,8 +345,8 @@ function verCalendario() {
     $('#miAvance').innerHTML = `<div class="barra"><i style="width:${Math.round(listas/js.length*100)}%"></i></div>
       <p class="muted" style="margin:0">Llevas ${listas} de ${js.length} jornadas respondidas.</p>`;
   } else {
-    $('#miAvance').innerHTML = `<p class="muted" style="margin:0">Toca el día que te toca: ahí vas a encontrar
-      la nómina y tu nombre. El código te lo pedimos recién al abrir tu dosier.</p>`;
+    $('#miAvance').innerHTML = `<p class="muted" style="margin:0">Cada jornada se abre solo el día que corresponde.
+      Toca el día para ver el material, que sí está disponible desde ya.</p>`;
   }
 
   $('#listaJornadas').innerHTML = js.map(j => {
@@ -422,10 +459,22 @@ function verDia(j) {
   pintarNomina(j, '');
 
   const reg = hechas(j.id);
-  $('#diaBoton').innerHTML = (app.yo && app.datos)
-    ? `<a class="btn pri" style="width:100%" href="#resp-${esc(j.id)}">
-         ${reg ? 'Ver o corregir mis respuestas' : 'Abrir mi dosier y responder'}</a>`
-    : '';
+  const st = estadoJornada(j);
+  const puede = st === 'abierta' || st === 'lista';
+
+  $('#diaBoton').innerHTML = puede
+    ? ((app.yo && app.datos)
+        ? `<a class="btn pri" style="width:100%" href="#resp-${esc(j.id)}">
+             ${reg ? 'Ver o corregir mis respuestas' : 'Abrir mi dosier y responder'}</a>`
+        : '')
+    : `<div class="trancado">
+         <span class="tcIco" aria-hidden="true">🔒</span>
+         <span><b>${st === 'porvenir' ? 'Esta jornada todavía no abre' : 'Esta jornada ya cerró'}</b>
+           ${st === 'porvenir'
+             ? `Se habilita el <b>${esc(fdateLarga(j.fecha))}</b> a las 08:00 y se cierra a medianoche.`
+             : `Se respondía el <b>${esc(fdateLarga(j.fecha))}</b>. Si no alcanzaste, habla con el equipo directivo.`}
+           <small>El material de arriba lo puedes ver cuando quieras.</small></span>
+       </div>`;
 }
 
 /** Pinta la nómina filtrada. Cada palabra que escribes busca por el comienzo

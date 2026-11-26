@@ -465,3 +465,54 @@ a.dia:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px rgba(0,0,0,.
 
 tr.grp td{background:#131B2F;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
   color:var(--tinta3);padding:7px 10px}
+
+/* ====================================================================
+   Calendario: candados, feriados, media jornada
+   ==================================================================== */
+.dia.jor{position:relative;padding-top:20px}
+.dia .cand{position:absolute;top:5px;right:6px;font-size:11px;line-height:1;opacity:.95}
+
+/* Abierta hoy: la única que invita */
+.dia.jor.abierta{background:rgba(110,139,255,.2);border-color:var(--azul);
+  box-shadow:0 0 0 1px rgba(110,139,255,.4),0 8px 20px -10px rgba(110,139,255,.8)}
+.dia.jor.abierta .num{color:#fff}
+
+/* Cerrada: se ve, se entiende, pero no llama */
+.dia.jor.trancada{border-color:#2A3350;background:rgba(255,255,255,.035)}
+.dia.jor.trancada .num,.dia.jor.trancada .eti{color:var(--tinta3)}
+.dia.jor.trancada .cand{opacity:.6}
+a.dia.jor.trancada:hover{border-color:#3A4668}
+
+.dia.jor.lista{background:rgba(79,209,197,.16);border-color:rgba(79,209,197,.55)}
+
+/* Feriado: rojo, como en cualquier calendario */
+.dia.feriado{background:rgba(245,108,108,.15);border-color:rgba(245,108,108,.5)}
+.dia.feriado .num{color:#FFB4B4;font-weight:800}
+.dia.feriado .eti{color:#F09A9A}
+
+/* Viernes: no es día de trabajo */
+.dia.viernes{background:transparent;border-color:#1A2135;opacity:.42}
+.dia.viernes .num{color:var(--tinta3)}
+
+/* Media jornada */
+.dia.media{border-color:rgba(246,173,85,.45);background:rgba(246,173,85,.07)}
+.dia.media .eti{color:var(--ambar);font-weight:700}
+
+/* Las claves de lectura, bajo la grilla */
+.claves{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;padding-top:13px;border-top:1px solid #1E2740}
+.claves span{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--tinta3)}
+.claves .mt{width:13px;height:13px;border-radius:4px;border:1px solid #2A3350;background:rgba(255,255,255,.04)}
+.claves .mt.abierta{background:rgba(110,139,255,.35);border-color:var(--azul)}
+.claves .mt.trancada{background:rgba(255,255,255,.04)}
+.claves .mt.lista{background:rgba(79,209,197,.3);border-color:rgba(79,209,197,.6)}
+.claves .mt.feriado{background:rgba(245,108,108,.3);border-color:rgba(245,108,108,.6)}
+.claves .mt.media{background:rgba(246,173,85,.22);border-color:rgba(246,173,85,.5)}
+.claves .mt.viernes{opacity:.4}
+
+/* El aviso de jornada cerrada, en la vista del día */
+.trancado{display:flex;gap:13px;align-items:flex-start;padding:15px 17px;border-radius:15px;
+  background:rgba(255,255,255,.04);border:1px solid #2A3350}
+.tcIco{font-size:21px;line-height:1;flex:0 0 auto;opacity:.8}
+.trancado b{display:block;font-size:14.5px;margin-bottom:3px}
+.trancado>span:last-child{font-size:13px;line-height:1.5;color:var(--tinta2)}
+.trancado small{display:block;margin-top:7px;font-size:11.5px;color:var(--tinta3)}
