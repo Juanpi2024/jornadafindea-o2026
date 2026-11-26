@@ -518,3 +518,9 @@ a.dia.jor.trancada:hover{border-color:#3A4668}
 .trancado b{display:block;font-size:14.5px;margin-bottom:3px}
 .trancado>span:last-child{font-size:13px;line-height:1.5;color:var(--tinta2)}
 .trancado small{display:block;margin-top:7px;font-size:11.5px;color:var(--tinta3)}
+
+/* Pie con el sello de versión, para saber qué se está mirando */
+.pie{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-top:34px;padding-top:14px;border-top:1px solid #1C2439;
+  font-size:11px;color:var(--tinta3)}
+.pie #sello{font-variant-numeric:tabular-nums;opacity:.75}
