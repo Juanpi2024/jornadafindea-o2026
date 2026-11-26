@@ -8,6 +8,15 @@
 const API = 'https://igmmdzrumksuuueqtnex.supabase.co/functions/v1/talleres';
 const MAX_PALABRAS = 2000;
 const VIDEO_PEI = '_9ueGDS01u0';   // resumen del PEI, generado con NotebookLM
+
+/* Videos de apoyo que viven en el propio sitio. Verticales, cortos: se ven
+   bien en el teléfono, que es donde muchos van a entrar. */
+const APOYO = [
+  {archivo:'ensenar-jovenes-adultos', titulo:'Cómo enseñar a jóvenes y adultos',
+   bajada:'Qué cambia cuando quien aprende ya es adulto y llega después de trabajar.', dur:'1:09'},
+  {archivo:'escuela-futuros-rotos', titulo:'La escuela que reescribe futuros rotos',
+   bajada:'Para qué existe un CEIA y qué significa para quien vuelve a estudiar.', dur:'0:57'}
+];
 const LS_YO = 'jfa_yo_v1';
 const LS_PEND = 'jfa_pendientes_v1';
 const LS_BORR = 'jfa_borrador_';
@@ -351,11 +360,36 @@ function verDia(j) {
         </span>
       </div>
     </div>
+
+    <h3 class="subt">Videos de apoyo</h3>
+    <p class="muted" style="margin:0 0 10px">Dos cápsulas cortas para ver antes de responder.
+      Se reproducen aquí mismo, sin salir de la página.</p>
+    <div class="materiales vert">
+      ${APOYO.map(v => `
+        <div class="mini corto" data-vid="${esc(v.archivo)}">
+          <button class="lienzo tapa" type="button" aria-label="Reproducir ${esc(v.titulo)}">
+            <img src="video/${esc(v.archivo)}.jpg" alt="" loading="lazy">
+            <span class="play" aria-hidden="true">▶</span>
+            <span class="dur">${esc(v.dur)}</span>
+          </button>
+          <span class="miniPie"><b>${esc(v.titulo)}</b><small>${esc(v.bajada)}</small></span>
+        </div>`).join('')}
+    </div>
     ${j.descripcion ? `<div class="info" style="margin-top:12px">${esc(j.descripcion)}</div>` : ''}
     <div class="aviso" style="margin-top:12px">
       <b>Horario de esta jornada:</b> abre a las 08:00 y cierra a la medianoche del
       ${esc(fdateLarga(j.fecha))}. Respóndela dentro de tu turno de trabajo.
     </div>`;
+
+  // Los videos propios se cargan solo al tocarlos.
+  document.querySelectorAll('#diaMaterial .corto .tapa').forEach(b =>
+    b.addEventListener('click', () => {
+      const id = b.closest('.corto').dataset.vid;
+      const d = document.createElement('div');
+      d.className = 'lienzo';
+      d.innerHTML = `<video src="video/${id}.mp4" poster="video/${id}.jpg" controls autoplay playsinline></video>`;
+      b.replaceWith(d);
+    }, {once:true}));
 
   const tapa = document.querySelector('#videoPei .tapa');
   if (tapa) tapa.addEventListener('click', () => {

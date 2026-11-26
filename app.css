@@ -310,3 +310,73 @@ td.si{color:var(--verde)}td.tarde{color:var(--ambar)}td.no{color:#4E5C7C}
   .tarjeta .datos{grid-template-columns:1fr}
   .tarjeta .rel{font-size:14.5px}
 }
+
+/* Videos de apoyo, verticales */
+.subt{margin:22px 0 2px;font-size:15px}
+.materiales.vert{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.mini.corto .lienzo{aspect-ratio:9/16;max-height:360px}
+.mini.corto .lienzo video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.mini.corto .play{width:50px;height:50px;font-size:17px}
+
+/* ====================================================================
+   Capa de terminación
+   Profundidad, jerarquía y foco visible. Nada que cambie la estructura:
+   solo que se note cuidado al mirarlo.
+   ==================================================================== */
+
+/* Una línea de luz bajo la barra, para que el contenido "cuelgue" de algo */
+header.top{box-shadow:0 1px 0 rgba(255,255,255,.04),0 10px 30px -18px rgba(0,0,0,.9)}
+header.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(110,139,255,.5) 22%,rgba(79,209,197,.5) 70%,transparent)}
+.marca{background:linear-gradient(95deg,var(--tinta),#A9BBFF 60%);-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.marca small{-webkit-text-fill-color:var(--tinta3)}
+
+/* Tarjetas con algo de aire y relieve */
+.card{box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 16px 36px -28px rgba(0,0,0,.9)}
+.card>h2:first-child,.card>h1:first-child{letter-spacing:-.015em}
+
+/* Los títulos de sección llevan su propio acento */
+.card>h2{position:relative;padding-left:13px}
+.card>h2::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:3px;border-radius:99px;
+  background:linear-gradient(180deg,var(--azul),var(--verde))}
+.subt{position:relative;padding-left:13px}
+.subt::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:3px;border-radius:99px;
+  background:linear-gradient(180deg,var(--verde),var(--azul))}
+
+/* Botones: que respondan al dedo */
+.btn{transition:background .14s,border-color .14s,transform .1s,box-shadow .14s}
+.btn:active{transform:translateY(1px)}
+.btn.pri{box-shadow:0 8px 22px -12px rgba(110,139,255,.95)}
+.btn.pri:hover{box-shadow:0 10px 26px -10px rgba(110,139,255,1)}
+.btn.pri:disabled{opacity:.45;box-shadow:none;cursor:not-allowed}
+
+/* Foco visible en todo lo que se puede tocar con el teclado */
+a:focus-visible,button:focus-visible,input:focus-visible,
+textarea:focus-visible,select:focus-visible,.dia:focus-visible{
+  outline:2px solid var(--azul);outline-offset:2px;border-radius:10px}
+
+/* El calendario, con más presencia */
+.dia{transition:transform .13s,box-shadow .13s,border-color .13s}
+a.dia:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px rgba(0,0,0,.95)}
+.dia.hoy{box-shadow:inset 0 0 0 1.5px rgba(246,173,85,.6)}
+
+/* La barra de avance, viva */
+.barra{overflow:hidden;border-radius:99px}
+.barra i{transition:width .6s cubic-bezier(.2,.8,.3,1)}
+
+/* Los KPI del día, con su propio bloque */
+.kpis>div{background:rgba(255,255,255,.03);border:1px solid var(--borde);border-radius:13px;padding:11px 13px}
+
+/* Quien no quiere animaciones, no las tiene */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+}
+
+/* Impresión: que una ficha salga limpia si alguien la imprime */
+@media print{
+  body::before,header.top,#tutorFlota,.panelTutor,#diaBoton{display:none !important}
+  body{background:#fff;color:#111}
+  .card,.tarjeta{border-color:#ccc;box-shadow:none;background:#fff;color:#111;break-inside:avoid}
+}
