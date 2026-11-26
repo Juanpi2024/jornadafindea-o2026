@@ -1,4 +1,8 @@
 *{box-sizing:border-box}
+/* El navegador oculta [hidden] con display:none, pero cualquier regla nuestra
+   que fije display le gana. La app muestra y esconde vistas con ese atributo,
+   así que aquí se deja claro que hidden manda siempre. */
+[hidden]{display:none !important}
 :root{
   --fondo:#0E1222; --panel:rgba(255,255,255,.055); --borde:rgba(255,255,255,.13);
   --tinta:#F4F6FB; --tinta2:#C3CCE0; --tinta3:#8E97AC;
