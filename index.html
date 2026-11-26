@@ -34,11 +34,12 @@
     <button class="linkbtn" id="codVolver" type="button">← Volver a la nómina</button>
     <p class="eyebrow">Identifícate</p>
     <h1 id="codNombre"></h1>
-    <p class="lead">Escribe tu código personal de 4 dígitos para abrir tu dosier.</p>
+    <p class="lead">Escribe los <b>4 últimos dígitos de tu RUT</b>, los de antes del guion, para abrir tu dosier.</p>
     <form id="formCodigo" autocomplete="off">
       <input class="in" id="inCodigo" name="codigo" inputmode="numeric" maxlength="6"
              autocomplete="off" placeholder="····" required>
-      <p class="muted" style="margin:8px 0 16px">Te lo entrega la dirección. Si no lo tienes, pídelo antes de empezar.</p>
+      <p class="muted" style="margin:6px 0 0">Ejemplo: si tu RUT es 12.545.717-7, escribe <b>5717</b>.</p>
+      <p class="muted" style="margin:8px 0 16px">No hay códigos que pedir ni que perder: es tu propio RUT.</p>
       <button class="btn pri" type="submit" style="width:100%">Entrar</button>
       <p class="err" id="errCodigo" hidden></p>
     </form>
