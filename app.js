@@ -1376,12 +1376,14 @@ function pintarCaso() {
 
       <div class="pregunta">
         <p class="pq">Con lo que sabes hasta <b>este</b> mes, y desde tu función: ¿qué haces?</p>
+        <p class="pqn">No hay respuesta correcta. Lo que interesa es en qué punto <b>tú</b> sentiste
+          que había suficiente para moverte, porque ese punto es distinto en cada función.</p>
         <div class="opciones">${opciones}</div>
       </div>
 
       ${abierto ? `
         <div class="revela">
-          <p class="rk">Lo que ocurrió en realidad</p>
+          <p class="rk">Lo que decía el registro ese mes</p>
           <p class="rt">${esc(h.quien || 'No hay registro de que alguien interviniera.')}</p>
         </div>` : ''}
 
@@ -1444,28 +1446,16 @@ function pintarApertura() {
 function pintarCierre() {
   const {caso, decidido} = sim;
   const hitos = caso.hitos || [];
-
-  // Primer mes en que la persona habría movido la ficha.
   const miMes = decidido.findIndex(d => d === 'registro' || d === 'contacto');
-  // Primer mes en que el caso ya estaba en rojo.
-  const mesGrave = hitos.findIndex(h => h.nivel === 'grave');
   const nombre = (hitos[miMes] || {}).cuando;
-  const nombreGrave = (hitos[mesGrave] || {}).cuando;
 
-  const ventaja = (miMes >= 0 && mesGrave >= 0) ? mesGrave - miMes : null;
-
-  const veredicto = miMes < 0
-    ? `<p class="vt">No interviniste en ningún mes. Puede ser lo correcto si en tu puesto efectivamente
-       no hay por dónde: eso también es un hallazgo, y vale la pena que quede escrito.</p>`
-    : ventaja > 0
-      ? `<p class="vt">Tú habrías movido la ficha en <b>${esc(nombre)}</b>.
-         El caso llegó a rojo en <b>${esc(nombreGrave)}</b>.
-         Eso es una ventaja de <b>${ventaja} ${ventaja===1?'mes':'meses'}</b>.</p>
-         <p class="vs">La pregunta que sigue no es quién falló. Es qué tendría que existir en el CEIA para que
-         esa intervención ocurriera sola, sin depender de que alguien se diera cuenta.</p>`
-      : `<p class="vt">Habrías intervenido en <b>${esc(nombre)}</b>, cuando el caso ya estaba en rojo.
-         Mirado desde dentro del mes, casi nunca es evidente: por eso el procedimiento no puede depender
-         de que alguien lo note a tiempo.</p>`;
+  const lectura = miMes < 0
+    ? `<p class="vt">Recorriste el año sin intervenir en ningún mes.</p>
+       <p class="vs">Si desde tu puesto efectivamente no había por dónde, eso no es un descuido:
+       es un vacío del procedimiento, y es justo lo que necesitamos que quede escrito.</p>`
+    : `<p class="vt">Desde tu función, el punto en que habrías actuado fue <b>${esc(nombre)}</b>.</p>
+       <p class="vs">No hay un mes correcto. Cada función ve la señal en un momento distinto, y la
+       gracia de hacer esto entre los seis perfiles es justamente ver esa diferencia.</p>`;
 
   const linea = hitos.map((h, i) => {
     const col = COLOR[h.nivel] || 'var(--azul)';
@@ -1488,13 +1478,20 @@ function pintarCierre() {
     </div>
 
     <article class="tarjeta cierre">
-      ${veredicto}
+      ${lectura}
       <div class="linea">${linea}</div>
       ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>Cómo terminó:</b> ${esc(caso.resultado)}</div>` : ''}
+
+      <div class="cierrePreg">
+        <p class="cpk">La pregunta que sí importa</p>
+        <p>Mirando tu recorrido: <b>¿qué te habría hecho falta para actuar antes?</b>
+          Un dato que no te llegaba, un aviso, una atribución, un lugar donde anotarlo.
+          Escríbelo en las preguntas de más abajo, que es de donde salen los acuerdos de marzo.</p>
+      </div>
     </article>
 
-    <p class="muted" style="margin:14px 0 0">Tus decisiones se guardan junto con tus respuestas: al equipo directivo le
-      sirve saber en qué mes cada función habría actuado, no quién acertó.</p>`;
+    <p class="muted" style="margin:14px 0 0">Tu recorrido se guarda junto con tus respuestas. Al equipo directivo
+      no le sirve para ver quién acertó, sino para saber con cuánta anticipación ve la señal cada función.</p>`;
 
   $('#simOtra').addEventListener('click', () => { sim.paso = -1; sim.abierto = false; sim.decidido = []; pintarCaso(); });
 }
@@ -1518,6 +1515,6 @@ function resumenSim() {
     return `${h.cuando}: ${d ? (OPCIONES.find(o=>o.id===d)||{}).txt : 'sin responder'}`;
   });
   const mi = sim.decidido.findIndex(d => d === 'registro' || d === 'contacto');
-  return (mi >= 0 ? `Habría intervenido en ${hitos[mi].cuando}. ` : 'No habría intervenido en ningún mes. ')
+  return (mi >= 0 ? `Su punto de acción fue ${hitos[mi].cuando}. ` : 'No habría intervenido en ningún mes. ')
     + partes.join(' | ');
 }
