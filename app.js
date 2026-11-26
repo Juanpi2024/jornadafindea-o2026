@@ -460,9 +460,25 @@ function verJornada(j) {
     ${!reg && app.datos.hoy > j.fecha ? `<div class="aviso">El plazo venció, pero puedes responder igual:
       quedará marcada como fuera de plazo y tu participación cuenta.</div>` : ''}`;
 
+  // Su perfil: con quiénes contrasta y por qué le tocó ese caso.
+  const pf = app.datos.perfil;
+  const banda = pf ? `
+    <div class="perfil">
+      <span class="pfIco" aria-hidden="true">${{aula:'✎',linea:'◉',pie:'◈',convivencia:'♦',soporte:'⚙',direccion:'▲'}[pf.id] || '●'}</span>
+      <span class="pfTx">
+        <small>Tu perfil en esta jornada</small>
+        <b>${esc(pf.nombre)}</b>
+        <span>${esc(pf.descripcion || '')}</span>
+      </span>
+      <span class="pfN">${pf.personas}<i>personas</i></span>
+    </div>
+    <p class="muted" style="margin:10px 0 0">Además del trabajo común, tienes preguntas propias de tu función
+      y el caso donde esa función era clave. Nadie compara perfiles entre sí.</p>` : '';
+
   // Presentación y documentos
   $('#jDosier').innerHTML = `
-    <h2>Dosier del día</h2>
+    ${banda}
+    <h2${pf?' style="margin-top:18px"':''}>Dosier del día</h2>
     <a class="btn" style="width:100%;margin-bottom:8px" href="pei/index.html" target="_blank" rel="noopener">
       ▶ Presentación del PEI con audio · 44 láminas, 15:50</a>
     <p class="muted" style="margin:0">Escúchala antes de responder. Puedes pausarla y seguir donde quedaste.</p>`;
@@ -532,6 +548,15 @@ function campo(p, n, val) {
       `<label><input type="radio" name="${esc(p.id)}" value="${esc(x)}" ${val===x?'checked':''} ${req}><span>${esc(x)}</span></label>`).join('');
     return `<div style="margin-bottom:16px">${cab}<div class="ops">${o}</div></div>`;
   }
+  if (p.tipo === 'multiple') {
+    const ya = String(val || '').split(' | ').filter(Boolean);
+    const o = (p.opciones||[]).map((x,i) =>
+      `<label class="mx"><input type="checkbox" name="${esc(p.id)}" value="${esc(x)}"
+        ${ya.includes(x)?'checked':''}><span>${esc(x)}</span></label>`).join('');
+    return `<div style="margin-bottom:16px">${cab}
+      <p class="muted" style="margin:-2px 0 8px">Marca todas las que correspondan${p.opcional?', o ninguna':''}.</p>
+      <div class="ops multi">${o}</div></div>`;
+  }
   if (p.tipo === 'confirmacion') {
     return `<div style="margin-bottom:16px"><label class="chk">
       <input type="checkbox" name="${esc(p.id)}" value="si" ${val==='si'?'checked':''} ${req}>
@@ -557,6 +582,8 @@ function leerForm(j) {
     if (!uno) { r[p.id] = ''; return; }
     if (p.tipo === 'escala' || p.tipo === 'opcion') {
       const c = f.querySelector(`input[name="${p.id}"]:checked`); r[p.id] = c ? c.value : '';
+    } else if (p.tipo === 'multiple') {
+      r[p.id] = [...f.querySelectorAll(`input[name="${p.id}"]:checked`)].map(c => c.value).join(' | ');
     } else if (p.tipo === 'confirmacion') { r[p.id] = uno.checked ? 'si' : ''; }
     else { r[p.id] = uno.value.trim(); }
   });
