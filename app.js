@@ -132,8 +132,7 @@ function ruta() {
   if (h.startsWith('resp-')) {
     const j = jornadaPorId(h.slice(5));
     if (j) {
-      const st = estadoJornada(j);
-      if (app.yo && app.datos && (st === 'abierta' || st === 'lista')) return verJornada(j);
+      if (app.yo && app.datos && puedeEntrar(j)) return verJornada(j);
       return verDia(j);     // cerrada, o todavía sin identificarse
     }
   }
@@ -248,6 +247,17 @@ const MEDIA_JORNADA = {
   '2026-12-30': 'Solo jornada de mañana'
 };
 const esViernes = (f) => new Date(f + 'T12:00:00').getDay() === 5;
+const esFinDeSemana = (f) => [0,6].includes(new Date(f + 'T12:00:00').getDay());
+
+/* Mientras esto esté en true los candados se ven, pero no trancan nada: el
+   equipo directivo puede revisar las dos jornadas completas antes del lunes.
+   Se cambia a false cuando Juan Pablo diga que ya revisaron. */
+const MODO_REVISION = true;
+
+/* Hasta dónde llega el calendario de trabajo. Los días hábiles de este tramo
+   que todavía no tienen actividad igual muestran su candado, para que se vea
+   la forma completa del plan. */
+const ULTIMO_DIA = '2026-12-30';
 
 function hechas(jornadaId) {
   if (!app.datos) return null;
@@ -258,10 +268,18 @@ function hechas(jornadaId) {
  *  porque todavía no toca; después, porque ya pasó. */
 const abiertaHoy = (j) => !!app.cfg && app.cfg.hoy === j.fecha;
 
+/** El estado que se DIBUJA en el calendario: el candado como va a quedar. */
 function estadoJornada(j) {
   if (abiertaHoy(j)) return hechas(j.id) ? 'lista' : 'abierta';
   if (hechas(j.id)) return 'lista';
   return app.cfg.hoy < j.fecha ? 'porvenir' : 'cerrada';
+}
+
+/** Si de verdad se puede entrar. En modo revisión, siempre. */
+function puedeEntrar(j) {
+  if (MODO_REVISION) return true;
+  const st = estadoJornada(j);
+  return st === 'abierta' || st === 'lista';
 }
 const ETIQ = {
   lista:    {t:'✓ Respondida',       c:'lista'},
@@ -299,14 +317,22 @@ function verCalendario() {
       return `<span class="dia feriado${hoyCl}" title="Feriado · ${esc(FERIADOS[k])}">
         ${num}<span class="eti">${esc(FERIADOS[k])}</span></span>`;
     }
-    // Los viernes no son día de trabajo: van apagados y sin candado.
+    const med = MEDIA_JORNADA[k];
+    // Los viernes se trabaja, pero no llevan actividad ni candado.
     if (esViernes(k)) {
-      return `<span class="dia viernes${hoyCl}" title="Viernes · no es día de trabajo">${num}</span>`;
+      return `<span class="dia${med?' media':''}${hoyCl}" title="Viernes · día de trabajo, sin actividad">
+        ${num}${med?'<span class="eti">½ mañana</span>':''}</span>`;
     }
     if (!j) {
-      const med = MEDIA_JORNADA[k];
-      return `<span class="dia${med?' media':''}${hoyCl}" ${med?`title="${esc(med)}"`:''}>
-        ${num}${med?'<span class="eti">½ mañana</span>':''}</span>`;
+      // Día hábil dentro del tramo: candado de marcador, la actividad va después.
+      const enTramo = !esFinDeSemana(k) && k >= js[0].fecha && k <= ULTIMO_DIA;
+      if (!enTramo) {
+        return `<span class="dia${med?' media':''}${hoyCl}" ${med?`title="${esc(med)}"`:''}>
+          ${num}${med?'<span class="eti">½ mañana</span>':''}</span>`;
+      }
+      return `<span class="dia porprogramar${med?' media':''}${hoyCl}" title="Actividad por definir">
+        <span class="cand" aria-hidden="true">🔒</span>
+        ${num}<span class="eti">${med ? '½ mañana' : 'por programar'}</span></span>`;
     }
 
     const st = estadoJornada(j);
@@ -332,13 +358,18 @@ function verCalendario() {
     <div class="sem">${DIAS.map(x=>`<span>${x}</span>`).join('')}</div>
     <div class="dias">${celdas}</div></div>
     <div class="claves">
-      <span><i class="mt abierta"></i>🔓 abierta hoy</span>
+      <span><i class="mt abierta"></i>🔓 abierta ese día</span>
       <span><i class="mt trancada"></i>🔒 cerrada</span>
-      <span><i class="mt lista"></i>✓ ya respondida</span>
+      <span><i class="mt porprog"></i>🔒 por programar</span>
+      <span><i class="mt lista"></i>✓ respondida</span>
       <span><i class="mt feriado"></i>feriado</span>
       <span><i class="mt media"></i>½ solo mañana</span>
-      <span><i class="mt viernes"></i>viernes, no se trabaja</span>
-    </div>`;
+      <span><i class="mt"></i>día de trabajo sin actividad</span>
+    </div>
+    ${MODO_REVISION ? `<div class="aviso" style="margin-top:14px">
+      <b>Modo revisión.</b> Los candados muestran cómo va a quedar, pero por ahora
+      <b>no trancan nada</b>: las dos jornadas se pueden abrir y recorrer completas.
+      Se activan cuando el equipo directivo dé el visto bueno.</div>` : ''}`;
 
   if (app.yo && app.datos) {
     const listas = js.filter(j => hechas(j.id)).length;
@@ -460,9 +491,14 @@ function verDia(j) {
 
   const reg = hechas(j.id);
   const st = estadoJornada(j);
-  const puede = st === 'abierta' || st === 'lista';
+  const puede = puedeEntrar(j);
 
-  $('#diaBoton').innerHTML = puede
+  const muestra = MODO_REVISION && st !== 'abierta' && st !== 'lista'
+    ? `<div class="aviso" style="margin-bottom:12px"><b>Modo revisión.</b> El ${esc(fdateLarga(j.fecha))}
+        esta jornada estará ${st === 'porvenir' ? 'todavía cerrada' : 'ya cerrada'} con candado.
+        Ahora la puedes abrir igual para revisarla.</div>` : '';
+
+  $('#diaBoton').innerHTML = muestra + (puede
     ? ((app.yo && app.datos)
         ? `<a class="btn pri" style="width:100%" href="#resp-${esc(j.id)}">
              ${reg ? 'Ver o corregir mis respuestas' : 'Abrir mi dosier y responder'}</a>`
@@ -474,7 +510,7 @@ function verDia(j) {
              ? `Se habilita el <b>${esc(fdateLarga(j.fecha))}</b> a las 08:00 y se cierra a medianoche.`
              : `Se respondía el <b>${esc(fdateLarga(j.fecha))}</b>. Si no alcanzaste, habla con el equipo directivo.`}
            <small>El material de arriba lo puedes ver cuando quieras.</small></span>
-       </div>`;
+       </div>`);
 }
 
 /** Pinta la nómina filtrada. Cada palabra que escribes busca por el comienzo

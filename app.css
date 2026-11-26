@@ -490,9 +490,11 @@ a.dia.jor.trancada:hover{border-color:#3A4668}
 .dia.feriado .num{color:#FFB4B4;font-weight:800}
 .dia.feriado .eti{color:#F09A9A}
 
-/* Viernes: no es día de trabajo */
-.dia.viernes{background:transparent;border-color:#1A2135;opacity:.42}
-.dia.viernes .num{color:var(--tinta3)}
+/* Día hábil con actividad todavía por definir */
+.dia.porprogramar{border-style:dashed;border-color:#2E3A5C;background:rgba(255,255,255,.022);padding-top:20px}
+.dia.porprogramar .num{color:var(--tinta3)}
+.dia.porprogramar .eti{color:#5F6B86;font-size:9.5px}
+.dia.porprogramar .cand{opacity:.38}
 
 /* Media jornada */
 .dia.media{border-color:rgba(246,173,85,.45);background:rgba(246,173,85,.07)}
@@ -507,7 +509,7 @@ a.dia.jor.trancada:hover{border-color:#3A4668}
 .claves .mt.lista{background:rgba(79,209,197,.3);border-color:rgba(79,209,197,.6)}
 .claves .mt.feriado{background:rgba(245,108,108,.3);border-color:rgba(245,108,108,.6)}
 .claves .mt.media{background:rgba(246,173,85,.22);border-color:rgba(246,173,85,.5)}
-.claves .mt.viernes{opacity:.4}
+.claves .mt.porprog{border-style:dashed;border-color:#2E3A5C;background:rgba(255,255,255,.022)}
 
 /* El aviso de jornada cerrada, en la vista del día */
 .trancado{display:flex;gap:13px;align-items:flex-start;padding:15px 17px;border-radius:15px;
