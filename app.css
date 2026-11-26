@@ -196,3 +196,35 @@ td.si{color:var(--verde)}td.tarde{color:var(--ambar)}td.no{color:#4E5C7C}
 .dia.otroMes{border-style:dashed}
 .dia .mesAnt{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   color:var(--tinta3);margin-left:2px;vertical-align:super}
+
+/* ---------- Aviso de horario de trabajo ---------- */
+.aviso{background:rgba(246,173,85,.11);border:1px solid rgba(246,173,85,.4);border-left-width:3px;
+  border-radius:11px;padding:12px 14px;font-size:13px;line-height:1.5;color:var(--tinta2)}
+.aviso b{color:#F6AD55}
+.aviso small{display:block;margin-top:6px;font-size:11.5px;color:var(--tinta3)}
+#avisoHorario{margin-bottom:14px}
+
+/* ---------- Miniatura de la presentación, tipo video ---------- */
+.mini{display:block;text-decoration:none;color:inherit;border-radius:13px;overflow:hidden;
+  border:1px solid #263150;background:#121A2E;transition:border-color .14s,transform .14s}
+.mini:hover{border-color:var(--azul);transform:translateY(-2px)}
+.lienzo{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;
+  background:radial-gradient(130% 100% at 12% 0%,#2B3A6B 0%,#131C33 55%,#0C1324 100%)}
+.lam{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  gap:9px;padding:0 10% 0 9%}
+.lamTag{font-size:9.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#7F93C6}
+.lamTit{font-size:clamp(15px,3.3vw,25px);font-weight:800;line-height:1.16;color:#F2F6FF;letter-spacing:-.01em}
+.lamSub{font-size:clamp(9.5px,1.5vw,12px);color:#A8B8DD;border-left:2px solid var(--verde);padding-left:8px}
+.lam::after{content:'';position:absolute;right:-28px;top:-28px;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,rgba(79,209,197,.26),transparent 68%)}
+.mini .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:58px;height:58px;border-radius:50%;background:rgba(10,16,30,.74);
+  border:2px solid rgba(255,255,255,.9);color:#fff;font-size:20px;
+  display:flex;align-items:center;justify-content:center;padding-left:4px;
+  backdrop-filter:blur(3px);transition:transform .14s,background .14s}
+.mini:hover .play{transform:translate(-50%,-50%) scale(1.12);background:var(--azul);border-color:var(--azul)}
+.mini .dur{position:absolute;right:9px;bottom:9px;background:rgba(6,10,20,.88);color:#fff;
+  font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.02em}
+.miniPie{display:block;padding:11px 14px 13px;background:#141C31}
+.miniPie b{display:block;font-size:13.5px;font-weight:600}
+.miniPie small{display:block;font-size:11.5px;color:var(--tinta3);margin-top:3px}

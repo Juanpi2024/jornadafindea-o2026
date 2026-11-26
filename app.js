@@ -266,6 +266,15 @@ function verCalendario() {
     <div class="sem">${DIAS.map(x=>`<span>${x}</span>`).join('')}</div>
     <div class="dias">${celdas}</div></div>`;
 
+  $('#avisoHorario').innerHTML = `
+    <div class="aviso">
+      <b>Esto se responde en tu horario de trabajo.</b>
+      Cada jornada se abre a las <b>08:00</b> y se cierra a la <b>medianoche del mismo día</b>.
+      No es tarea para la casa: es parte de tu jornada laboral y queda como evidencia
+      de lo que hiciste ese día en el establecimiento.
+      <small>Mañana, tarde y noche responden el mismo día, cada uno dentro de su turno.</small>
+    </div>`;
+
   if (app.yo && app.datos) {
     const listas = js.filter(j => hechas(j.id)).length;
     $('#miAvance').innerHTML = `<div class="barra"><i style="width:${Math.round(listas/js.length*100)}%"></i></div>
@@ -309,11 +318,28 @@ function verDia(j) {
   // El material de estudio es público: se ve y se escucha sin identificarse.
   $('#diaMaterial').innerHTML = `
     <h2>Material de la jornada</h2>
-    <p class="muted">Puedes verlo y escucharlo ahora mismo, sin identificarte. Son los documentos
-      sobre los que vas a trabajar.</p>
-    <a class="btn" style="width:100%;margin-bottom:8px" href="pei/index.html" target="_blank" rel="noopener">
-      ▶ Presentación del PEI con audio · 44 láminas, 15:50</a>
-    ${j.descripcion ? `<div class="info" style="margin-top:10px">${esc(j.descripcion)}</div>` : ''}`;
+    <p class="muted">Puedes verlo y escucharlo ahora mismo, sin identificarte.
+      Es el documento sobre el que vas a trabajar.</p>
+    <a class="mini" href="pei/index.html" target="_blank" rel="noopener">
+      <span class="lienzo">
+        <span class="lam">
+          <span class="lamTag">CEIA Juanita Zúñiga Fuentes · Parral</span>
+          <span class="lamTit">Proyecto Educativo Institucional<br>2027–2030</span>
+          <span class="lamSub">Principales novedades · Jornada de apropiación</span>
+        </span>
+        <span class="play" aria-hidden="true">▶</span>
+        <span class="dur">15:50</span>
+      </span>
+      <span class="miniPie">
+        <b>Presentación del PEI 2027–2030, narrada</b>
+        <small>44 láminas con audio · avanza a tu ritmo, puedes pausar y volver atrás</small>
+      </span>
+    </a>
+    ${j.descripcion ? `<div class="info" style="margin-top:12px">${esc(j.descripcion)}</div>` : ''}
+    <div class="aviso" style="margin-top:12px">
+      <b>Horario de esta jornada:</b> abre a las 08:00 y cierra a la medianoche del
+      ${esc(fdateLarga(j.fecha))}. Respóndela dentro de tu turno de trabajo.
+    </div>`;
 
   $('#buscaNomina').value = '';
   pintarNomina(j, '');
@@ -419,7 +445,10 @@ function verJornada(j) {
     ${g.ps.map(p => campo(p, ++n, prev[p.id])).join('')}</fieldset>`).join('')
     + `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px">
         <button class="btn pri" type="submit">${reg ? 'Actualizar mis respuestas' : 'Enviar mis respuestas'}</button>
-        <span class="muted">Se guarda en este equipo mientras escribes.</span></div>`;
+        <span class="muted">Se guarda en este equipo mientras escribes.</span></div>
+       <div class="aviso" style="margin-top:12px">Recuerda: esto se completa <b>dentro de tu jornada
+       de trabajo</b>, entre las 08:00 y la medianoche del día de la actividad. Queda como evidencia
+       de tu participación, así que no corresponde llevárselo para la casa.</div>`;
 
   $('#formJ').oninput = () => ls.set(LS_BORR + j.id, leerForm(j));
   $('#formJ').onsubmit = (e) => { e.preventDefault(); enviar(j); };
