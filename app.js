@@ -612,22 +612,48 @@ function abrirTutor(pid) {
 function cerrarTutor() { $('#tutorPanel').hidden = true; }
 
 /* ---------------------------------------------------------- tutor */
+/* Tres de los cuatro botones responden al tiro, con material ya escrito y
+   guardado: no pasan por el modelo y no cuestan nada. Solo "revisa mi
+   borrador" y las preguntas escritas a mano consultan de verdad, porque
+   ahí el texto es distinto cada vez y no se puede tener preparado. */
 const MODOS = {
-  pista:   {chip:'💡 Dame una pista',    msg:'Dame una pista para esta pregunta.'},
-  explicar:{chip:'❓ No entiendo',        msg:'No entiendo bien lo que pide esta pregunta. ¿Me la explicas con otras palabras?'},
-  fuente:  {chip:'📄 ¿Qué dice el PEI?', msg:'¿Qué dicen la presentación y los documentos del PEI que me sirva para esta pregunta?'},
-  revisar: {chip:'✍️ Revisa mi borrador', msg:'Revisa mi borrador y dime qué puedo mejorar, sin escribirlo por mí.'}
+  pista:    {chip:'💡 Dame una pista',     guardado:true,  msg:'Dame una pista para esta pregunta.'},
+  explicar: {chip:'❓ No entiendo',         guardado:true,  msg:'No entiendo bien lo que pide esta pregunta. ¿Me la explicas con otras palabras?'},
+  fuente:   {chip:'📄 ¿Qué dice el PEI?',  guardado:'cita', msg:'¿Qué dicen la presentación y los documentos del PEI sobre esta pregunta?'},
+  revisar:  {chip:'✍️ Revisa mi borrador', guardado:false, msg:'Revisa mi borrador y dime qué puedo mejorar, sin escribirlo por mí.'}
 };
+
+/* Respuestas ya escritas, que viven en la base junto a cada pregunta. */
+let vueltaPista = {};
+function respuestaGuardada(modo, p) {
+  if (modo === 'explicar') {
+    return p.ayuda || `Léela así: "${p.enunciado}". No hay respuesta correcta: importa tu mirada, desde tu función y tu horario, y si puedes, con un ejemplo real.`;
+  }
+  const ps = p.pistas || [];
+  if (ps.length) {                       // van rotando, no siempre la misma
+    const i = (vueltaPista[p.id] || 0) % ps.length;
+    vueltaPista[p.id] = i + 1;
+    return ps[i] + (ps.length > 1 && i + 1 < ps.length ? '\n\n¿Quieres otra pista? Toca el botón de nuevo.' : '');
+  }
+  return p.tipo === 'escala'
+    ? 'Piensa en lo que ves día a día, no en lo ideal. Si dudas entre dos números, pregúntate qué tendría que pasar para subir un punto.'
+    : p.tipo === 'opcion'
+    ? 'Elige donde un cambio pequeño tendría el mayor efecto en los estudiantes.'
+    : 'Prueba así:\n- Una idea principal en una frase.\n- Un ejemplo real de tu jornada.\n- Qué significa eso para el PEI.';
+}
 
 function prepararTutor(j) {
   globoVisto = {};
+  vueltaPista = {};
   $('#tutorPanel').hidden = true;
   esconderGlobo();
   const ps = j.preguntas.filter(p => p.tipo !== 'confirmacion');
   $('#tutorPregunta').innerHTML = ps.map((p,i) =>
     `<option value="${esc(p.id)}">${i+1}. ${esc(p.enunciado.slice(0,62))}${p.enunciado.length>62?'…':''}</option>`).join('');
   $('#tutorChips').innerHTML = Object.entries(MODOS).map(([k,v]) =>
-    `<button type="button" class="chip" data-m="${k}">${v.chip}</button>`).join('');
+    `<button type="button" class="chip${v.guardado ? ' ya' : ''}" data-m="${k}"
+      title="${v.guardado ? 'Respuesta inmediata, ya preparada' : 'Consulta al tutor'}">${v.chip}</button>`).join('')
+    + '<span class="chipNota">Los de borde verde responden al tiro.</span>';
   document.querySelectorAll('#tutorChips [data-m]').forEach(b =>
     b.addEventListener('click', () => pedirTutor(b.dataset.m)));
   $('#tutorForm').onsubmit = (e) => {
@@ -639,13 +665,15 @@ function prepararTutor(j) {
   };
   const h = app.chat[j.id] = app.chat[j.id] || [];
   if (!h.length) h.push({rol:'tutor', texto:
-    `Hola, ${String(app.datos.nombre).split(' ').slice(-2).join(' ')}. Soy el tutor de la jornada. No respondo por ti, pero te ayudo a pensar: elige una pregunta y pídeme una pista, que te la explique, qué dicen los documentos, o que revise tu borrador.`});
+    `Hola, ${String(app.datos.nombre).split(' ').slice(-2).join(' ')}. Soy el tutor de la jornada. No respondo por ti, pero te ayudo a pensar.
+
+Los tres primeros botones de abajo te contestan al tiro: la pista y la explicación ya están escritas para cada pregunta, y las láminas del PEI te las muestro tal cual. Guarda las consultas escritas para lo que de verdad necesites conversar.`});
   pintarChat(j);
 }
 
 function pintarChat(j) {
   const h = app.chat[j.id] || [];
-  $('#tutorMsgs').innerHTML = h.map(m => `<div class="msg ${m.rol==='yo'?'yo':'tutor'}${m.pensando?' pensando':''}">${
+  $('#tutorMsgs').innerHTML = h.map(m => `<div class="msg ${m.rol==='yo'?'yo':'tutor'}${m.pensando?' pensando':''}${m.guardado?' guardado':''}">${
     formato(m.texto)}${m.fuentes&&m.fuentes.length?`<span class="fu">Fuentes: ${m.fuentes.map(esc).join(' · ')}</span>`:''}</div>`).join('');
   const c = $('#tutorMsgs'); c.scrollTop = c.scrollHeight;
 }
@@ -663,6 +691,37 @@ async function pedirTutor(modo, libre) {
   const p = j.preguntas.find(x => x.id === pid) || j.preguntas[0];
   const borrador = leerForm(j)[p.id] || '';
   const msg = libre || MODOS[modo].msg;
+  const cfgModo = MODOS[modo] || {};
+
+  // Lo que ya está escrito se entrega al tiro, sin pasar por el modelo.
+  if (!libre && cfgModo.guardado === true) {
+    h.push({rol:'yo', texto:msg});
+    h.push({rol:'tutor', texto: respuestaGuardada(modo, p), guardado:true});
+    return pintarChat(j);
+  }
+
+  // Las láminas del PEI se buscan en la base y se muestran tal cual.
+  // Es más barato y más fiel: nadie puede inventar un número de lámina.
+  if (!libre && cfgModo.guardado === 'cita') {
+    h.push({rol:'yo', texto:msg});
+    const buscando = {rol:'tutor', texto:'Buscando en el PEI…', pensando:true};
+    h.push(buscando); pintarChat(j);
+    try {
+      const r = await api({action:'extractos', consulta: p.enunciado, ...yoApi()});
+      const fs = r.extractos || [];
+      h.splice(h.indexOf(buscando), 1, fs.length
+        ? {rol:'tutor', guardado:true,
+           texto:'Esto dice el PEI sobre este punto. Es el texto tal cual, sin interpretarlo:\n\n'
+             + fs.map(f => `- ${f.titulo}: ${String(f.contenido).replace(/\s+/g,' ').trim().slice(0,320)}…`).join('\n\n'),
+           fuentes: fs.map(f => f.titulo)}
+        : {rol:'tutor', guardado:true,
+           texto:'No encontré una lámina que hable directamente de esto. Puedes abrir la presentación completa desde el día de la jornada, o escribirme tu duda aquí abajo.'});
+    } catch (ex) {
+      h.splice(h.indexOf(buscando), 1, {rol:'tutor', texto: esRed(ex.message)
+        ? 'Sin conexión para buscar en el PEI. Intenta de nuevo en un momento.' : ex.message});
+    }
+    return pintarChat(j);
+  }
 
   if (modo === 'revisar' && !borrador) {
     h.push({rol:'yo', texto:msg});

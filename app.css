@@ -228,3 +228,9 @@ td.si{color:var(--verde)}td.tarde{color:var(--ambar)}td.no{color:#4E5C7C}
 .miniPie{display:block;padding:11px 14px 13px;background:#141C31}
 .miniPie b{display:block;font-size:13.5px;font-weight:600}
 .miniPie small{display:block;font-size:11.5px;color:var(--tinta3);margin-top:3px}
+
+/* Botones del tutor que responden sin consultar al modelo */
+.chip.ya{border-color:rgba(79,209,197,.5);color:#BFF0EA}
+.chip.ya:hover{background:rgba(79,209,197,.15)}
+.chipNota{display:block;width:100%;font-size:10.5px;color:var(--tinta3);margin-top:2px}
+.msg.tutor.guardado{border-left:2px solid var(--verde)}
