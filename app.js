@@ -232,34 +232,39 @@ function verCalendario() {
   const porFecha = {};
   js.forEach(j => porFecha[j.fecha] = j);
 
-  // Rango: desde el primer día del mes de la primera jornada hasta fin de diciembre.
-  const ini = new Date(js[0].fecha + 'T12:00:00');
-  const fin = new Date(ini.getFullYear(), 11, 30, 12);
-  const meses = [];
-  for (let d = new Date(ini.getFullYear(), ini.getMonth(), 1); d <= fin; d = new Date(d.getFullYear(), d.getMonth()+1, 1)) meses.push(new Date(d));
+  // Solo diciembre. El lunes 30 de noviembre cae justo en la casilla que
+  // diciembre deja vacía al partir en martes, así que se dibuja ahí en vez
+  // de arrastrar un mes entero de días sin nada.
+  const ult = new Date(js[js.length-1].fecha + 'T12:00:00');
+  const anio = ult.getFullYear();
+  const mes = 11;                                   // diciembre
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-  $('#calendario').innerHTML = meses.map(m => {
-    const primero = (new Date(m.getFullYear(), m.getMonth(), 1).getDay() + 6) % 7;
-    const total = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
-    let celdas = '';
-    for (let k=0;k<primero;k++) celdas += '<span class="dia vacio"></span>';
-    for (let d=1; d<=total; d++) {
-      const iso = `${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const j = porFecha[iso];
-      const esHoy = iso === hoy ? ' hoy' : '';
-      if (j) {
-        const st = estadoJornada(j);
-        celdas += `<a class="dia ${st==='lista'?'lista':(st==='abierta'||st==='atrasada')?'abierta':''}${esHoy}"
-          href="#dia-${esc(j.id)}" title="${esc(j.titulo)}">
-          <span class="num">${d}</span><span class="eti">${esc(j.titulo.replace(/^PEI /,'').slice(0,22))}</span></a>`;
-      } else {
-        celdas += `<span class="dia${esHoy}">${d}</span>`;
-      }
-    }
-    return `<div class="mes"><h3>${MESES[m.getMonth()]} ${m.getFullYear()}</h3>
-      <div class="sem">${DIAS.map(x=>`<span>${x}</span>`).join('')}</div>
-      <div class="dias">${celdas}</div></div>`;
-  }).join('');
+  const celda = (fecha, numero, deOtroMes) => {
+    const k = iso(fecha);
+    const j = porFecha[k];
+    const esHoy = k === hoy ? ' hoy' : '';
+    if (!j) return deOtroMes ? '<span class="dia vacio"></span>' : `<span class="dia${esHoy}">${numero}</span>`;
+    const st = estadoJornada(j);
+    const tono = st==='lista' ? 'lista' : (st==='abierta'||st==='atrasada') ? 'abierta' : '';
+    const sufijo = deOtroMes ? ` <small class="mesAnt">${MESES[fecha.getMonth()].slice(0,3)}</small>` : '';
+    return `<a class="dia ${tono}${esHoy}${deOtroMes?' otroMes':''}" href="#dia-${esc(j.id)}" title="${esc(j.titulo)}">
+      <span class="num">${numero}${sufijo}</span>
+      <span class="eti">${esc(j.titulo.replace(/^PEI /,'').slice(0,22))}</span></a>`;
+  };
+
+  const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;   // 0 = lunes
+  const total = new Date(anio, mes+1, 0).getDate();
+  let celdas = '';
+  for (let k = primero; k > 0; k--) {
+    const d = new Date(anio, mes, 1 - k);                      // días de noviembre que preceden
+    celdas += celda(d, d.getDate(), true);
+  }
+  for (let d = 1; d <= total; d++) celdas += celda(new Date(anio, mes, d), d, false);
+
+  $('#calendario').innerHTML = `<div class="mes"><h3>${MESES[mes]} ${anio}</h3>
+    <div class="sem">${DIAS.map(x=>`<span>${x}</span>`).join('')}</div>
+    <div class="dias">${celdas}</div></div>`;
 
   if (app.yo && app.datos) {
     const listas = js.filter(j => hechas(j.id)).length;

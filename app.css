@@ -191,3 +191,8 @@ td.si{color:var(--verde)}td.tarde{color:var(--ambar)}td.no{color:#4E5C7C}
   .panelTutor{right:0;bottom:0;width:100vw;max-height:82vh;border-radius:16px 16px 0 0}
   .globo{max-width:180px}
 }
+
+/* El 30 de noviembre, invitado en la grilla de diciembre */
+.dia.otroMes{border-style:dashed}
+.dia .mesAnt{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--tinta3);margin-left:2px;vertical-align:super}
