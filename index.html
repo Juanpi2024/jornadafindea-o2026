@@ -29,20 +29,18 @@
 
 <main>
 
-  <!-- 1 · Ingreso -->
-  <section id="vIngreso" class="card" hidden style="max-width:520px;margin:30px auto">
-    <p class="eyebrow">Jornadas de fin de año</p>
-    <h1>Bienvenido(a)</h1>
-    <p class="lead">Las tres jornadas no pueden reunirse, así que el trabajo se hace en línea y a tu ritmo.
-      Identifícate una vez: este equipo te va a recordar.</p>
-    <form id="formIngreso" autocomplete="on">
-      <label class="lbl" for="inNombre">Tu nombre, como aparece en la nómina</label>
-      <input class="in" id="inNombre" name="nombre" autocomplete="name" placeholder="Ej: Araya Chandía Juan José" required>
-      <label class="lbl" for="inCodigo">Tu código personal de 4 dígitos</label>
-      <input class="in" id="inCodigo" name="codigo" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="····">
+  <!-- 1 · Identificación (solo al abrir el dosier) -->
+  <section id="vCodigo" class="card" hidden style="max-width:480px;margin:30px auto">
+    <button class="linkbtn" id="codVolver" type="button">← Volver a la nómina</button>
+    <p class="eyebrow">Identifícate</p>
+    <h1 id="codNombre"></h1>
+    <p class="lead">Escribe tu código personal de 4 dígitos para abrir tu dosier.</p>
+    <form id="formCodigo" autocomplete="off">
+      <input class="in" id="inCodigo" name="codigo" inputmode="numeric" maxlength="6"
+             autocomplete="off" placeholder="····" required>
       <p class="muted" style="margin:8px 0 16px">Te lo entrega la dirección. Si no lo tienes, pídelo antes de empezar.</p>
       <button class="btn pri" type="submit" style="width:100%">Entrar</button>
-      <p class="err" id="errIngreso" hidden></p>
+      <p class="err" id="errCodigo" hidden></p>
     </form>
     <p class="muted" style="margin-top:16px">Tus respuestas no se publican aquí: solo las ve la dirección,
       para el informe de la jornada.</p>
@@ -72,8 +70,13 @@
     <div class="card" id="diaAvance"></div>
     <div class="card">
       <h2>Nómina del día</h2>
-      <p class="muted">Los 35 funcionarios participan todos los días. El ✓ marca a quienes ya respondieron.</p>
+      <p class="muted">Los 35 funcionarios participan todos los días, cada uno en su horario.
+        Busca tu nombre y tócalo para abrir tu dosier. El ✓ marca a quienes ya respondieron.</p>
+      <input class="in" id="buscaNomina" type="search" autocomplete="off"
+             placeholder="Escribe tu apellido o tu nombre…" aria-label="Buscar en la nómina">
+      <p class="muted" id="nominaCuenta" style="margin:10px 0 4px"></p>
       <div class="nomina" id="nomina"></div>
+      <p class="muted" id="nominaVacia" hidden>Ningún nombre calza con lo que escribiste. Prueba solo con el apellido.</p>
     </div>
     <div id="diaBoton"></div>
   </section>

@@ -16,6 +16,8 @@ const DIAS = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 
 const app = {
   yo: null,          // {nombre, codigo}
+  cfg: null,         // respuesta de "config": jornadas y fecha del servidor
+  nomina: [],        // nómina pública: nombres, función y avance
   datos: null,       // respuesta de "agenda"
   jornada: null,     // jornada abierta
   chat: {},          // historial del tutor por jornada
@@ -61,47 +63,98 @@ const yoApi = () => ({nombre: app.yo.nombre, codigo: app.yo.codigo || ''});
 /* ---------------------------------------------------------- arranque */
 document.addEventListener('DOMContentLoaded', () => {
   app.yo = ls.get(LS_YO, null);
-  $('#formIngreso').addEventListener('submit', entrar);
+  $('#formCodigo').addEventListener('submit', confirmarCodigo);
   $('#formPanel').addEventListener('submit', abrirPanel);
   $('#btnSalir').addEventListener('click', salir);
+  $('#codVolver').addEventListener('click', volverNomina);
+  $('#nomina').addEventListener('click', (e) => {
+    const f = e.target.closest('[data-nombre]');
+    if (f) elegir(f.dataset.nombre);
+  });
+  $('#buscaNomina').addEventListener('input', (e) => pintarNomina(app.jornada, e.target.value));
   window.addEventListener('hashchange', ruta);
   window.addEventListener('online', reintentar);
-  if (app.yo) cargar(); else ruta();
+  arrancar();
 });
 
+const VISTAS = ['vCodigo','vCalendario','vDia','vJornada','vPanel'];
 function vista(id) {
-  ['vIngreso','vCalendario','vDia','vJornada','vPanel'].forEach(v => $('#'+v).hidden = (v !== id));
+  VISTAS.forEach(v => { const n = $('#'+v); if (n) n.hidden = (v !== id); });
   $('#barraUsuario').hidden = !app.yo;
 }
+
+/** Arranque público: el calendario y la nómina se ven sin pedir nada.
+ *  Si este equipo ya recuerda a alguien, además carga su dosier. */
+async function arrancar() {
+  try {
+    const [cfg, nom] = await Promise.all([api({action:'config'}), api({action:'nomina'})]);
+    app.cfg = cfg;
+    app.nomina = nom.nomina || [];
+    app.conectado = true;
+  } catch (ex) {
+    app.conectado = false;
+    vista('vCalendario');
+    $('#calendario').innerHTML = `<p class="err">${esRed(ex.message)
+      ? 'No hay conexión con el servidor. Revisa tu internet y vuelve a abrir la página.'
+      : esc(ex.message)}</p>`;
+    return;
+  }
+  if (app.yo) await cargar(true); else ruta();
+}
+
+/* La jornada completa (con preguntas) vive en "agenda"; la del calendario
+   solo trae la cabecera. Cuando hay dosier cargado, ese manda. */
+const jornadaPorId = (id) =>
+  ((app.datos && app.datos.jornadas) || []).find(x => x.id === id) ||
+  ((app.cfg && app.cfg.jornadas) || []).find(x => x.id === id);
 
 function ruta() {
   const h = location.hash.replace('#','');
   if (h === 'panel') { vista('vPanel'); return; }
-  if (!app.yo || !app.datos) { vista('vIngreso'); return; }
-  if (h.startsWith('dia-')) { const j = app.datos.jornadas.find(x => x.id === h.slice(4)); if (j) return verDia(j); }
-  if (h.startsWith('resp-')) { const j = app.datos.jornadas.find(x => x.id === h.slice(5)); if (j) return verJornada(j); }
+  if (!app.cfg) { vista('vCalendario'); return; }
+  if (h.startsWith('dia-')) { const j = jornadaPorId(h.slice(4)); if (j) return verDia(j); }
+  if (h.startsWith('resp-')) {
+    const j = jornadaPorId(h.slice(5));
+    if (j && app.yo && app.datos) return verJornada(j);
+    if (j) return verDia(j);
+  }
   verCalendario();
 }
 
-/* ---------------------------------------------------------- ingreso */
-async function entrar(e) {
-  e.preventDefault();
-  const f = e.target;
-  const btn = f.querySelector('button[type=submit]');
-  const err = $('#errIngreso');
-  err.hidden = true;
-  const nombre = f.querySelector('[name=nombre]').value.trim().replace(/\s+/g,' ');
-  const codigo = f.querySelector('[name=codigo]').value.trim();
-  if (nombre.split(' ').filter(Boolean).length < 2) {
-    err.textContent = 'Escribe tu nombre y al menos un apellido, como aparece en la nómina.';
-    err.hidden = false; return;
+/* ---------------------------------------------------------- identidad */
+let elegido = null;
+
+function elegir(nombre) {
+  if (app.yo && app.yo.nombre === nombre && app.datos && app.jornada) {
+    location.hash = '#resp-' + app.jornada.id; ruta(); return;
   }
+  elegido = nombre;
+  $('#codNombre').textContent = nombre;
+  $('#inCodigo').value = '';
+  $('#errCodigo').hidden = true;
+  vista('vCodigo');
+  setTimeout(() => { try { $('#inCodigo').focus(); } catch(e){} }, 50);
+}
+
+function volverNomina() {
+  if (app.jornada) { location.hash = '#dia-' + app.jornada.id; ruta(); }
+  else { location.hash = ''; ruta(); }
+}
+
+async function confirmarCodigo(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  const err = $('#errCodigo');
+  err.hidden = true;
+  const codigo = $('#inCodigo').value.trim();
   btn.disabled = true; btn.textContent = 'Comprobando…';
   try {
-    const r = await api({action:'entrar', nombre, codigo});
+    const r = await api({action:'entrar', nombre: elegido, codigo});
     app.yo = {nombre: r.nombre, codigo};
     ls.set(LS_YO, app.yo);
-    await cargar();
+    await cargar(false);
+    if (app.jornada) location.hash = '#resp-' + app.jornada.id;
+    ruta();
   } catch (ex) {
     err.textContent = esRed(ex.message)
       ? 'No hay conexión con el servidor. Revisa tu internet y vuelve a intentar.'
@@ -122,28 +175,37 @@ function salir() {
   location.hash = ''; ruta();
 }
 
-async function cargar() {
+/** Trae el dosier de quien ya se identificó. En modo silencioso (al abrir la
+ *  página) un fallo no bloquea nada: se olvida la identidad y sigue el calendario. */
+async function cargar(silencioso) {
   try {
     app.datos = await api({action:'agenda', ...yoApi()});
     app.conectado = true;
+    if (app.datos.nomina && app.datos.nomina.length) app.nomina = app.datos.nomina;
     $('#quienSoy').innerHTML = `<b>${esc(app.datos.nombre)}</b><small>${esc(app.datos.situacion || 'Funcionario del CEIA')}</small>`;
     ruta();
     reintentar();
+    return true;
   } catch (ex) {
     app.conectado = false;
-    if (esRed(ex.message)) { toast('Sin conexión. Reintenta cuando tengas internet.'); vista('vIngreso'); }
-    else { $('#errIngreso').textContent = ex.message; $('#errIngreso').hidden = false; vista('vIngreso'); }
+    if (!silencioso) throw ex;
+    app.yo = null; app.datos = null; ls.del(LS_YO);
+    toast(esRed(ex.message) ? 'Sin conexión con el servidor.' : ex.message);
+    ruta();
+    return false;
   }
 }
 
 /* ---------------------------------------------------------- calendario */
 function hechas(jornadaId) {
+  if (!app.datos) return null;
   return (app.datos.respondidas || []).find(r => r.jornadaId === jornadaId) || null;
 }
 function estadoJornada(j) {
   if (hechas(j.id)) return 'lista';
-  if (app.datos.hoy < j.fecha) return 'futura';
-  if (app.datos.hoy > j.fecha) return 'atrasada';
+  const hoy = app.cfg.hoy;
+  if (hoy < j.fecha) return 'futura';
+  if (hoy > j.fecha) return 'atrasada';
   return 'abierta';
 }
 const ETIQ = {
@@ -154,9 +216,11 @@ const ETIQ = {
 };
 
 function verCalendario() {
+  app.jornada = null;
   vista('vCalendario');
-  const js = app.datos.jornadas;
-  const hoy = app.datos.hoy;
+  const js = app.cfg.jornadas || [];
+  const hoy = app.cfg.hoy;
+  if (!js.length) { $('#calendario').innerHTML = '<p class="muted">Todavía no hay jornadas cargadas.</p>'; return; }
   const porFecha = {};
   js.forEach(j => porFecha[j.fecha] = j);
 
@@ -189,9 +253,14 @@ function verCalendario() {
       <div class="dias">${celdas}</div></div>`;
   }).join('');
 
-  const listas = js.filter(j => hechas(j.id)).length;
-  $('#miAvance').innerHTML = `<div class="barra"><i style="width:${Math.round(listas/js.length*100)}%"></i></div>
-    <p class="muted" style="margin:0">Llevas ${listas} de ${js.length} jornadas respondidas.</p>`;
+  if (app.yo && app.datos) {
+    const listas = js.filter(j => hechas(j.id)).length;
+    $('#miAvance').innerHTML = `<div class="barra"><i style="width:${Math.round(listas/js.length*100)}%"></i></div>
+      <p class="muted" style="margin:0">Llevas ${listas} de ${js.length} jornadas respondidas.</p>`;
+  } else {
+    $('#miAvance').innerHTML = `<p class="muted" style="margin:0">Toca el día que te toca: ahí vas a encontrar
+      la nómina y tu nombre. El código te lo pedimos recién al abrir tu dosier.</p>`;
+  }
 
   $('#listaJornadas').innerHTML = js.map(j => {
     const st = estadoJornada(j); const e = ETIQ[st];
@@ -202,12 +271,14 @@ function verCalendario() {
 }
 
 /* ---------------------------------------------------------- día: nómina */
+const nrm = (s) => String(s ?? '').toLowerCase().normalize('NFD')
+  .replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+
 function verDia(j) {
   app.jornada = j;
   vista('vDia');
-  const nom = app.datos.nomina || [];
+  const nom = app.nomina || [];
   const list = nom.filter(f => f.hechas.includes(j.id)).length;
-  const yoNorm = app.datos.nombre;
 
   $('#diaCab').innerHTML = `
     <button class="linkbtn" onclick="location.hash=''">← Volver al calendario</button>
@@ -222,22 +293,49 @@ function verDia(j) {
       <div><b>${nom.length - list}</b><span class="muted">pendientes</span></div>
     </div><div class="barra"><i style="width:${nom.length?Math.round(list/nom.length*100):0}%"></i></div>`;
 
-  $('#nomina').innerHTML = nom.map(f => {
-    const ok = f.hechas.includes(j.id);
-    const yo = f.nombre === yoNorm;
-    return `<div class="fn ${ok?'ok':''} ${yo?'yo':''}">
-      <span class="ini">${esc(f.nombre.slice(0,2).toUpperCase())}</span>
-      <span class="n"><b>${esc(f.nombre)}${yo?' (tú)':''}</b><small>${esc(f.situacion||'')}${f.licencia?' · licencia':''}</small></span>
-      <span class="mk">${ok?'✓':''}</span></div>`;
-  }).join('');
+  $('#buscaNomina').value = '';
+  pintarNomina(j, '');
 
   const reg = hechas(j.id);
-  $('#diaBoton').innerHTML = `<a class="btn pri" style="width:100%" href="#resp-${esc(j.id)}">
-    ${reg ? 'Ver o corregir mis respuestas' : 'Abrir mi dosier y responder'}</a>`;
+  $('#diaBoton').innerHTML = (app.yo && app.datos)
+    ? `<a class="btn pri" style="width:100%" href="#resp-${esc(j.id)}">
+         ${reg ? 'Ver o corregir mis respuestas' : 'Abrir mi dosier y responder'}</a>`
+    : '';
+}
+
+/** Pinta la nómina filtrada. Cada palabra que escribes busca por el comienzo
+ *  de cualquier parte del nombre, sin importar tildes ni el orden. */
+function pintarNomina(j, consulta) {
+  if (!j) return;
+  const nom = app.nomina || [];
+  const trozos = nrm(consulta).split(' ').filter(Boolean);
+  const vis = nom.filter(f => {
+    if (!trozos.length) return true;
+    const partes = nrm(f.nombre).split(' ');
+    return trozos.every(t => partes.some(p => p.startsWith(t)));
+  });
+
+  const yoNombre = app.datos ? app.datos.nombre : (app.yo ? app.yo.nombre : null);
+  $('#nomina').innerHTML = vis.map(f => {
+    const ok = f.hechas.includes(j.id);
+    const yo = f.nombre === yoNombre;
+    return `<button type="button" class="fn ${ok?'ok':''} ${yo?'yo':''}" data-nombre="${esc(f.nombre)}">
+      <span class="ini">${esc(f.nombre.slice(0,2).toUpperCase())}</span>
+      <span class="n"><b>${esc(f.nombre)}${yo?' (tú)':''}</b><small>${esc(f.funcion || f.situacion || '')}${f.licencia?' · licencia':''}</small></span>
+      <span class="mk">${ok?'✓':'›'}</span></button>`;
+  }).join('');
+
+  $('#nominaVacia').hidden = vis.length > 0;
+  $('#nominaCuenta').textContent = trozos.length
+    ? `${vis.length} de ${nom.length} nombres`
+    : `${nom.length} funcionarios`;
 }
 
 /* ---------------------------------------------------------- jornada: dosier */
 function verJornada(j) {
+  const completa = ((app.datos && app.datos.jornadas) || []).find(x => x.id === j.id);
+  if (!completa || !completa.preguntas) { volverNomina(); return; }
+  j = completa;
   app.jornada = j;
   vista('vJornada');
   const reg = hechas(j.id);

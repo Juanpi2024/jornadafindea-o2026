@@ -73,7 +73,11 @@ a.dia.lista .num,a.dia.lista .eti{color:#CDF3EE}
 
 /* Nómina */
 .nomina{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
-.fn{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;background:#111729;border:1px solid #222D4A}
+.fn{display:flex;align-items:center;gap:9px;padding:11px;border-radius:10px;background:#111729;
+  border:1px solid #222D4A;width:100%;min-height:52px;text-align:left;font:inherit;color:inherit;
+  cursor:pointer;transition:border-color .12s,background .12s}
+.fn:hover,.fn:focus-visible{border-color:var(--azul);background:#151C33;outline:none}
+.fn:active{transform:scale(.995)}
 .fn.yo{border-color:var(--azul);background:rgba(110,139,255,.14)}
 .fn .ini{width:28px;height:28px;flex:0 0 auto;border-radius:8px;background:#232C49;color:#9FB0D6;
   font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
@@ -81,7 +85,9 @@ a.dia.lista .num,a.dia.lista .eti{color:#CDF3EE}
 .fn .n{min-width:0;flex:1}
 .fn .n b{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fn .n small{font-size:10px;color:var(--tinta3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.fn .mk{font-size:13px;font-weight:800;color:var(--verde)}
+.fn .mk{font-size:15px;font-weight:800;color:var(--verde)}
+.fn:not(.ok) .mk{color:var(--tinta3);font-weight:600}
+#buscaNomina{margin-top:4px}
 
 /* Preguntas */
 fieldset.q{border:1px solid #243052;border-radius:12px;background:#0F1526;padding:15px 16px;margin:0 0 12px}
