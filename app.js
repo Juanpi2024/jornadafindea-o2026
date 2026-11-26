@@ -158,7 +158,9 @@ async function confirmarCodigo(e) {
   } catch (ex) {
     err.textContent = esRed(ex.message)
       ? 'No hay conexión con el servidor. Revisa tu internet y vuelve a intentar.'
-      : ex.message;
+      : /c[oó]digo personal no coincide/i.test(ex.message)
+        ? 'Esos dígitos no calzan con tu RUT. Son los 4 de antes del guion.'
+        : ex.message;
     err.hidden = false;
   }
   btn.disabled = false; btn.textContent = 'Entrar';
