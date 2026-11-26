@@ -1383,9 +1383,14 @@ function pintarCaso() {
 
       ${abierto ? `
         <div class="revela">
-          <p class="rk">Lo que decía el registro ese mes</p>
-          <p class="rt">${esc(h.quien || 'No hay registro de que alguien interviniera.')}</p>
-        </div>` : ''}
+          <p class="rk">Qué se sabía en ese momento</p>
+          <p class="rt">${esc(h.quien || 'No quedó registro de este mes.')}</p>
+        </div>
+        ${h.oportunidad ? `<div class="oport">
+          <p class="ok">Aquí hay algo que se puede construir</p>
+          <p class="ot">${esc(h.oportunidad)}</p>
+          <p class="on">Guárdate la idea: al final te la vamos a pedir por escrito.</p>
+        </div>` : ''}` : ''}
 
       <footer>
         ${abierto
@@ -1480,13 +1485,15 @@ function pintarCierre() {
     <article class="tarjeta cierre">
       ${lectura}
       <div class="linea">${linea}</div>
-      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>Cómo terminó:</b> ${esc(caso.resultado)}</div>` : ''}
+      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>Cómo siguió:</b> ${esc(caso.resultado)}</div>` : ''}
 
       <div class="cierrePreg">
-        <p class="cpk">La pregunta que sí importa</p>
-        <p>Mirando tu recorrido: <b>¿qué te habría hecho falta para actuar antes?</b>
-          Un dato que no te llegaba, un aviso, una atribución, un lugar donde anotarlo.
-          Escríbelo en las preguntas de más abajo, que es de donde salen los acuerdos de marzo.</p>
+        <p class="cpk">Lo que sigue</p>
+        <p>Este caso no se revisó para ver qué se hizo mal: se revisó para encontrar
+          <b>dónde una regla simple habría cambiado el curso</b>. Tú acabas de recorrer seis momentos
+          donde cabía una.</p>
+        <p style="margin-top:9px"><b>Elige uno solo y escríbelo abajo.</b> El que te parezca más fácil
+          de cumplir desde marzo, no el más ambicioso. De ahí salen los acuerdos del año.</p>
       </div>
     </article>
 

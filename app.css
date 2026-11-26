@@ -546,3 +546,11 @@ a.dia.jor.trancada:hover{border-color:#9FBBD8}
 .cierrePreg .cpk{margin:0 0 6px;font-size:10.5px;font-weight:800;letter-spacing:.07em;
   text-transform:uppercase;color:var(--azul)}
 .cierrePreg p{margin:0;font-size:13.5px;line-height:1.55;color:var(--tinta2)}
+
+/* La oportunidad del mes: lo que se puede construir */
+.oport{margin:12px 20px 0;padding:14px 16px;border-radius:14px;
+  background:rgba(255,240,15,.16);border:1px solid rgba(199,148,0,.4);border-left:3px solid var(--oro);
+  animation:revela .32s cubic-bezier(.2,.8,.3,1) .08s backwards}
+.oport .ok{margin:0 0 5px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#7A5A00}
+.oport .ot{margin:0;font-size:14.5px;line-height:1.5;color:#4A3800;font-weight:600}
+.oport .on{margin:7px 0 0;font-size:11.5px;color:#7A6630}
