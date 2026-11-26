@@ -457,7 +457,10 @@ function pintarNomina(j, consulta) {
 }
 
 /* ---------------------------------------------------------- jornada: dosier */
+let abrioDosier = 0;
+
 function verJornada(j) {
+  abrioDosier = Date.now();
   const completa = ((app.datos && app.datos.jornadas) || []).find(x => x.id === j.id);
   if (!completa || !completa.preguntas) { volverNomina(); return; }
   j = completa;
@@ -623,6 +626,11 @@ async function enviar(j) {
   // saber en qué mes habría actuado cada función.
   const rec = resumenSim();
   if (rec) items.push({id:'sim', enunciado:'Recorrido mes a mes del caso: en qué mes habría actuado', informe:'', respuesta:rec});
+  // Datos internos para el panel. Empiezan con "_" y no se muestran como respuestas.
+  if (abrioDosier) items.push({id:'_tiempo', enunciado:'Minutos en la plataforma', informe:'',
+    respuesta: String(Math.max(1, Math.round((Date.now() - abrioDosier)/1000)))});
+  const mesSim = mesEnQueActuaria();
+  if (mesSim !== null) items.push({id:'_mes', enunciado:'Mes en que habría actuado', informe:'', respuesta: mesSim});
   const btn = $('#formJ').querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent = 'Enviando…';
   try {
@@ -881,45 +889,215 @@ async function abrirPanel(e) {
   btn.disabled = false; btn.textContent = 'Ver avance';
 }
 
+/* ====================================================================
+   Tablero del equipo directivo
+   Gráficos dibujados a mano en SVG: sin librerías, sin pedir nada afuera,
+   y se imprimen bien.
+   ==================================================================== */
+
+const PAL = ['#6E8BFF','#4FD1C5','#F6AD55','#A78BFA','#F56C6C','#63B3ED'];
+const mediana = (a) => { if (!a.length) return 0; const b=[...a].sort((x,y)=>x-y); const m=b.length>>1;
+  return b.length%2 ? b[m] : Math.round((b[m-1]+b[m])/2); };
+const reloj = (seg) => seg >= 3600 ? `${Math.floor(seg/3600)} h ${Math.round(seg%3600/60)} min`
+  : seg >= 60 ? `${Math.round(seg/60)} min` : `${seg} s`;
+
+/** Barras horizontales con su etiqueta y su valor. */
+function barrasH(datos, {max, sufijo = '', alto = 30} = {}) {
+  if (!datos.length) return '<p class="muted"><em>Todavía no hay datos.</em></p>';
+  const tope = max ?? Math.max(1, ...datos.map(d => d.v));
+  return `<div class="bh">${datos.map((d, i) => `
+    <div class="bhf">
+      <span class="bhe" title="${esc(d.k)}">${esc(d.k)}</span>
+      <span class="bhb"><i style="width:${Math.max(1, d.v / tope * 100)}%;background:${d.c || PAL[i % PAL.length]}"></i></span>
+      <span class="bhv">${esc(String(d.etq ?? (d.v + sufijo)))}</span>
+    </div>`).join('')}</div>`;
+}
+
+/** Anillo de porcentaje. */
+function anillo(pct, etiqueta, color = 'var(--azul)') {
+  const r = 52, c = 2 * Math.PI * r, p = Math.max(0, Math.min(100, pct));
+  return `<svg class="anillo" viewBox="0 0 130 130" role="img" aria-label="${esc(etiqueta)}: ${p}%">
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="#1E2740" stroke-width="13"/>
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p / 100)}" transform="rotate(-90 65 65)"/>
+    <text x="65" y="60" text-anchor="middle" class="anN">${p}%</text>
+    <text x="65" y="80" text-anchor="middle" class="anE">${esc(etiqueta)}</text>
+  </svg>`;
+}
+
+/** Columnas, para repartos ordenados en el tiempo. */
+function columnas(datos, {alto = 150} = {}) {
+  if (!datos.length) return '<p class="muted"><em>Todavía no hay datos.</em></p>';
+  const tope = Math.max(1, ...datos.map(d => d.v));
+  const an = 100 / datos.length;
+  return `<div class="col" style="height:${alto}px">${datos.map((d, i) => `
+    <div class="colb" style="width:${an}%" title="${esc(d.k)}: ${d.v}">
+      <span class="colv">${d.v || ''}</span>
+      <i style="height:${d.v / tope * 100}%;background:${d.c || PAL[i % PAL.length]}"></i>
+      <span class="colk">${esc(d.k)}</span>
+    </div>`).join('')}</div>`;
+}
+
 function pintarPanel() {
   const d = panelDatos;
-  const js = d.jornadas, fs = d.funcionarios, rs = d.respuestas;
+  const js = d.jornadas;
+  const fs = d.funcionarios;
+  // Se ignoran filas sueltas sin jornada: no son respuestas de nadie.
+  const rs = (d.respuestas || []).filter(r => r.jornadaId);
+  const perfiles = d.perfiles || [];
   const key = (n) => String(n).toLowerCase();
+
   const hecho = {};
   rs.forEach(r => { (hecho[key(r.nombre)] = hecho[key(r.nombre)] || {})[r.jornadaId] = r; });
+  const dato = (r, id) => { const it = (r.items||[]).find(x => x.id === id); return it ? it.respuesta : null; };
+  const segs = rs.map(r => Number(dato(r, '_tiempo'))).filter(n => n > 0);
 
   const total = fs.length * js.length;
   const pct = total ? Math.round(rs.length / total * 100) : 0;
   const tarde = rs.filter(r => r.fueraDePlazo).length;
+  const nomP = (id) => (perfiles.find(p => p.id === id) || {}).nombre || 'Sin perfil';
+
+  // ---- avance por jornada y por perfil ----
+  const porJornada = js.map(j => {
+    const n = rs.filter(r => r.jornadaId === j.id).length;
+    return {k: j.titulo.replace(/^PEI /,''), v: n, etq: `${n} de ${fs.length}`};
+  });
+  const porPerfil = perfiles.map((p, i) => {
+    const gente = fs.filter(f => f.perfil === p.id);
+    const n = gente.filter(f => Object.keys(hecho[key(f.nombre)] || {}).length).length;
+    return {k: p.nombre, v: gente.length ? Math.round(n / gente.length * 100) : 0,
+            etq: `${n}/${gente.length}`, c: PAL[i % PAL.length]};
+  });
+
+  // ---- en qué mes habría actuado cada perfil ----
+  const mesPorPerfil = {};
+  rs.forEach(r => {
+    const m = dato(r, '_mes'); if (!m) return;
+    const f = fs.find(x => key(x.nombre) === key(r.nombre));
+    const p = f ? nomP(f.perfil) : 'Sin perfil';
+    ((mesPorPerfil[m] = mesPorPerfil[m] || {})[p] = (mesPorPerfil[m][p] || 0) + 1);
+  });
+  const meses = Object.entries(mesPorPerfil)
+    .map(([k, v]) => ({k, v: Object.values(v).reduce((a, c) => a + c, 0), det: v}));
+
+  // ---- lo más marcado en los riesgos del comité ----
+  const riesgos = {};
+  rs.forEach(r => {
+    const v = dato(r, 's2'); if (!v) return;
+    v.split(' | ').filter(Boolean).forEach(x => riesgos[x] = (riesgos[x] || 0) + 1);
+  });
+  const topRiesgos = Object.entries(riesgos).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => ({k, v, c: k.startsWith('No he visto') ? 'var(--verde)' : 'var(--ambar)'}));
+
+  // ---- banco de acciones para el PME ----
+  const acciones = [];
+  rs.forEach(r => {
+    const f = fs.find(x => key(x.nombre) === key(r.nombre));
+    (r.items||[]).forEach(it => {
+      if (String(it.id||'').startsWith('_') || !it.respuesta) return;
+      const p = d.preguntas.find(x => x.codigo === it.id && x.jornada_id === r.jornadaId);
+      if (p && p.informe === 'acciones') acciones.push({perfil: f ? nomP(f.perfil) : '—', txt: it.respuesta});
+    });
+  });
+
+  const sinResponder = fs.filter(f => !Object.keys(hecho[key(f.nombre)] || {}).length);
 
   $('#panelBody').innerHTML = `
-    <div class="card"><div class="kpis">
-      <div><b>${pct}%</b><span class="muted">de avance total</span></div>
-      <div><b>${rs.length}</b><span class="muted">respuestas de ${total} posibles</span></div>
-      <div><b>${fs.length}</b><span class="muted">funcionarios en la nómina</span></div>
-      ${tarde?`<div><b style="color:var(--ambar)">${tarde}</b><span class="muted">fuera de plazo</span></div>`:''}
-    </div></div>
+    <div class="card">
+      <div class="tabCab">
+        ${anillo(pct, 'avance', pct >= 80 ? 'var(--verde)' : pct >= 40 ? 'var(--azul)' : 'var(--ambar)')}
+        <div class="kpis" style="flex:1">
+          <div><b>${rs.length}</b><span class="muted">respuestas de ${total} posibles</span></div>
+          <div><b>${fs.length - sinResponder.length}</b><span class="muted">de ${fs.length} ya participaron</span></div>
+          <div><b${tarde?' style="color:var(--ambar)"':''}>${tarde}</b><span class="muted">fuera de plazo</span></div>
+          <div><b>${segs.length ? reloj(mediana(segs)) : '—'}</b><span class="muted">tiempo típico por jornada</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rejilla">
+      <div class="card"><h2>Avance por jornada</h2>
+        ${barrasH(porJornada, {max: fs.length})}</div>
+      <div class="card"><h2>Avance por perfil</h2>
+        ${barrasH(porPerfil, {max: 100, sufijo: '%'})}
+        <p class="muted" style="margin:10px 0 0">El número es cuántos de ese perfil ya participaron.</p></div>
+    </div>
+
+    <div class="card"><h2>En qué mes habría actuado cada uno</h2>
+      <p class="muted">Del recorrido mes a mes del caso. Es el dato que no existía antes:
+        muestra cuánto antes se habría movido la ficha si cada función hubiera tenido cómo.</p>
+      ${columnas(meses)}
+      ${meses.length ? `<div class="leyenda">${meses.map(m => `<span><b>${esc(m.k)}</b>: ${
+        Object.entries(m.det).map(([p, n]) => `${esc(p)} ${n}`).join(' · ')}</span>`).join('')}</div>` : ''}
+    </div>
+
+    <div class="rejilla">
+      <div class="card"><h2>Tiempo en la plataforma</h2>
+        ${segs.length ? `
+          <div class="kpis"><div><b>${reloj(mediana(segs))}</b><span class="muted">mediana</span></div>
+            <div><b>${reloj(Math.min(...segs))}</b><span class="muted">el más rápido</span></div>
+            <div><b>${reloj(Math.max(...segs))}</b><span class="muted">el más largo</span></div></div>
+          ${columnas([
+            {k:'menos de 10', v: segs.filter(x=>x<600).length},
+            {k:'10 a 20',     v: segs.filter(x=>x>=600&&x<1200).length},
+            {k:'20 a 40',     v: segs.filter(x=>x>=1200&&x<2400).length},
+            {k:'40 a 60',     v: segs.filter(x=>x>=2400&&x<3600).length},
+            {k:'más de 60',   v: segs.filter(x=>x>=3600).length}], {alto:120})}
+          <p class="muted" style="margin:8px 0 0">Minutos entre abrir el dosier y enviar.</p>`
+        : '<p class="muted"><em>Se empieza a medir con la primera respuesta enviada.</em></p>'}
+      </div>
+      <div class="card"><h2>Riesgos marcados por el comité</h2>
+        ${barrasH(topRiesgos.slice(0, 8))}
+        ${topRiesgos.length ? '<p class="muted" style="margin:10px 0 0">Cuántas personas marcaron cada condición en su puesto.</p>'
+                            : '<p class="muted"><em>Aparece cuando respondan el día 1.</em></p>'}
+      </div>
+    </div>
+
+    ${sinResponder.length ? `<div class="card"><h2>Quiénes faltan · ${sinResponder.length}</h2>
+      <div class="faltan">${sinResponder.map(f =>
+        `<span class="ft">${esc(f.nombre)}<small>${esc(nomP(f.perfil))}</small></span>`).join('')}</div></div>` : ''}
+
     <div class="card">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
-        <h2 style="margin:0;flex:1">Avance por funcionario</h2>
+        <h2 style="margin:0;flex:1">Quién contestó y cuándo</h2>
         <button class="btn sm" id="bCsv">Descargar CSV</button>
         ${js.map(j=>`<button class="btn sm pri" data-ficha="${esc(j.id)}">Ficha ADP · ${esc(j.titulo.replace(/^PEI /,''))}</button>`).join('')}
       </div>
-      <div class="tw"><table><thead><tr><th>Funcionario</th><th>Función</th>
-        ${js.map(j=>`<th title="${esc(j.titulo)}">${esc(fdate(j.fecha))}</th>`).join('')}</tr></thead>
-        <tbody>${fs.map(f=>{
-          const h = hecho[key(f.nombre)] || {};
-          return `<tr><td>${esc(f.nombre)}${f.licencia?' <small class="muted">(licencia)</small>':''}</td>
-            <td class="muted">${esc(f.situacion||'')}</td>
-            ${js.map(j=>{const r=h[j.id];
-              return r ? `<td class="c ${r.fueraDePlazo?'tarde':'si'}" title="${esc(new Date(r.fecha).toLocaleString('es-CL'))}${r.fueraDePlazo?' · fuera de plazo':''}">✓${r.reenvios?`<small> ${r.reenvios}×</small>`:''}</td>`
-                        : `<td class="c no">–</td>`;}).join('')}</tr>`;
+      <div class="tw"><table><thead><tr><th>Funcionario</th><th>Perfil</th>
+        ${js.map(j=>`<th title="${esc(j.titulo)}">${esc(fdate(j.fecha))}</th>`).join('')}<th>Tiempo</th></tr></thead>
+        <tbody>${perfiles.flatMap(p => {
+          const gente = fs.filter(f => f.perfil === p.id);
+          if (!gente.length) return [];
+          return [`<tr class="grp"><td colspan="${js.length+3}">${esc(p.nombre)} · ${gente.length}</td></tr>`]
+            .concat(gente.map(f => {
+              const h = hecho[key(f.nombre)] || {};
+              const mis = Object.values(h).map(r => Number(dato(r, '_tiempo'))).filter(n => n > 0);
+              return `<tr><td>${esc(f.nombre)}${f.licencia?' <small class="muted">(licencia)</small>':''}</td>
+                <td class="muted">${esc(f.situacion||'')}</td>
+                ${js.map(j=>{const r=h[j.id];
+                  return r ? `<td class="c ${r.fueraDePlazo?'tarde':'si'}" title="${esc(new Date(r.fecha).toLocaleString('es-CL'))}${r.fueraDePlazo?' · fuera de plazo':''}">✓${r.reenvios?`<small> ${r.reenvios}×</small>`:''}</td>`
+                            : `<td class="c no">–</td>`;}).join('')}
+                <td class="c muted">${mis.length ? reloj(mis.reduce((a,b)=>a+b,0)) : '–'}</td></tr>`;
+            }));
         }).join('')}</tbody></table></div>
-      <p class="muted">✓ verde a tiempo · ✓ naranjo fuera de plazo (lo marca el servidor con su fecha) · – sin responder</p>
+      <p class="muted">✓ verde a tiempo · ✓ naranjo fuera de plazo (lo marca el servidor con su reloj) · – sin responder</p>
     </div>
+
+    <div class="card"><h2>Banco de acciones para el PME · ${acciones.length}</h2>
+      <p class="muted">Todo lo que los 35 propusieron como acción concreta, agrupado por perfil.
+        Es el insumo directo para formular el plan.</p>
+      ${acciones.length ? `<div class="tw"><table><thead><tr><th>Perfil</th><th>Acción propuesta</th></tr></thead>
+        <tbody>${acciones.map(a=>`<tr><td class="muted">${esc(a.perfil)}</td><td>${esc(a.txt)}</td></tr>`).join('')}
+        </tbody></table></div>
+        <button class="btn sm" id="bAcc" style="margin-top:10px">Descargar el banco en CSV</button>`
+      : '<p class="muted"><em>Se va llenando a medida que respondan.</em></p>'}
+    </div>
+
     <div id="ficha"></div>`;
 
   $('#bCsv').onclick = csv;
+  const ba = $('#bAcc'); if (ba) ba.onclick = () => bajar('banco-acciones-pme.csv',
+    [['Perfil','Acción propuesta'], ...acciones.map(a => [a.perfil, a.txt])]);
   document.querySelectorAll('[data-ficha]').forEach(b => b.onclick = () => ficha(b.dataset.ficha));
 }
 
@@ -931,6 +1109,7 @@ function ficha(jornadaId) {
   const secc = {fortalezas:[], areasMejora:[], acciones:[], impacto:[]};
   const escalas = {}, cerradas = {};
   rs.forEach(r => (r.items||[]).forEach(it => {
+    if (String(it.id||'').startsWith('_')) return;      // datos internos del panel
     const p = ps.find(x => x.codigo === it.id);
     if (!p || !it.respuesta) return;
     if (p.informe && secc[p.informe]) secc[p.informe].push(it.respuesta);
@@ -1008,20 +1187,34 @@ function celda(v) {
   return `"${s.replace(/"/g,'""')}"`;
 }
 
-function csv() {
-  const d = panelDatos;
-  const l = [['fecha','funcionario','funcion','jornada','pregunta','respuesta','palabras','fuera de plazo','reenvios'].map(celda).join(';')];
-  d.respuestas.forEach(r => {
-    const f = d.funcionarios.find(x => x.nombre === r.nombre) || {};
-    const j = d.jornadas.find(x => x.id === r.jornadaId) || {};
-    (r.items||[]).forEach(it => l.push([r.fecha, r.nombre, f.situacion||'', j.titulo||r.jornadaId,
-      it.enunciado, it.respuesta, palabras(it.respuesta), r.fueraDePlazo?'sí':'no', r.reenvios||0].map(celda).join(';')));
-  });
-  const b = new Blob(['﻿'+l.join('\r\n')], {type:'text/csv;charset=utf-8'});
+/** Baja una tabla como CSV, con BOM para que Excel lea bien las tildes. */
+function bajar(nombre, filas) {
+  const txt = filas.map(f => f.map(celda).join(';')).join('\r\n');
+  const b = new Blob(['\ufeff' + txt], {type:'text/csv;charset=utf-8'});
   const u = URL.createObjectURL(b);
   const a = document.createElement('a');
-  a.href = u; a.download = 'jornadas_respuestas.csv'; a.click();
+  a.href = u; a.download = nombre; a.click();
   setTimeout(() => URL.revokeObjectURL(u), 2000);
+}
+
+function csv() {
+  const d = panelDatos;
+  const perfil = (n) => {
+    const f = d.funcionarios.find(x => x.nombre === n) || {};
+    return ((d.perfiles||[]).find(p => p.id === f.perfil) || {}).nombre || '';
+  };
+  const filas = [['fecha','funcionario','funcion','perfil','jornada','pregunta','respuesta',
+                  'palabras','fuera de plazo','reenvios']];
+  (d.respuestas||[]).filter(r => r.jornadaId).forEach(r => {
+    const f = d.funcionarios.find(x => x.nombre === r.nombre) || {};
+    const j = d.jornadas.find(x => x.id === r.jornadaId) || {};
+    (r.items||[]).forEach(it => {
+      if (String(it.id||'').startsWith('_')) return;    // datos internos del panel
+      filas.push([r.fecha, r.nombre, f.situacion||'', perfil(r.nombre), j.titulo||r.jornadaId,
+        it.enunciado, it.respuesta, palabras(it.respuesta), r.fueraDePlazo?'sí':'no', r.reenvios||0]);
+    });
+  });
+  bajar('jornadas_respuestas.csv', filas);
 }
 
 
@@ -1219,6 +1412,15 @@ function pintarCierre() {
       sirve saber en qué mes cada función habría actuado, no quién acertó.</p>`;
 
   $('#simOtra').addEventListener('click', () => { sim.paso = -1; sim.abierto = false; sim.decidido = []; pintarCaso(); });
+}
+
+/** El mes en que habría movido la ficha, suelto, para poder graficarlo. */
+function mesEnQueActuaria() {
+  if (!sim || !sim.caso) return null;
+  const hitos = sim.caso.hitos || [];
+  if (!sim.decidido.filter(Boolean).length) return null;
+  const i = sim.decidido.findIndex(d => d === 'registro' || d === 'contacto');
+  return i >= 0 ? (hitos[i] || {}).cuando || '' : 'No habría intervenido';
 }
 
 /** Resumen de lo decidido, para que viaje junto a las respuestas. */

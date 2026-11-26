@@ -428,3 +428,40 @@ a.dia:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px rgba(0,0,0,.
 #quienSoy{font-size:12.5px;text-align:right;line-height:1.3}
 #quienSoy b{display:block;font-weight:700}
 #quienSoy small{display:block;font-size:11px;color:var(--tinta3);font-weight:400;margin-top:1px}
+
+/* ====================================================================
+   Tablero del equipo directivo
+   ==================================================================== */
+.rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.rejilla>.card{margin-bottom:0}
+.tabCab{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+
+.anillo{width:130px;height:130px;flex:0 0 auto}
+.anillo .anN{fill:var(--tinta);font-size:27px;font-weight:800;letter-spacing:-.02em}
+.anillo .anE{fill:var(--tinta3);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+.bh{display:grid;gap:9px}
+.bhf{display:grid;grid-template-columns:minmax(78px,30%) 1fr auto;align-items:center;gap:10px}
+.bhe{font-size:12.5px;color:var(--tinta2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bhb{height:11px;border-radius:99px;background:#1A2238;overflow:hidden}
+.bhb i{display:block;height:100%;border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.bhv{font-size:12.5px;font-weight:700;color:var(--tinta);min-width:46px;text-align:right}
+
+.col{display:flex;align-items:flex-end;gap:7px;margin-top:12px}
+.colb{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.colb i{display:block;width:100%;max-width:56px;border-radius:7px 7px 0 0;min-height:3px;
+  transition:height .6s cubic-bezier(.2,.8,.3,1)}
+.colv{font-size:12px;font-weight:800;margin-bottom:5px;color:var(--tinta)}
+.colk{font-size:10.5px;color:var(--tinta3);margin-top:7px;text-align:center;line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;width:100%}
+.leyenda{display:grid;gap:5px;margin-top:14px;padding-top:12px;border-top:1px solid #1E2740}
+.leyenda span{font-size:12px;color:var(--tinta3)}
+.leyenda b{color:var(--tinta2)}
+
+.faltan{display:flex;flex-wrap:wrap;gap:7px}
+.ft{display:inline-flex;flex-direction:column;background:rgba(246,173,85,.1);
+  border:1px solid rgba(246,173,85,.3);border-radius:11px;padding:7px 11px;font-size:12.5px}
+.ft small{font-size:10.5px;color:var(--tinta3)}
+
+tr.grp td{background:#131B2F;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--tinta3);padding:7px 10px}
