@@ -376,8 +376,8 @@ function verCalendario() {
     $('#miAvance').innerHTML = `<div class="barra"><i style="width:${Math.round(listas/js.length*100)}%"></i></div>
       <p class="muted" style="margin:0">Llevas ${listas} de ${js.length} jornadas respondidas.</p>`;
   } else {
-    $('#miAvance').innerHTML = `<p class="muted" style="margin:0">Cada jornada se abre solo el día que corresponde.
-      Toca el día para ver el material, que sí está disponible desde ya.</p>`;
+    $('#miAvance').innerHTML = `<p class="muted" style="margin:0">El material de cada día está disponible
+      desde ya, aunque la actividad todavía no abra.</p>`;
   }
 
   $('#listaJornadas').innerHTML = js.map(j => {

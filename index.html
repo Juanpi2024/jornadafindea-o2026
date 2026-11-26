@@ -9,14 +9,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=260958">
+<link rel="stylesheet" href="app.css?v=261005">
+  <link rel="icon" href="img/icono-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="img/icono-180.png">
+  <meta name="theme-color" content="#015EA9">
 </head>
 <body>
 
 <header class="top">
   <div class="in">
-    <a href="#" style="text-decoration:none;color:inherit" class="marca">APP CEIA 2027
-      <small>“Jornadas fin de año” · CEIA Juanita Zúñiga Fuentes</small></a>
+    <a href="#" class="marca">
+      <img class="logo" src="img/logo.png" alt="">
+      <span>APP CEIA 2027
+        <small>“Jornadas fin de año” · CEIA Juanita Zúñiga Fuentes · Parral</small></span>
+    </a>
     <nav>
       <span id="barraUsuario" hidden style="display:flex;gap:10px;align-items:center">
         <span id="quienSoy"></span>
@@ -52,13 +58,10 @@
     <div class="card">
       <p class="eyebrow">Calendario de las jornadas</p>
       <h1>Elige el día</h1>
-      <p class="lead">Los días con actividad están marcados. Toca uno para ver quiénes participan
-        y abrir el dosier del taller.</p>
-      <div id="miAvance"></div>
+      <p class="lead">Toca un día para ver el material y la nómina de quiénes participan. Cada jornada se abre el día que corresponde.</p>
+<div id="miAvance"></div>
       <div class="leyenda">
-        <span><i class="pt" style="background:var(--verde)"></i> Ya respondiste</span>
-        <span><i class="pt" style="background:var(--ambar)"></i> Abierta hoy</span>
-        <span><i class="pt" style="background:var(--azul)"></i> Por venir</span>
+
       </div>
     </div>
     <div id="avisoHorario"></div>
@@ -147,11 +150,11 @@
 
   <footer class="pie">
     <span>APP CEIA 2027 · “Jornadas fin de año” · CEIA Juanita Zúñiga Fuentes</span>
-    <span id="sello">v. 26-Nov 09:58</span>
+    <span id="sello">v. 26-Nov 10:05</span>
   </footer>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="app.js?v=260958"></script>
+<script src="app.js?v=261005"></script>
 </body>
 </html>
