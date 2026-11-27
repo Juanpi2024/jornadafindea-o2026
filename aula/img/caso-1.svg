@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Una pizarra con la ruta de la clase sin escribir y un reloj que marca los últimos minutos">
+  <rect width="640" height="360" fill="#EAF2FA"/>
+  <path d="M0 268h640v92H0z" fill="#DCE7F2"/>
+  <!-- pizarra -->
+  <rect x="44" y="52" width="330" height="196" rx="6" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
+  <rect x="44" y="238" width="330" height="10" rx="3" fill="#CFE2F3"/>
+  <text x="68" y="90" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="700" fill="#0F2C47">Ruta de la clase</text>
+  <!-- tres bloques, los dos ultimos vacios -->
+  <rect x="68" y="108" width="128" height="20" rx="5" fill="#0F8A5F"/>
+  <text x="206" y="124" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#3B5A76">activación 12'</text>
+  <rect x="68" y="142" width="128" height="20" rx="5" fill="#FBFDFF" stroke="#C3D6E8" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="68" y="176" width="128" height="20" rx="5" fill="#FBFDFF" stroke="#C3D6E8" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="68" y="210" width="128" height="20" rx="5" fill="#FBFDFF" stroke="#C62828" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="206" y="226" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#C62828">cierre: sin escribir</text>
+  <!-- reloj -->
+  <circle cx="500" cy="138" r="78" fill="#FBFDFF" stroke="#8A4B20" stroke-width="4"/>
+  <circle cx="500" cy="138" r="5" fill="#8A4B20"/>
+  <path d="M500 138L466 122" stroke="#0F2C47" stroke-width="7" stroke-linecap="round"/>
+  <path d="M500 138L453 111" stroke="#C62828" stroke-width="6" stroke-linecap="round"/>
+  <path d="M500 60v10M578 138h-10M500 216v-10M422 138h10" stroke="#8A4B20" stroke-width="4" stroke-linecap="round"/>
+  <text x="500" y="252" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#8A4B20">09:50</text>
+  <!-- timbre -->
+  <path d="M540 316c0-16 13-29 29-29s29 13 29 29z" fill="#C77A00"/>
+  <rect x="535" y="316" width="68" height="8" rx="4" fill="#8F5A00"/>
+  <path d="M569 287v-9" stroke="#8F5A00" stroke-width="4" stroke-linecap="round"/>
+  <path d="M516 300c-7 4-11 10-11 17M504 286c-13 7-18 17-18 29" stroke="#C77A00" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <text x="68" y="318" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#4E6275">Indicadores 1.1.1 y 1.1.3 &#183; promedio 2,9 y 2,7</text>
+</svg>
