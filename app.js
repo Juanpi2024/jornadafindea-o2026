@@ -1538,7 +1538,8 @@ function vistaPreviaRice() {
     {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'},
     {id:'k1ILVDKI8Vo', titulo:'El engranaje oculto que hace funcionar un colegio', duracion:'Short', short:true},
     {id:'v2qqLMlZXgI', titulo:'Paradocentes y auxiliares', duracion:'Short', short:true},
-    {id:'CUPt6-kLHII', titulo:'Higiene y Seguridad CEIA', duracion:'6:38'}
+    {id:'CUPt6-kLHII', titulo:'Higiene y Seguridad CEIA', duracion:'6:38'},
+    {id:'03rXRMsbI4E', titulo:'Faltas CEIA 2026–2027', duracion:'5:59'}
   ];
   const extracto = `<section aria-label="Video principal del RICE" style="margin-bottom:24px">
     <h3>Comienza aquí · Extracto general de RICE</h3>
