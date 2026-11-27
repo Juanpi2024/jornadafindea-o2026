@@ -474,7 +474,7 @@ function verDia(j) {
   if ((j.sigla || 'PEI') === 'RICE') {
     $('#diaMaterial').innerHTML = `<h2>Material de la jornada · RICE</h2>
       <p class="muted">Recorre la presentación general antes de responder. Las tres partes incluyen 50 láminas con narración de Silvana.</p>
-      ${vistaPreviaRice()}
+      ${vistaPreviaRice(j.id)}
       <p>Parte A: Comunidad y funcionamiento · Parte B: Seguridad y convivencia · Parte C: Protocolos y anexos.</p>
       <p class="muted">Duración de las locuciones: 22 minutos. Puedes pausar, avanzar y volver a cualquier lámina.</p>`;
   }
@@ -607,7 +607,7 @@ function verJornada(j) {
   $('#jDosier').innerHTML = `
     ${banda}
     <h2${pf?' style="margin-top:18px"':''}>Dosier del día</h2>
-    ${mat ? ((j.sigla || 'PEI') === 'RICE' ? vistaPreviaRice() : `<a class="btn" style="width:100%;margin-bottom:8px" href="${esc(mat.url)}" target="_blank" rel="noopener">
+    ${mat ? ((j.sigla || 'PEI') === 'RICE' ? vistaPreviaRice(j.id) : `<a class="btn" style="width:100%;margin-bottom:8px" href="${esc(mat.url)}" target="_blank" rel="noopener">
       ▶ ${esc(mat.titulo)}</a>
     <p class="muted" style="margin:0">${esc(mat.nota)}</p>`)
     : `<div class="aviso" style="margin:0">La presentación y los videos de esta jornada se publican aquí
@@ -1575,12 +1575,15 @@ function videosPeiDia2() {
   </section>`;
 }
 
-function vistaPreviaRice() {
-  const videos = [
+function vistaPreviaRice(jornadaId = 'rice-dia-1') {
+  const videos = jornadaId === 'rice-dia-2' ? [
+    {id:'03rXRMsbI4E', titulo:'Faltas CEIA 2026–2027', duracion:'5:59'},
+    {id:'IYW3k7bgCLo', titulo:'Prevención y conflictos', duracion:'5:53'},
+    {id:'RxGSzvIO8is', titulo:'Medidas y debido proceso', duracion:'6:45'}
+  ] : [
     {id:'tnFxLXMon7s', titulo:'Protocolos de seguridad 2026–2027', duracion:'8:14'},
     {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'},
-    {id:'CUPt6-kLHII', titulo:'Higiene y Seguridad CEIA', duracion:'6:38'},
-    {id:'03rXRMsbI4E', titulo:'Faltas CEIA 2026–2027', duracion:'5:59'}
+    {id:'CUPt6-kLHII', titulo:'Higiene y Seguridad CEIA', duracion:'6:38'}
   ];
   const extracto = `<section aria-label="Video principal del RICE" style="margin-bottom:24px">
     <h3>Comienza aquí · Extracto general de RICE</h3>
@@ -1590,7 +1593,7 @@ function vistaPreviaRice() {
     </a>
   </section>`;
   return extracto + vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
-    <h3>Videos complementarios del RICE</h3>
+    <h3>Videos complementarios · RICE día ${jornadaId === 'rice-dia-2' ? '2' : '1'}</h3>
     <div class="materiales">${videos.map(v => `
       <a class="mini" href="${v.short ? 'https://www.youtube.com/shorts/' + v.id : 'https://www.youtube.com/watch?v=' + v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
         <span class="lienzo">
