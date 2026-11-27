@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Calendario con octubre marcado junto a un campo de temporada en Parral">
+  <rect width="640" height="360" fill="#EAF2FA"/>
+  <circle cx="520" cy="96" r="38" fill="#F6C65B"/>
+  <path d="M348 254h292v34H348z" fill="#CDE3CF"/>
+  <g stroke="#0F8A5F" stroke-width="5" stroke-linecap="round" opacity=".85">
+    <path d="M376 254v-42M414 254v-54M452 254v-38M490 254v-50M528 254v-42M566 254v-52M604 254v-40"/>
+  </g>
+  <g fill="#0F8A5F" opacity=".55">
+    <circle cx="376" cy="208" r="11"/><circle cx="414" cy="196" r="11"/><circle cx="452" cy="212" r="11"/>
+    <circle cx="490" cy="200" r="11"/><circle cx="528" cy="208" r="11"/><circle cx="566" cy="198" r="11"/><circle cx="604" cy="210" r="11"/>
+  </g>
+  <!-- calendario -->
+  <rect x="44" y="76" width="266" height="212" rx="11" fill="#FBFDFF" stroke="#015EA9" stroke-width="3.5"/>
+  <path d="M44 87a11 11 0 0 1 11-11h244a11 11 0 0 1 11 11v41H44z" fill="#015EA9"/>
+  <g fill="#FBFDFF"><rect x="92" y="60" width="12" height="32" rx="6"/><rect x="250" y="60" width="12" height="32" rx="6"/></g>
+  <text x="177" y="116" font-family="system-ui,sans-serif" font-size="21" font-weight="800" fill="#fff" text-anchor="middle" letter-spacing="2">OCTUBRE</text>
+  <g fill="#CBDCEB">
+    <rect x="68" y="148" width="26" height="22" rx="4"/><rect x="106" y="148" width="26" height="22" rx="4"/>
+    <rect x="144" y="148" width="26" height="22" rx="4"/><rect x="182" y="148" width="26" height="22" rx="4"/>
+    <rect x="220" y="148" width="26" height="22" rx="4"/><rect x="258" y="148" width="26" height="22" rx="4"/>
+    <rect x="68" y="182" width="26" height="22" rx="4"/><rect x="106" y="182" width="26" height="22" rx="4"/>
+    <rect x="182" y="182" width="26" height="22" rx="4"/><rect x="220" y="182" width="26" height="22" rx="4"/>
+    <rect x="258" y="182" width="26" height="22" rx="4"/>
+  </g>
+  <rect x="144" y="182" width="26" height="22" rx="4" fill="#C77A00"/>
+  <g fill="#E2B6B6">
+    <rect x="68" y="216" width="26" height="22" rx="4"/><rect x="106" y="216" width="26" height="22" rx="4"/>
+    <rect x="144" y="216" width="26" height="22" rx="4"/><rect x="182" y="216" width="26" height="22" rx="4"/>
+    <rect x="220" y="216" width="26" height="22" rx="4"/><rect x="258" y="216" width="26" height="22" rx="4"/>
+    <rect x="68" y="250" width="26" height="22" rx="4"/><rect x="106" y="250" width="26" height="22" rx="4"/>
+    <rect x="144" y="250" width="26" height="22" rx="4"/>
+  </g>
+  <text x="177" y="306" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#C62828" text-anchor="middle">deja de asistir</text>
+</svg>

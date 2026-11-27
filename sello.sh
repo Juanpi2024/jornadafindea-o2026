@@ -1,4 +1,7 @@
 #!/bin/sh
+
+# El JSON de evaluación manda: app.js se regenera desde él antes de sellar.
+python3 "$(dirname "$0")/sincroniza-evaluacion.py" || exit 1
 # Sella la versión antes de publicar: cambia el ?v= de los archivos y deja a la
 # vista la fecha, para poder comprobar de un vistazo qué versión se está viendo.
 V=$(date +%d%H%M)

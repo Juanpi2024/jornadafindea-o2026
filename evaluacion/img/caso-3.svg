@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Tres guías de proceso y una autoevaluación que se quieren promediar en una sola nota">
+  <rect width="640" height="360" fill="#EAF2FA"/>
+  <g>
+    <rect x="48"  y="96"  width="104" height="140" rx="7" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
+    <rect x="166" y="96"  width="104" height="140" rx="7" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
+    <rect x="284" y="96"  width="104" height="140" rx="7" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
+  </g>
+  <g stroke="#9FBBD8" stroke-width="4" stroke-linecap="round">
+    <path d="M68 128h64M68 148h48M68 168h58M186 128h64M186 148h48M186 168h58M304 128h64M304 148h48M304 168h58"/>
+  </g>
+  <g fill="none" stroke="#0F8A5F" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M70 200l12 12 22-26"/><path d="M188 200l12 12 22-26"/><path d="M306 200l12 12 22-26"/>
+  </g>
+  <text x="48" y="266" font-family="system-ui,sans-serif" font-size="16" font-weight="600" fill="#3B5A76">guías de proceso y autoevaluación</text>
+  <path d="M404 166h66" fill="none" stroke="#C77A00" stroke-width="5" stroke-linecap="round"/>
+  <path d="M466 154l22 12-22 12z" fill="#C77A00"/>
+  <rect x="500" y="110" width="96" height="112" rx="9" fill="#FBFDFF" stroke="#C77A00" stroke-width="3.5"/>
+  <text x="548" y="180" font-family="system-ui,sans-serif" font-size="46" font-weight="800" fill="#C77A00" text-anchor="middle">?</text>
+  <text x="548" y="206" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#8F5A00" text-anchor="middle">¿una nota?</text>
+</svg>
