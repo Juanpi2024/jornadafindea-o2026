@@ -501,6 +501,7 @@ tr.grp td{background:#F3F7FC;font-size:11px;font-weight:800;letter-spacing:.06em
 .dia.tema-planificacion .sigla{background:#8F5A00}
 .dia.tema-adp .sigla{background:#9B3357}
 .dia.tema-slep .sigla{background:#3A52A0}
+.dia.tema-aula .sigla{background:#8A4B20}
 /* Una sigla larga, como PLANIFICACIÓN, cabe apretando un poco la letra. */
 .dia.siglaLarga .sigla{font-size:8px;letter-spacing:.02em;padding:3px 4px}
 .dia.jor.trancada .sigla{background:var(--tinta3)}
