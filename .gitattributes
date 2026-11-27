@@ -1,0 +1,8 @@
+# El repo guarda siempre finales de línea LF, aunque se edite en Windows.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.mp3 binary
+*.mp4 binary
+*.pdf binary

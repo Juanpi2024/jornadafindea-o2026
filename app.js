@@ -342,11 +342,13 @@ function verCalendario() {
               : st === 'porvenir' ? 'Se abre el ' + fdateLarga(j.fecha) : 'Cerrada: la actividad era el ' + fdateLarga(j.fecha);
     // La sigla identifica el tema de la jornada en la casilla: PEI, RICE…
     const sigla = j.sigla || j.titulo.split(' ')[0];
-    const resto = j.titulo.replace(sigla, '').split('·')[0].trim() || j.subtitulo || '';
+    let resto = j.titulo.replace(sigla, '').split('·')[0].trim();
+    if (!resto || resto.toLowerCase().startsWith(sigla.toLowerCase().slice(0, 4)))
+      resto = j.titulo.split('·').slice(1).join('·').trim() || j.subtitulo || '';
     return `<a class="dia jor tema-${esc(sigla.toLowerCase())} ${tono}${hoyCl}" href="#dia-${esc(j.id)}"
       title="${esc(j.titulo)} · ${esc(tit)}">
       <span class="cand" aria-hidden="true">${candado}</span>
-      ${num}<span class="sigla">${esc(sigla)}</span><span class="eti">${esc(resto.slice(0,16))}</span></a>`;
+      ${num}<span class="sigla">${esc(sigla)}</span><span class="eti">${esc(resto.slice(0,18))}</span></a>`;
   };
 
   const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;
@@ -644,7 +646,7 @@ function verJornada(j) {
   });
   let n = 0;
   $('#formJ').innerHTML = partes.map(g => `
-    <fieldset class="q" style="border-color:#2C3A61"><legend>${esc(g.nombre)}</legend>
+    <fieldset class="q"><legend>${esc(g.nombre)}</legend>
     ${NOTA_PARTE[g.nombre] || ''}
     ${g.ps.map(p => campo(p, ++n, prev[p.id])).join('')}</fieldset>`).join('')
     + `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px">
@@ -1022,6 +1024,8 @@ async function abrirPanel(e) {
 
 // El dosier de cada tema. El de RICE se agrega cuando llegue el material.
 const MATERIAL = {
+  EVAL: {url:'evaluacion/index.html', titulo:'Reglamento de Evaluación con audio · 13 láminas',
+        nota:'Revísala antes de desarrollar la matriz. Puedes pausarla y volver a cualquier lámina.'},
   RICE: {url:'rice/index.html', titulo:'Presentación general del RICE con audio · 50 láminas',
         nota:'Tres partes con locución de Silvana. Puedes pausar y volver a cualquier lámina.'},
   PEI: {url:'pei/index.html', titulo:'Presentación del PEI con audio · 44 láminas, 15:50',
@@ -1050,7 +1054,7 @@ function barrasH(datos, {max, sufijo = '', alto = 30} = {}) {
 function anillo(pct, etiqueta, color = 'var(--azul)') {
   const r = 52, c = 2 * Math.PI * r, p = Math.max(0, Math.min(100, pct));
   return `<svg class="anillo" viewBox="0 0 130 130" role="img" aria-label="${esc(etiqueta)}: ${p}%">
-    <circle cx="65" cy="65" r="${r}" fill="none" stroke="#1E2740" stroke-width="13"/>
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="#DCE7F2" stroke-width="13"/>
     <circle cx="65" cy="65" r="${r}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round"
       stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p / 100)}" transform="rotate(-90 65 65)"/>
     <text x="65" y="60" text-anchor="middle" class="anN">${p}%</text>

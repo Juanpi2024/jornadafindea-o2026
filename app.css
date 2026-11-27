@@ -493,6 +493,7 @@ tr.grp td{background:#F3F7FC;font-size:11px;font-weight:800;letter-spacing:.06em
 .dia .sigla{align-self:flex-start;font-size:9px;font-weight:800;letter-spacing:.09em;
   line-height:1;padding:3px 6px;border-radius:5px;background:var(--azul);color:#fff}
 .dia.tema-rice .sigla{background:#0B6B4F}
+.dia.tema-eval .sigla{background:#7A4EA8}
 .dia.jor.trancada .sigla{background:var(--tinta3)}
 .dia.jor.lista .sigla{background:#0B5C42}
 .dia.jor.abierta .sigla{background:var(--azul-osc)}
