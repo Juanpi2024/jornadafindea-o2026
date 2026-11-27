@@ -716,6 +716,18 @@ function verJornada(j) {
   document.querySelectorAll('#formJ [name]').forEach(c =>
     c.addEventListener('focus', () => asomar(c.getAttribute('name'))));
 
+  // El quiz se corrige en el momento, sin esperar al envío.
+  document.querySelectorAll('#formJ .vf input[type=radio]').forEach(r =>
+    r.addEventListener('change', () => {
+      const caja = r.closest('.vf');
+      const bien = r.value === caja.dataset.ok;
+      caja.classList.toggle('bien', bien);
+      caja.classList.toggle('mal', !bien);
+      const p = caja.querySelector('.vfr');
+      p.hidden = false;
+      p.querySelector('b').textContent = bien ? 'Correcto.' : 'No era esa.';
+    }));
+
   prepararTutor(j);
   window.scrollTo(0,0);
 }
@@ -750,6 +762,20 @@ function campo(p, n, val) {
       <p class="muted" style="margin:-2px 0 8px">Marca todas las que correspondan${p.opcional?', o ninguna':''}.</p>
       <div class="ops multi">${o}</div></div>`;
   }
+  // Verdadero o falso: se corrige al tiro. La respuesta correcta viaja en
+  // opciones[0] y la explicación en opciones[1]. No es una prueba: es para
+  // asentar lo del día, así que se puede cambiar la respuesta las veces que sea.
+  if (p.tipo === 'vf') {
+    const ok = (p.opciones || [])[0] === 'V' ? 'Verdadero' : 'Falso';
+    const retro = (p.opciones || [])[1] || '';
+    const o = ['Verdadero','Falso'].map(x =>
+      `<label><input type="radio" name="${esc(p.id)}" value="${x}" ${val===x?'checked':''} ${req}><span>${x}</span></label>`).join('');
+    const estado = val ? (val === ok ? 'bien' : 'mal') : '';
+    return `<div class="vf ${estado}" data-ok="${esc(ok)}" style="margin-bottom:16px">${cab}
+      <div class="ops vfops">${o}</div>
+      <p class="vfr" ${val ? '' : 'hidden'}><b>${val === ok ? 'Correcto.' : 'No era esa.'}</b> ${esc(retro)}</p>
+    </div>`;
+  }
   if (p.tipo === 'confirmacion') {
     return `<div style="margin-bottom:16px"><label class="chk">
       <input type="checkbox" name="${esc(p.id)}" value="si" ${val==='si'?'checked':''} ${req}>
@@ -773,7 +799,7 @@ function leerForm(j) {
   j.preguntas.forEach(p => {
     const uno = f.querySelector(`[name="${p.id}"]`);
     if (!uno) { r[p.id] = ''; return; }
-    if (p.tipo === 'escala' || p.tipo === 'opcion') {
+    if (p.tipo === 'escala' || p.tipo === 'opcion' || p.tipo === 'vf') {
       const c = f.querySelector(`input[name="${p.id}"]:checked`); r[p.id] = c ? c.value : '';
     } else if (p.tipo === 'multiple') {
       r[p.id] = [...f.querySelectorAll(`input[name="${p.id}"]:checked`)].map(c => c.value).join(' | ');

@@ -71,12 +71,16 @@ const mapaPregunta = (p: any) => ({
   ayuda: p.ayuda, min: p.min_etiqueta, max: p.max_etiqueta,
   opciones: p.opciones, informe: p.informe, pistas: p.pistas,
   opcional: p.opcional, perfil: p.perfil,
+  // tipo "vf": verdadero o falso, con corrección inmediata.
+  vfOk: p.vf_ok ?? null, vfRetro: p.vf_retro ?? null,
 });
 
 const mapaCaso = (c: any) => ({
   id: c.id, numero: c.numero, titulo: c.titulo, ficha: c.ficha,
   hitos: c.hitos, resultado: c.resultado, video: c.video ?? ("caso-" + c.numero),
   eje: c.eje ?? "mes a mes", tema: c.tema ?? "pei",
+  imagen: c.imagen ?? null, imagenAlt: c.imagen_alt ?? null,
+  fuenteTxt: c.fuente_txt ?? null, fuenteUrl: c.fuente_url ?? null,
 });
 
 const mapaJornada = (j: any) => ({
@@ -149,12 +153,16 @@ async function config() {
     .select("id", { count: "exact", head: true }).eq("activo", true).not("codigo", "is", null);
   const { data: js } = await db.from("jornadas")
     .select("id, fecha, titulo, subtitulo, descripcion, minutos, metas_adp, sigla").eq("activa", true).order("fecha");
+  // Una jornada reservada en el calendario pero todavía sin preguntas no
+  // debe mostrar un dosier vacío: la página avisa que está en preparación.
+  const { data: conQ } = await db.from("preguntas").select("jornada_id");
+  const tienen = new Set((conQ ?? []).map((p) => p.jornada_id));
   return {
     hayNomina: (count ?? 0) > 0,
     requiereCodigo: (conCodigo ?? 0) > 0,
     funcionarios: count ?? 0,
     hoy: t.fecha, hora: t.hora, reloj: t.reloj, abre: ABRE,
-    jornadas: (js ?? []).map(mapaJornada),
+    jornadas: (js ?? []).map((j) => ({ ...mapaJornada(j), conMaterial: tienen.has(j.id) })),
   };
 }
 
@@ -257,6 +265,7 @@ async function agenda(d: Record<string, unknown>) {
     hoy: t.fecha, hora: t.hora, reloj: t.reloj, abre: ABRE,
     jornadas: (js ?? []).map((j) => ({
       ...mapaJornada(j),
+      conMaterial: (ps ?? []).some((p) => p.jornada_id === j.id),
       preguntas: leTocan(ps ?? [], j.id, yo.perfil).map(mapaPregunta),
     })),
     respondidas: mias.map((r) => ({
@@ -325,7 +334,7 @@ async function panel(d: Record<string, unknown>) {
     db.from("respuestas").select("nombre, jornada_id, items, fuera_de_plazo, enviado_en, actualizado_en, reenvios, caso_id").order("nombre"),
     db.from("funcionarios").select("nombre, funcion, situacion, licencia, perfil").eq("activo", true).order("nombre_norm"),
     db.from("jornadas").select("id, fecha, titulo, subtitulo, descripcion, metas_adp, sigla").order("fecha"),
-    db.from("preguntas").select("jornada_id, codigo, tipo, enunciado, informe, orden, parte, perfil, opciones").order("orden"),
+    db.from("preguntas").select("jornada_id, codigo, tipo, enunciado, informe, orden, parte, perfil, opciones, vf_ok").order("orden"),
     db.from("perfiles").select("*").order("orden"),
     db.from("perfil_caso").select("jornada_id, perfil_id, caso_id"),
   ]);
