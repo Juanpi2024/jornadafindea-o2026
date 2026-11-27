@@ -1488,9 +1488,95 @@ const OPCIONES = [
   {id:'otro',     txt:'No me corresponde a mí',   sub:'En mi puesto no tengo cómo intervenir en esto.'}
 ];
 
+/* En las jornadas de diseño no se pregunta qué habrías hecho frente a un hecho:
+   se pregunta qué hacemos con la propuesta de ese minuto. Mismas piezas,
+   otra conversación. */
+const OPCIONES_DISENO = [
+  {id:'adoptar',  txt:'Lo adoptamos tal cual',     sub:'Es una regla que podemos instalar en marzo, sin más.'},
+  {id:'ajustar',  txt:'Lo adoptamos con ajustes',  sub:'La idea sirve, pero hay que adaptarla a cómo funciona el CEIA.'},
+  {id:'recursos', txt:'Necesita recursos o tiempo', sub:'De acuerdo, pero no depende solo de nosotros.'},
+  {id:'otro',     txt:'Aquí no es el punto',       sub:'Este minuto no es donde conviene intervenir.'}
+];
+const esDiseno = (caso) => (caso || {}).tema === 'aula';
+const opcionesDe = (caso) => esDiseno(caso) ? OPCIONES_DISENO : OPCIONES;
+const MUEVE = {registro:1, contacto:1, adoptar:1, ajustar:1};
+
 const COLOR = {critico:'#A31515', grave:'var(--rojo)', alerta:'var(--ambar)',
-               bien:'var(--verde)', neutro:'var(--azul)'};
-const NIVEL = {critico:'Crítico', grave:'Grave', alerta:'Señal', bien:'Sin novedad'};
+               bien:'var(--verde)', neutro:'var(--azul)',
+               decidir:'var(--azul)', acordar:'var(--ambar)', listo:'var(--verde)'};
+const NIVEL = {critico:'Crítico', grave:'Grave', alerta:'Señal', bien:'Sin novedad',
+               decidir:'Por decidir', acordar:'Por acordar', listo:'Ya lo hacemos'};
+
+/* El guion del simulador cambia según para qué se usa el caso. */
+const GUION = {
+  _: {
+    eyebrow: (eje) => `análisis ${eje}`,
+    apertura: (eje) => `<b>Vas a recorrer el caso ${eje}.</b>
+      En cada paso ves solo lo que se sabía en ese momento y decides qué harías tú, desde tu
+      función. Esto no es para buscar culpables: es para encontrar qué nos habría ayudado.`,
+    irBtn: 'Empezar por el primer paso →',
+    aviso: `<b>Caso real, anonimizado.</b> No aparece ningún nombre y no
+      debes escribir ninguno. Analizamos el procedimiento del establecimiento, nunca a un colega ni a un estudiante.`,
+    pq: 'Con lo que sabes hasta <b>aquí</b>, y desde tu función: ¿qué haces?',
+    pqn: `No hay respuesta correcta. Lo que interesa es en qué punto <b>tú</b> sentiste
+      que había suficiente para moverte, porque ese punto es distinto en cada función.`,
+    verBtn: 'Ver qué pasó',
+    revelaK: 'Qué se sabía en ese momento',
+    revelaVacio: 'No quedó registro de este punto.',
+    oportK: 'Aquí hay algo que se puede construir',
+    oportN: 'Guárdate la idea: al final te la vamos a pedir por escrito.',
+    sigBtn: (eje) => eje === 'mes a mes' ? 'Avanzar al mes siguiente →' : 'Avanzar al paso siguiente →',
+    finBtn: 'Ver cómo me fue →',
+    cierreEyebrow: 'tu recorrido',
+    sinMover: `<p class="vt">Recorriste el año sin intervenir en ningún mes.</p>
+       <p class="vs">Si desde tu puesto efectivamente no había por dónde, eso no es un descuido:
+       es un vacío del procedimiento, y es justo lo que necesitamos que quede escrito.</p>`,
+    conMover: (n) => `<p class="vt">Desde tu función, el punto en que habrías actuado fue <b>${n}</b>.</p>
+       <p class="vs">No hay un mes correcto. Cada función ve la señal en un momento distinto, y la
+       gracia de hacer esto entre los seis perfiles es justamente ver esa diferencia.</p>`,
+    resultadoK: 'Cómo siguió:',
+    cierreK: 'Lo que sigue',
+    cierreTx: `<p>Este caso no se revisó para ver qué se hizo mal: se revisó para encontrar
+        <b>dónde una regla simple habría cambiado el curso</b>. Tú acabas de recorrer seis momentos
+        donde cabía una.</p>`,
+    pie: `Tu recorrido se guarda junto con tus respuestas. Al equipo directivo
+      no le sirve para ver quién acertó, sino para saber con cuánta anticipación ve la señal cada función.`
+  },
+  aula: {
+    eyebrow: (eje) => `diseño ${eje}`,
+    apertura: (eje) => `<b>Vamos a diseñar esta clase ${eje}.</b>
+      En cada punto verás el dato agregado del ciclo 2026 y una propuesta concreta, y dirás qué
+      hacemos con ella. No se evalúa a nadie: se arma la rutina que queremos para 2027.`,
+    irBtn: 'Empezar por el primer punto →',
+    aviso: `<b>Esta clase no es la de nadie: es la nuestra.</b> No hay docente, curso ni especialidad
+      detrás. Los datos son agregados de las 10 visitas del ciclo y no identifican a ninguna persona.`,
+    pq: 'Desde tu función: ¿qué hacemos con la propuesta de este punto?',
+    pqn: `No hay respuesta correcta. Interesa dónde el equipo está dispuesto a comprometerse y dónde
+      hace falta algo más, porque eso es lo que después se puede acordar de verdad.`,
+    verBtn: 'Ver qué dice el ciclo',
+    revelaK: 'Por qué este punto importa',
+    revelaVacio: 'Sin antecedentes para este punto.',
+    oportK: 'La propuesta sobre la mesa',
+    oportN: 'Guárdate la idea: al final te la vamos a pedir por escrito.',
+    sigBtn: () => 'Avanzar al punto siguiente →',
+    finBtn: 'Ver el diseño completo →',
+    cierreEyebrow: 'tu diseño',
+    sinMover: `<p class="vt">Recorriste la clase sin comprometerte con ninguna propuesta.</p>
+       <p class="vs">Si ninguna te calza desde tu puesto, eso también es un dato: significa que las
+       propuestas están pensadas para otra función y que falta la que te toca a ti. Escríbela abajo.</p>`,
+    conMover: (n) => `<p class="vt">El primer punto donde te comprometerías es <b>${n}</b>.</p>
+       <p class="vs">No hay un punto correcto. Cada función entra en un momento distinto de la clase, y
+       justamente por eso conviene ver dónde se junta el compromiso de los seis perfiles.</p>`,
+    resultadoK: 'Si lo acordamos:',
+    cierreK: 'Lo que sigue',
+    cierreTx: `<p>Esta clase no se diseñó para corregir a nadie: se diseñó para encontrar
+        <b>dónde una regla simple nos ahorra el problema entero</b>. Acabas de recorrer cinco puntos
+        donde cabe una.</p>`,
+    pie: `Tu diseño se guarda junto con tus respuestas. Al equipo directivo le sirve para ver en qué
+      punto se junta el compromiso de las distintas funciones, no para comparar personas.`
+  }
+};
+const g = (caso, k) => (GUION[(caso||{}).tema] || {})[k] ?? GUION._[k];
 
 function pintarCaso() {
   const {caso, paso, decidido, abierto} = sim;
@@ -1516,7 +1602,7 @@ function pintarCaso() {
       ${d.pct != null ? `<span class="dbar"><i style="width:${Math.max(3,Math.min(100,d.pct))}%;background:${col}"></i></span>` : ''}
     </div>`).join('');
 
-  const opciones = OPCIONES.map(o => `
+  const opciones = opcionesDe(caso).map(o => `
     <button type="button" class="opc${decidido[paso]===o.id?' sel':''}" data-o="${o.id}" ${abierto?'disabled':''}>
       <span class="mk"></span>
       <span><b>${esc(o.txt)}</b><small>${esc(o.sub)}</small></span>
@@ -1525,14 +1611,13 @@ function pintarCaso() {
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · análisis ${esc(caso.eje || "mes a mes")}</p>
+        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · ${esc(g(caso,'eyebrow')(caso.eje || "mes a mes"))}</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
       <span class="simPaso">${paso+1} <i>/ ${total}</i></span>
     </div>
 
-    <div class="aviso" style="margin:12px 0 16px"><b>Caso real, anonimizado.</b> No aparece ningún nombre y no
-      debes escribir ninguno. Analizamos el procedimiento del establecimiento, nunca a un colega ni a un estudiante.</div>
+    <div class="aviso" style="margin:12px 0 16px">${g(caso,'aviso')}</div>
 
     <div class="simPuntos">${puntos}</div>
 
@@ -1545,28 +1630,27 @@ function pintarCaso() {
       ${datos ? `<div class="datos">${datos}</div>` : ''}
 
       <div class="pregunta">
-        <p class="pq">Con lo que sabes hasta <b>aquí</b>, y desde tu función: ¿qué haces?</p>
-        <p class="pqn">No hay respuesta correcta. Lo que interesa es en qué punto <b>tú</b> sentiste
-          que había suficiente para moverte, porque ese punto es distinto en cada función.</p>
+        <p class="pq">${g(caso,'pq')}</p>
+        <p class="pqn">${g(caso,'pqn')}</p>
         <div class="opciones">${opciones}</div>
       </div>
 
       ${abierto ? `
         <div class="revela">
-          <p class="rk">Qué se sabía en ese momento</p>
-          <p class="rt">${esc(h.quien || 'No quedó registro de este punto.')}</p>
+          <p class="rk">${esc(g(caso,'revelaK'))}</p>
+          <p class="rt">${esc(h.quien || g(caso,'revelaVacio'))}</p>
         </div>
         ${h.oportunidad ? `<div class="oport">
-          <p class="ok">Aquí hay algo que se puede construir</p>
+          <p class="ok">${esc(g(caso,'oportK'))}</p>
           <p class="ot">${esc(h.oportunidad)}</p>
-          <p class="on">Guárdate la idea: al final te la vamos a pedir por escrito.</p>
+          <p class="on">${esc(g(caso,'oportN'))}</p>
         </div>` : ''}` : ''}
 
       <footer>
         ${abierto
-          ? `<button type="button" class="btn pri" id="simSig">${paso+1 < total ? (caso.eje === 'mes a mes' ? 'Avanzar al mes siguiente →' : 'Avanzar al paso siguiente →') : 'Ver cómo me fue →'}</button>`
+          ? `<button type="button" class="btn pri" id="simSig">${paso+1 < total ? g(caso,'sigBtn')(caso.eje || 'mes a mes') : g(caso,'finBtn')}</button>`
           : `<button type="button" class="btn pri" id="simVer" ${yaDecidio?'':'disabled'}>
-               ${yaDecidio ? 'Ver qué pasó' : 'Elige una opción para continuar'}</button>`}
+               ${yaDecidio ? g(caso,'verBtn') : 'Elige una opción para continuar'}</button>`}
       </footer>
     </article>`;
 
@@ -1612,13 +1696,11 @@ function pintarApertura() {
       </button>`}
       <div class="apTx">
         <p class="lead" style="margin:0">${esc(caso.ficha)}</p>
-        <div class="aviso" style="margin:14px 0 0"><b>Vas a recorrer el caso ${esc(eje)}.</b>
-          En cada paso ves solo lo que se sabía en ese momento y decides qué harías tú, desde tu
-          función. Esto no es para buscar culpables: es para encontrar qué nos habría ayudado.</div>
+        <div class="aviso" style="margin:14px 0 0">${g(caso,'apertura')(esc(eje))}</div>
         ${caso.fuenteUrl ? `<p class="fcPie" style="margin:12px 0 0"><a href="${esc(caso.fuenteUrl)}"
           target="_blank" rel="noopener">${esc(caso.fuenteTxt || 'Ver el artículo')}</a></p>` : ''}
       </div>
-      <footer><button type="button" class="btn pri" id="simIr">Empezar por el primer paso →</button></footer>
+      <footer><button type="button" class="btn pri" id="simIr">${esc(g(caso,'irBtn'))}</button></footer>
     </article>`;
 
   const clip = $('#simClip');
@@ -1636,32 +1718,26 @@ function pintarApertura() {
 function pintarCierre() {
   const {caso, decidido} = sim;
   const hitos = caso.hitos || [];
-  const miMes = decidido.findIndex(d => d === 'registro' || d === 'contacto');
+  const miMes = decidido.findIndex(d => MUEVE[d]);
   const nombre = (hitos[miMes] || {}).cuando;
 
-  const lectura = miMes < 0
-    ? `<p class="vt">Recorriste el año sin intervenir en ningún mes.</p>
-       <p class="vs">Si desde tu puesto efectivamente no había por dónde, eso no es un descuido:
-       es un vacío del procedimiento, y es justo lo que necesitamos que quede escrito.</p>`
-    : `<p class="vt">Desde tu función, el punto en que habrías actuado fue <b>${esc(nombre)}</b>.</p>
-       <p class="vs">No hay un mes correcto. Cada función ve la señal en un momento distinto, y la
-       gracia de hacer esto entre los seis perfiles es justamente ver esa diferencia.</p>`;
+  const lectura = miMes < 0 ? g(caso,'sinMover') : g(caso,'conMover')(esc(nombre));
 
   const linea = hitos.map((h, i) => {
     const col = COLOR[h.nivel] || 'var(--azul)';
     const d = decidido[i];
-    const act = d === 'registro' || d === 'contacto';
+    const act = !!MUEVE[d];
     return `<div class="fila">
       <span class="fm">${esc(h.cuando)}</span>
       <span class="fb" style="background:${col}"></span>
-      <span class="fd ${act?'act':''}">${d ? esc((OPCIONES.find(o=>o.id===d)||{}).txt) : '—'}</span>
+      <span class="fd ${act?'act':''}">${d ? esc((opcionesDe(caso).find(o=>o.id===d)||{}).txt) : '—'}</span>
     </div>`;
   }).join('');
 
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · tu recorrido</p>
+        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · ${esc(g(caso,'cierreEyebrow'))}</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
       <button type="button" class="linkbtn" id="simOtra">Volver a empezar</button>
@@ -1670,20 +1746,17 @@ function pintarCierre() {
     <article class="tarjeta cierre">
       ${lectura}
       <div class="linea">${linea}</div>
-      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>Cómo siguió:</b> ${esc(caso.resultado)}</div>` : ''}
+      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>${esc(g(caso,'resultadoK'))}</b> ${esc(caso.resultado)}</div>` : ''}
 
       <div class="cierrePreg">
-        <p class="cpk">Lo que sigue</p>
-        <p>Este caso no se revisó para ver qué se hizo mal: se revisó para encontrar
-          <b>dónde una regla simple habría cambiado el curso</b>. Tú acabas de recorrer seis momentos
-          donde cabía una.</p>
+        <p class="cpk">${esc(g(caso,'cierreK'))}</p>
+        ${g(caso,'cierreTx')}
         <p style="margin-top:9px"><b>Elige uno solo y escríbelo abajo.</b> El que te parezca más fácil
           de cumplir desde marzo, no el más ambicioso. De ahí salen los acuerdos del año.</p>
       </div>
     </article>
 
-    <p class="muted" style="margin:14px 0 0">Tu recorrido se guarda junto con tus respuestas. Al equipo directivo
-      no le sirve para ver quién acertó, sino para saber con cuánta anticipación ve la señal cada función.</p>`;
+    <p class="muted" style="margin:14px 0 0">${esc(g(caso,'pie'))}</p>`;
 
   $('#simOtra').addEventListener('click', () => { sim.paso = -1; sim.abierto = false; sim.decidido = []; pintarCaso(); });
 }

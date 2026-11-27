@@ -1,28 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Un mesón de taller con pistola de silicona y corta cartón en uso, y los lentes de seguridad todavía guardados en su caja">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Mesón de trabajo con la lista de cotejo y los elementos de protección puestos sobre la mesa antes de empezar">
   <rect width="640" height="360" fill="#EAF2FA"/>
-  <path d="M0 272h640v88H0z" fill="#DCE7F2"/>
+  <path d="M0 278h640v82H0z" fill="#DCE7F2"/>
+  <text x="44" y="56" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="700" fill="#0F2C47">La estación lista antes de partir</text>
+  <text x="44" y="80" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#4E6275">Tres minutos de verificación &#183; indicador 1.1.4, promedio 2,0 del ciclo</text>
   <!-- meson -->
-  <rect x="40" y="206" width="560" height="18" rx="4" fill="#8A4B20"/>
-  <rect x="62" y="224" width="16" height="64" fill="#6E3A18"/>
-  <rect x="562" y="224" width="16" height="64" fill="#6E3A18"/>
-  <!-- carton -->
-  <path d="M108 180h190l-16 26H92z" fill="#D9BE96" stroke="#8A4B20" stroke-width="2"/>
-  <!-- corta carton -->
-  <rect x="136" y="160" width="104" height="16" rx="4" fill="#3B5A76"/>
-  <path d="M240 162l40 6-40 6z" fill="#C62828"/>
-  <!-- pistola de silicona -->
-  <path d="M352 150h86v26h-24l-8 44h-26l6-44h-34z" fill="#C77A00" stroke="#8F5A00" stroke-width="2"/>
-  <path d="M438 158h36v10h-36z" fill="#8F5A00"/>
-  <circle cx="482" cy="163" r="7" fill="#C62828"/>
-  <path d="M492 156c6 0 10 3 12 7" stroke="#C62828" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <!-- caja de lentes cerrada -->
-  <rect x="506" y="156" width="108" height="50" rx="6" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
-  <path d="M506 174h108" stroke="#C3D6E8" stroke-width="3"/>
-  <text x="560" y="194" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" fill="#015EA9">EPP &#183; cerrada</text>
-  <!-- aviso -->
-  <path d="M84 56l34 58H50z" fill="#FFF00F" stroke="#8F5A00" stroke-width="3"/>
-  <path d="M84 76v18" stroke="#8F5A00" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="84" cy="104" r="3.5" fill="#8F5A00"/>
-  <text x="140" y="86" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="700" fill="#0F2C47">Sin inducción previa</text>
-  <text x="140" y="112" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#4E6275">Indicador 1.1.4 &#183; promedio 2,0 &#183; el más bajo del ciclo</text>
+  <rect x="40" y="212" width="560" height="18" rx="4" fill="#8A4B20"/>
+  <rect x="64" y="230" width="16" height="62" fill="#6E3A18"/>
+  <rect x="560" y="230" width="16" height="62" fill="#6E3A18"/>
+  <!-- lista de cotejo plastificada -->
+  <rect x="62" y="108" width="178" height="104" rx="6" fill="#FBFDFF" stroke="#0F8A5F" stroke-width="3"/>
+  <text x="80" y="132" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" fill="#0F8A5F">LISTA DE COTEJO</text>
+  <g stroke="#0F8A5F" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M82 148l6 7 11-14"/><path d="M82 170l6 7 11-14"/><path d="M82 192l6 7 11-14"/>
+  </g>
+  <g stroke="#C3D6E8" stroke-width="4" stroke-linecap="round">
+    <path d="M110 151h110"/><path d="M110 173h92"/><path d="M110 195h120"/>
+  </g>
+  <!-- lentes de seguridad sobre la mesa -->
+  <path d="M276 184h86a8 8 0 0 1 8 8v12a12 12 0 0 1-12 12h-20a10 10 0 0 1-9-6 10 10 0 0 0-20 0 10 10 0 0 1-9 6h-20a12 12 0 0 1-12-12v-12a8 8 0 0 1 8-8z" fill="#CFE2F3" stroke="#015EA9" stroke-width="3"/>
+  <text x="319" y="246" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#015EA9">protección en la mesa</text>
+  <!-- herramienta guardada y rotulada -->
+  <rect x="412" y="150" width="166" height="62" rx="6" fill="#FBFDFF" stroke="#8A4B20" stroke-width="3"/>
+  <path d="M412 170h166" stroke="#E2D2BE" stroke-width="3"/>
+  <rect x="432" y="180" width="60" height="16" rx="4" fill="#C77A00"/>
+  <rect x="502" y="180" width="54" height="16" rx="4" fill="#C77A00"/>
+  <text x="495" y="166" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#8A4B20">KIT REVISADO 24 H ANTES</text>
+  <text x="470" y="246" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#8A4B20">herramientas contadas</text>
+  <text x="44" y="326" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#4E6275">Ningún grupo parte el cronómetro sin validar su estación</text>
 </svg>

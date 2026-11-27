@@ -1,28 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Una pizarra con la ruta de la clase sin escribir y un reloj que marca los últimos minutos">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Pizarra con la ruta de la clase repartida en cuatro tramos y un reloj marcando el corte antes del timbre">
   <rect width="640" height="360" fill="#EAF2FA"/>
-  <path d="M0 268h640v92H0z" fill="#DCE7F2"/>
+  <path d="M0 274h640v86H0z" fill="#DCE7F2"/>
   <!-- pizarra -->
-  <rect x="44" y="52" width="330" height="196" rx="6" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
-  <rect x="44" y="238" width="330" height="10" rx="3" fill="#CFE2F3"/>
-  <text x="68" y="90" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="700" fill="#0F2C47">Ruta de la clase</text>
-  <!-- tres bloques, los dos ultimos vacios -->
-  <rect x="68" y="108" width="128" height="20" rx="5" fill="#0F8A5F"/>
-  <text x="206" y="124" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#3B5A76">activación 12'</text>
-  <rect x="68" y="142" width="128" height="20" rx="5" fill="#FBFDFF" stroke="#C3D6E8" stroke-width="2" stroke-dasharray="6 5"/>
-  <rect x="68" y="176" width="128" height="20" rx="5" fill="#FBFDFF" stroke="#C3D6E8" stroke-width="2" stroke-dasharray="6 5"/>
-  <rect x="68" y="210" width="128" height="20" rx="5" fill="#FBFDFF" stroke="#C62828" stroke-width="2" stroke-dasharray="6 5"/>
-  <text x="206" y="226" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#C62828">cierre: sin escribir</text>
-  <!-- reloj -->
-  <circle cx="500" cy="138" r="78" fill="#FBFDFF" stroke="#8A4B20" stroke-width="4"/>
-  <circle cx="500" cy="138" r="5" fill="#8A4B20"/>
-  <path d="M500 138L466 122" stroke="#0F2C47" stroke-width="7" stroke-linecap="round"/>
-  <path d="M500 138L453 111" stroke="#C62828" stroke-width="6" stroke-linecap="round"/>
-  <path d="M500 60v10M578 138h-10M500 216v-10M422 138h10" stroke="#8A4B20" stroke-width="4" stroke-linecap="round"/>
-  <text x="500" y="252" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#8A4B20">09:50</text>
-  <!-- timbre -->
-  <path d="M540 316c0-16 13-29 29-29s29 13 29 29z" fill="#C77A00"/>
-  <rect x="535" y="316" width="68" height="8" rx="4" fill="#8F5A00"/>
-  <path d="M569 287v-9" stroke="#8F5A00" stroke-width="4" stroke-linecap="round"/>
-  <path d="M516 300c-7 4-11 10-11 17M504 286c-13 7-18 17-18 29" stroke="#C77A00" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <text x="68" y="318" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#4E6275">Indicadores 1.1.1 y 1.1.3 &#183; promedio 2,9 y 2,7</text>
+  <rect x="40" y="44" width="340" height="212" rx="6" fill="#FBFDFF" stroke="#015EA9" stroke-width="3"/>
+  <rect x="40" y="246" width="340" height="10" rx="3" fill="#CFE2F3"/>
+  <text x="64" y="80" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="700" fill="#0F2C47">Ruta de la clase</text>
+  <rect x="64" y="96" width="46" height="18" rx="5" fill="#015EA9"/>
+  <text x="122" y="110" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#3B5A76">12&#8242; activación</text>
+  <rect x="64" y="128" width="96" height="18" rx="5" fill="#0F8A5F"/>
+  <text x="172" y="142" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#3B5A76">25&#8242; trabajo</text>
+  <rect x="64" y="160" width="96" height="18" rx="5" fill="#0F8A5F"/>
+  <text x="172" y="174" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#3B5A76">25&#8242; trabajo</text>
+  <rect x="64" y="192" width="40" height="18" rx="5" fill="#C77A00"/>
+  <text x="116" y="206" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="700" fill="#8F5A00">10&#8242; cierre blindado</text>
+  <text x="64" y="232" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#4E6275">la ruta queda a la vista junto al objetivo</text>
+  <!-- reloj: corte 12 minutos antes -->
+  <circle cx="504" cy="140" r="76" fill="#FBFDFF" stroke="#015EA9" stroke-width="4"/>
+  <path d="M504 140v-52M504 140l34 20" stroke="#0F2C47" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="504" cy="140" r="5" fill="#0F2C47"/>
+  <path d="M504 68v10M576 140h-10M504 212v-10M432 140h10" stroke="#015EA9" stroke-width="4" stroke-linecap="round"/>
+  <path d="M504 140 L504 64 A76 76 0 0 1 572 126 Z" fill="#C77A00" opacity=".22"/>
+  <text x="504" y="246" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#8F5A00">corte 12&#8242; antes del timbre</text>
+  <text x="64" y="312" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="#4E6275">Ciclo 2026 &#183; la ruta quedó a la vista en 4 de 10 clases</text>
 </svg>
