@@ -1580,32 +1580,47 @@ function videosPeiDia2() {
 }
 
 function vistaPreviaRice(jornadaId = 'rice-dia-1') {
-  const videos = jornadaId === 'rice-dia-2' ? [
-    {id:'03rXRMsbI4E', titulo:'Faltas CEIA 2026–2027', duracion:'5:59'},
-    {id:'IYW3k7bgCLo', titulo:'Prevención y conflictos', duracion:'5:53'},
-    {id:'RxGSzvIO8is', titulo:'Medidas y debido proceso', duracion:'6:45'}
+  // Los títulos salen de la portada de cada video, no del nombre del archivo.
+  // La serie va numerada: el 2 y el 4 reconocen la convivencia, el 3 y el 5
+  // actúan sobre un hecho. Por eso el día 1 lleva los primeros y el día 2 los
+  // otros. Falta el número 1 de la serie.
+  const dia2 = jornadaId === 'rice-dia-2';
+  const videos = dia2 ? [
+    {id:'RxGSzvIO8is', titulo:'3 · Derecho a descargos', duracion:'6:45',
+     porque:'Garantizar que la persona pueda defenderse. Es el eje del caso del hecho grave.'},
+    {id:'CUPt6-kLHII', titulo:'5 · Emergencias y registros', duracion:'6:38',
+     porque:'Qué se hace y qué queda escrito cuando pasa algo que nadie esperaba.'},
+    {id:'Hvdi_kfsu2k', titulo:'¿Qué sucede tras controlar la crisis?', duracion:'8:14',
+     porque:'Lo que viene después: informes, procedimiento y los documentos que respaldan la actuación.'}
   ] : [
-    {id:'tnFxLXMon7s', titulo:'Protocolos de seguridad 2026–2027', duracion:'8:14'},
-    {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'},
-    {id:'CUPt6-kLHII', titulo:'Higiene y Seguridad CEIA', duracion:'6:38'}
+    {id:'IYW3k7bgCLo', titulo:'2 · Diálogo en conjunto', duracion:'5:53',
+     porque:'Límites y participación: cómo se sostiene la convivencia antes de que haya que aplicar nada.'},
+    {id:'03rXRMsbI4E', titulo:'4 · Padres y apoderados', duracion:'5:59',
+     porque:'Estándares de la comunidad y quién es el adulto responsable. Ojo con nuestros estudiantes adultos.'},
+    {id:'ZpR4jasVdQs', titulo:'80% · Asistencia y promoción', duracion:'4:44',
+     porque:'Ingreso, atrasos e inasistencias, y el mínimo de asistencia para ser promovido.'}
   ];
-  const extracto = `<section aria-label="Video principal del RICE" style="margin-bottom:24px">
-    <h3>Comienza aquí · Extracto general de RICE</h3>
-    <a class="mini" style="display:block;width:100%;max-width:none;border:2px solid var(--verde)" href="https://www.youtube.com/watch?v=Hvdi_kfsu2k" target="_blank" rel="noopener" aria-label="Ver Extracto general de RICE en YouTube">
-      <span class="lienzo"><img style="display:block;width:100%;height:100%;object-fit:contain" src="img/rice-extracto-general.png" alt="EXTRACTO GENERAL DE RICE · Reglamento Interno y de Convivencia Escolar" loading="eager"></span>
-      <span class="miniPie"><b>Extracto general de RICE</b><small>Video destacado · Ver en YouTube</small></span>
+  // El video destacado solo va en el día 2: es lo que ocurre después del hecho.
+  const extracto = dia2 ? `<section aria-label="Video principal del día" style="margin-bottom:24px">
+    <h3>Comienza aquí · ¿Qué sucede tras controlar la crisis?</h3>
+    <a class="mini" style="display:block;width:100%;max-width:none;border:2px solid var(--verde)" href="https://www.youtube.com/watch?v=Hvdi_kfsu2k" target="_blank" rel="noopener" aria-label="Ver ¿Qué sucede tras controlar la crisis? en YouTube">
+      <span class="lienzo"><img style="display:block;width:100%;height:100%;object-fit:contain" src="https://i.ytimg.com/vi/Hvdi_kfsu2k/maxresdefault.jpg" alt="¿Qué sucede tras controlar la crisis?" loading="eager"></span>
+      <span class="miniPie"><b>¿Qué sucede tras controlar la crisis?</b><small>Contener es el primer paso; el procedimiento y el registro vienen después.</small></span>
     </a>
-  </section>`;
+  </section>` : '';
   return extracto + vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
-    <h3>Videos complementarios · RICE día ${jornadaId === 'rice-dia-2' ? '2' : '1'}</h3>
+    <h3>Videos de este día · ${dia2 ? 'actuar y dejar respaldo' : 'reconocer y prevenir'}</h3>
+    <p class="muted" style="margin:-4px 0 12px">${dia2
+      ? 'Los tres apuntan al procedimiento: qué medida corresponde, qué pasos tiene y qué queda por escrito.'
+      : 'Los tres apuntan a reconocer: quiénes somos la comunidad, qué se espera y cómo funciona el día a día.'}</p>
     <div class="materiales">${videos.map(v => `
-      <a class="mini" href="${v.short ? 'https://www.youtube.com/shorts/' + v.id : 'https://www.youtube.com/watch?v=' + v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
+      <a class="mini" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
         <span class="lienzo">
           <img style="display:block;width:100%;height:100%;object-fit:contain" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="Miniatura del video: ${esc(v.titulo)}" loading="lazy">
           <span class="play" aria-hidden="true">▶</span>
           <span class="dur">${v.duracion}</span>
         </span>
-        <span class="miniPie"><b>${esc(v.titulo)}</b><small>${v.short ? 'Ver Short en YouTube' : 'Ver en YouTube · ' + v.duracion + ' min'}</small></span>
+        <span class="miniPie"><b>${esc(v.titulo)}</b><small>${esc(v.porque)}</small></span>
       </a>`).join('')}</div>
   </section>`;
 }

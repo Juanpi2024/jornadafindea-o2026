@@ -247,7 +247,7 @@ td.si{color:var(--verde-tx)}td.tarde{color:var(--ambar-tx)}td.no{color:#4E5C7C}
   font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.02em}
 .miniPie{display:block;padding:11px 14px 13px;background:#F3F7FC}
 .miniPie b{display:block;font-size:13.5px;font-weight:600}
-.miniPie small{display:block;font-size:11.5px;color:var(--tinta3);margin-top:3px}
+.miniPie small{display:block;font-size:11.5px;line-height:1.45;color:var(--tinta3);margin-top:4px}
 
 /* Botones del tutor que responden sin consultar al modelo */
 .chip.ya{border-color:rgba(15,138,95,.5);color:#0B6B4F}
