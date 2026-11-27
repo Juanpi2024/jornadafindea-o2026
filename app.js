@@ -258,6 +258,14 @@ const MEDIA_JORNADA = {
   '2026-12-24': 'Solo jornada de mañana',
   '2026-12-31': 'Solo jornada de mañana'
 };
+/** Corta sin partir una palabra por la mitad. */
+function recorta(t, max) {
+  t = String(t || '').trim();
+  if (t.length <= max) return t;
+  const corte = t.slice(0, max + 1).lastIndexOf(' ');
+  return (corte > max * 0.5 ? t.slice(0, corte) : t.slice(0, max)).replace(/[ ,.·-]+$/, '') + '…';
+}
+
 const esViernes = (f) => new Date(f + 'T12:00:00').getDay() === 5;
 const esFinDeSemana = (f) => [0,6].includes(new Date(f + 'T12:00:00').getDay());
 
@@ -357,10 +365,11 @@ function verCalendario() {
     let resto = j.titulo.replace(sigla, '').split('·')[0].trim();
     if (!resto || resto.toLowerCase().startsWith(sigla.toLowerCase().slice(0, 4)))
       resto = j.titulo.split('·').slice(1).join('·').trim() || j.subtitulo || '';
-    return `<a class="dia jor tema-${esc(sigla.toLowerCase())} ${tono}${hoyCl}" href="#dia-${esc(j.id)}"
+    const tema = sigla.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    return `<a class="dia jor tema-${esc(tema)}${sigla.length>6?' siglaLarga':''} ${tono}${hoyCl}" href="#dia-${esc(j.id)}"
       title="${esc(j.titulo)} · ${esc(tit)}">
       <span class="cand" aria-hidden="true">${candado}</span>
-      ${num}<span class="sigla">${esc(sigla)}</span><span class="eti">${esc(resto.slice(0,18))}</span></a>`;
+      ${num}<span class="sigla">${esc(sigla)}</span><span class="eti">${esc(recorta(resto, 18))}</span></a>`;
   };
 
   const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;
@@ -390,9 +399,12 @@ function verCalendario() {
       Se activan cuando el equipo directivo dé el visto bueno.</div>` : ''}`;
 
   if (app.yo && app.datos) {
-    const listas = js.filter(j => hechas(j.id)).length;
-    $('#miAvance').innerHTML = `<div class="barra"><i style="width:${Math.round(listas/js.length*100)}%"></i></div>
-      <p class="muted" style="margin:0">Llevas ${listas} de ${js.length} jornadas respondidas.</p>`;
+    const conMat = js.filter(hayMaterial);
+    const listas = conMat.filter(j => hechas(j.id)).length;
+    const faltan = js.length - conMat.length;
+    $('#miAvance').innerHTML = `<div class="barra"><i style="width:${conMat.length?Math.round(listas/conMat.length*100):0}%"></i></div>
+      <p class="muted" style="margin:0">Llevas ${listas} de ${conMat.length} jornadas respondidas.${
+        faltan ? ` Otras ${faltan} están en preparación.` : ''}</p>`;
   } else {
     $('#miAvance').innerHTML = `<p class="muted" style="margin:0">El material de cada día está disponible
       desde ya, aunque la actividad todavía no abra.</p>`;
@@ -409,6 +421,10 @@ function verCalendario() {
 /* ---------------------------------------------------------- día: nómina */
 const nrm = (s) => String(s ?? '').toLowerCase().normalize('NFD')
   .replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+
+/** ¿Esta jornada ya tiene material cargado? El servidor lo dice; si no
+ *  contestó todavía, se asume que sí para no esconder nada por error. */
+function hayMaterial(j) { return j.conMaterial !== false; }
 
 function verDia(j) {
   app.jornada = j;
@@ -485,7 +501,15 @@ function verDia(j) {
       ${esc(fdateLarga(j.fecha))}. Respóndela dentro de tu turno de trabajo.
     </div>`;
 
-  if ((j.sigla || 'PEI') === 'RICE') {
+  if (!hayMaterial(j)) {
+    $('#diaMaterial').innerHTML = `<h2>Material de la jornada${j.sigla ? ' · ' + esc(j.sigla) : ''}</h2>
+      <div class="aviso"><b>En preparación.</b> La presentación, los videos y las preguntas de esta
+        jornada se publican aquí antes del ${esc(fdateLarga(j.fecha))}. El día ya está reservado en el
+        calendario para que se vea el plan completo.</div>`;
+    $('#diaAvance').innerHTML = '';
+  }
+
+  if (hayMaterial(j) && (j.sigla || 'PEI') === 'RICE') {
     $('#diaMaterial').innerHTML = `<h2>Material de la jornada · RICE</h2>
       <p class="muted">Recorre la presentación general antes de responder. Las tres partes incluyen 50 láminas con narración de Silvana.</p>
       ${vistaPreviaRice(j.id)}
@@ -579,6 +603,15 @@ function pintarNomina(j, consulta) {
 let abrioDosier = 0;
 
 function verJornada(j) {
+  if (!hayMaterial(j) || !(j.preguntas || []).length) {
+    app.jornada = j; vista('vJornada');
+    $('#jCab').innerHTML = `<button class="linkbtn" onclick="location.hash='#dia-${esc(j.id)}'">← Volver al día</button>
+      <p class="eyebrow">${esc(fdateLarga(j.fecha))}</p><h1>${esc(j.titulo)}</h1>`;
+    $('#jDosier').innerHTML = `<div class="aviso"><b>Todavía no hay nada que responder.</b>
+      Las preguntas de esta jornada se publican antes del día.</div>`;
+    ['#jCaso','#jMatrices'].forEach(sel => { const e = $(sel); if (e) e.hidden = true; });
+    return;
+  }
   abrioDosier = Date.now();
   const completa = ((app.datos && app.datos.jornadas) || []).find(x => x.id === j.id);
   if (!completa || !completa.preguntas) { volverNomina(); return; }
@@ -587,6 +620,7 @@ function verJornada(j) {
   vista('vJornada');
   const reg = hechas(j.id);
   const prev = (reg && itemsAObjeto(reg.items)) || ls.get(LS_BORR + j.id, {});
+  const cajaMatrices = $('#jMatrices'); if (cajaMatrices) cajaMatrices.hidden = false;
   const caso = casoDe(j.id);
   const usaCaso = j.preguntas.some(p => p.id.startsWith('c'));
   if (j.id === 'evaluacion-dia-1') sim = null;

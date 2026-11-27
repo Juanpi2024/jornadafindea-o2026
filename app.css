@@ -497,6 +497,12 @@ tr.grp td{background:#F3F7FC;font-size:11px;font-weight:800;letter-spacing:.06em
   line-height:1;padding:3px 6px;border-radius:5px;background:var(--azul);color:#fff}
 .dia.tema-rice .sigla{background:#0B6B4F}
 .dia.tema-eval .sigla{background:#7A4EA8}
+.dia.tema-saat .sigla{background:#0E6E75}
+.dia.tema-planificacion .sigla{background:#8F5A00}
+.dia.tema-adp .sigla{background:#9B3357}
+.dia.tema-slep .sigla{background:#3A52A0}
+/* Una sigla larga, como PLANIFICACIÓN, cabe apretando un poco la letra. */
+.dia.siglaLarga .sigla{font-size:8px;letter-spacing:.02em;padding:3px 4px}
 .dia.jor.trancada .sigla{background:var(--tinta3)}
 .dia.jor.lista .sigla{background:#0B5C42}
 .dia.jor.abierta .sigla{background:var(--azul-osc)}
