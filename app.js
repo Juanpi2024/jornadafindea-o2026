@@ -1535,7 +1535,9 @@ function pintarCierre() {
 function vistaPreviaRice() {
   const videos = [
     {id:'tnFxLXMon7s', titulo:'Protocolos de seguridad 2026–2027', duracion:'8:14'},
-    {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'}
+    {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'},
+    {id:'k1ILVDKI8Vo', titulo:'El engranaje oculto que hace funcionar un colegio', duracion:'Short', short:true},
+    {id:'v2qqLMlZXgI', titulo:'Paradocentes y auxiliares', duracion:'Short', short:true}
   ];
   const extracto = `<section aria-label="Video principal del RICE" style="margin-bottom:24px">
     <h3>Comienza aquí · Extracto general de RICE</h3>
@@ -1547,13 +1549,13 @@ function vistaPreviaRice() {
   return extracto + vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
     <h3>Videos complementarios del RICE</h3>
     <div class="materiales">${videos.map(v => `
-      <a class="mini" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
+      <a class="mini" href="${v.short ? 'https://www.youtube.com/shorts/' + v.id : 'https://www.youtube.com/watch?v=' + v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
         <span class="lienzo">
-          <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="Miniatura del video: ${esc(v.titulo)}" loading="lazy">
+          <img style="display:block;width:100%;height:100%;object-fit:contain" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="Miniatura del video: ${esc(v.titulo)}" loading="lazy">
           <span class="play" aria-hidden="true">▶</span>
           <span class="dur">${v.duracion}</span>
         </span>
-        <span class="miniPie"><b>${esc(v.titulo)}</b><small>Ver en YouTube · ${v.duracion} min</small></span>
+        <span class="miniPie"><b>${esc(v.titulo)}</b><small>${v.short ? 'Ver Short en YouTube' : 'Ver en YouTube · ' + v.duracion + ' min'}</small></span>
       </a>`).join('')}</div>
   </section>`;
 }
