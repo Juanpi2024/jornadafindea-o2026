@@ -1540,7 +1540,7 @@ function vistaPreviaRice() {
   const extracto = `<section aria-label="Video principal del RICE" style="margin-bottom:24px">
     <h3>Comienza aquí · Extracto general de RICE</h3>
     <a class="mini" style="display:block;width:100%;max-width:none;border:2px solid var(--verde)" href="https://www.youtube.com/watch?v=Hvdi_kfsu2k" target="_blank" rel="noopener" aria-label="Ver Extracto general de RICE en YouTube">
-      <span class="lienzo"><img src="img/rice-extracto-general.png" alt="EXTRACTO GENERAL DE RICE · Reglamento Interno y de Convivencia Escolar" loading="eager"></span>
+      <span class="lienzo"><img style="display:block;width:100%;height:100%;object-fit:contain" src="img/rice-extracto-general.png" alt="EXTRACTO GENERAL DE RICE · Reglamento Interno y de Convivencia Escolar" loading="eager"></span>
       <span class="miniPie"><b>Extracto general de RICE</b><small>Video destacado · Ver en YouTube</small></span>
     </a>
   </section>`;
