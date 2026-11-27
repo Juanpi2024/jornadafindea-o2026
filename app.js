@@ -1537,7 +1537,14 @@ function vistaPreviaRice() {
     {id:'tnFxLXMon7s', titulo:'Protocolos de seguridad 2026–2027', duracion:'8:14'},
     {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'}
   ];
-  return vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
+  const extracto = `<section aria-label="Video principal del RICE" style="margin-bottom:24px">
+    <h3>Comienza aquí · Extracto general de RICE</h3>
+    <a class="mini" style="display:block;width:100%;max-width:none;border:2px solid var(--verde)" href="https://www.youtube.com/watch?v=Hvdi_kfsu2k" target="_blank" rel="noopener" aria-label="Ver Extracto general de RICE en YouTube">
+      <span class="lienzo"><img src="img/rice-extracto-general.png" alt="EXTRACTO GENERAL DE RICE · Reglamento Interno y de Convivencia Escolar" loading="eager"></span>
+      <span class="miniPie"><b>Extracto general de RICE</b><small>Video destacado · Ver en YouTube</small></span>
+    </a>
+  </section>`;
+  return extracto + vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
     <h3>Videos complementarios del RICE</h3>
     <div class="materiales">${videos.map(v => `
       <a class="mini" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
