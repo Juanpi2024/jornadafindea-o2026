@@ -585,3 +585,8 @@ a.dia.jor.trancada:hover{border-color:#9FBBD8}
   .fichaCaso{grid-template-columns:1fr}
   .fcImg{height:auto;border-right:0;border-bottom:1px solid #D3E0EE}
 }
+
+/* Apertura con ilustración en vez de video: va arriba, como el clip, y se
+   muestra entera porque es un dibujo y no una foto. */
+.tarjeta.apertura .apImg{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;
+  padding:14px;background:#EAF2FA;border-bottom:1px solid #D3E0EE}

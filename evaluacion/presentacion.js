@@ -34,15 +34,8 @@ function actividades(){
     });
     art.append(buttons,respuesta);el('afirmaciones').append(art);
   });
-  datos.cases.forEach(c=>{
-    const art=document.createElement('article');art.className='caso';
-    if(c.image){const f=document.createElement('img');f.className='casoImg';f.src=c.image;f.alt=c.alt||'';f.loading='lazy';art.append(f);}
-    const cuerpo=document.createElement('div');cuerpo.className='casoTx';
-    const reto=document.createElement('p');reto.className='casoReto';reto.append(nodo('strong','Desafío: '));reto.append(document.createTextNode(c.challenge));
-    cuerpo.append(nodo('h3',`Caso ${c.id} · ${c.title}`),nodo('p',c.text),reto);art.append(cuerpo);
-    const a=nodo('a',`${c.article} · página ${c.page}`);a.href=`Reglamento_Evaluacion_CEIA_2027-2030.pdf#page=${c.page}`;a.target='_blank';a.rel='noopener';cuerpo.append(a);
-    const d=document.createElement('details');d.append(nodo('summary','Orientaciones para contrastar tu propuesta'),nodo('p',c.guide));cuerpo.append(d);el('listaCasos').append(art);
-  });
+  // Los casos no se listan aquí: cada persona ve el suyo en el dosier.
+
 }
 fetch('contenido.json').then(r=>{if(!r.ok)throw new Error();return r.json();}).then(d=>{
   datos=d;d.slides.forEach((s,i)=>{const o=nodo('option',`${i+1} · ${s.title}`);o.value=String(i);el('salto').append(o);});

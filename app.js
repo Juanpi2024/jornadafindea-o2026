@@ -575,8 +575,8 @@ function verJornada(j) {
   vista('vJornada');
   const reg = hechas(j.id);
   const prev = (reg && itemsAObjeto(reg.items)) || ls.get(LS_BORR + j.id, {});
-  const caso = (app.datos.casos || {})[j.id] || app.datos.caso;
-  const usaCaso = j.id !== 'evaluacion-dia-1' && j.preguntas.some(p => p.id.startsWith('c'));
+  const caso = casoDe(j.id);
+  const usaCaso = j.preguntas.some(p => p.id.startsWith('c'));
   if (j.id === 'evaluacion-dia-1') sim = null;
 
   $('#jCab').innerHTML = `
@@ -634,7 +634,6 @@ function verJornada(j) {
     }
   }
 
-  if (j.id === 'evaluacion-dia-1') mostrarCasoEvaluacion();
 
   // Preguntas, agrupadas por parte
   const partes = [];
@@ -755,7 +754,7 @@ async function enviar(j) {
   const btn = $('#formJ').querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent = 'Enviando…';
   try {
-    const r = await api({action:'guardar', jornadaId:j.id, casoId:j.id === 'evaluacion-dia-1' ? casoEvaluacionActual().dbid : (app.datos.caso||{}).id||'', items, ...yoApi()});
+    const r = await api({action:'guardar', jornadaId:j.id, casoId:casoDeLaJornada(j.id), items, ...yoApi()});
     ls.del(LS_BORR + j.id);
     (app.datos.respondidas = app.datos.respondidas.filter(x => x.jornadaId !== j.id)).push({
       jornadaId:j.id, items, fueraDePlazo:r.fueraDePlazo, fecha:new Date().toISOString()
@@ -768,7 +767,7 @@ async function enviar(j) {
   } catch (ex) {
     if (esRed(ex.message)) {
       const p = ls.get(LS_PEND, []);
-      p.push({jornadaId:j.id, casoId:j.id === 'evaluacion-dia-1' ? casoEvaluacionActual().dbid : (app.datos.caso||{}).id||'', items, nombre:app.yo.nombre, codigo:app.yo.codigo});
+      p.push({jornadaId:j.id, casoId:casoDeLaJornada(j.id), items, nombre:app.yo.nombre, codigo:app.yo.codigo});
       ls.set(LS_PEND, p);
       toast('Sin conexión: tus respuestas quedaron guardadas aquí y se enviarán solas cuando vuelva el internet.', 6000);
       location.hash = '';
@@ -1409,7 +1408,7 @@ function pintarCaso() {
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${caso.numero} de 3 · análisis ${esc(caso.eje || "mes a mes")}</p>
+        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · análisis ${esc(caso.eje || "mes a mes")}</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
       <span class="simPaso">${paso+1} <i>/ ${total}</i></span>
@@ -1448,7 +1447,7 @@ function pintarCaso() {
 
       <footer>
         ${abierto
-          ? `<button type="button" class="btn pri" id="simSig">${paso+1 < total ? 'Avanzar al mes siguiente →' : 'Ver cómo me fue →'}</button>`
+          ? `<button type="button" class="btn pri" id="simSig">${paso+1 < total ? (caso.eje === 'mes a mes' ? 'Avanzar al mes siguiente →' : 'Avanzar al paso siguiente →') : 'Ver cómo me fue →'}</button>`
           : `<button type="button" class="btn pri" id="simVer" ${yaDecidio?'':'disabled'}>
                ${yaDecidio ? 'Ver qué pasó' : 'Elige una opción para continuar'}</button>`}
       </footer>
@@ -1464,6 +1463,14 @@ function pintarCaso() {
 
 /** Apertura: el lugar donde el estudiante ya no está. Seis segundos, sin
  *  explicar nada. El clip no se carga hasta que se toca. */
+/** El caso que le toca a esta persona en esa jornada. */
+function casoDe(jornadaId) { return (app.datos.casos || {})[jornadaId] || app.datos.caso || null; }
+const casoDeLaJornada = (jornadaId) => (casoDe(jornadaId) || {}).id || '';
+
+/** Cuántos casos tiene el juego al que pertenece este: el PEI y el RICE
+ *  tienen tres, la jornada de Evaluación cuatro. */
+function totalCasos(caso) { return caso.tema === 'evaluacion' ? 4 : 3; }
+
 function pintarApertura() {
   const {caso} = sim;
   const n = caso.video || ('caso-' + caso.numero);
@@ -1471,24 +1478,28 @@ function pintarApertura() {
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${caso.numero} de 3 · análisis ${esc(eje)}</p>
+        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · análisis ${esc(eje)}</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
     </div>
 
     <article class="tarjeta apertura">
-      <button class="lienzo tapa" type="button" id="simClip" data-n="${n}"
+      ${caso.imagen
+        ? `<img class="apImg" src="${esc(caso.imagen)}" alt="${esc(caso.imagenAlt || '')}" loading="lazy">`
+        : `<button class="lienzo tapa" type="button" id="simClip" data-n="${n}"
               aria-label="Reproducir la apertura del caso">
         <img src="video/${n}.jpg" alt="" loading="lazy"
              onerror="this.closest('.tapa').remove()">
         <span class="play" aria-hidden="true">▶</span>
         <span class="dur">0:06</span>
-      </button>
+      </button>`}
       <div class="apTx">
         <p class="lead" style="margin:0">${esc(caso.ficha)}</p>
         <div class="aviso" style="margin:14px 0 0"><b>Vas a recorrer el caso ${esc(eje)}.</b>
           En cada paso ves solo lo que se sabía en ese momento y decides qué harías tú, desde tu
           función. Esto no es para buscar culpables: es para encontrar qué nos habría ayudado.</div>
+        ${caso.fuenteUrl ? `<p class="fcPie" style="margin:12px 0 0"><a href="${esc(caso.fuenteUrl)}"
+          target="_blank" rel="noopener">${esc(caso.fuenteTxt || 'Ver el artículo')}</a></p>` : ''}
       </div>
       <footer><button type="button" class="btn pri" id="simIr">Empezar por el primer paso →</button></footer>
     </article>`;
@@ -1533,7 +1544,7 @@ function pintarCierre() {
   $('#jCaso').innerHTML = `
     <div class="simCab">
       <div>
-        <p class="eyebrow">Caso ${caso.numero} de 3 · tu recorrido</p>
+        <p class="eyebrow">Caso ${caso.numero} de ${totalCasos(caso)} · tu recorrido</p>
         <h2 style="margin:2px 0 0">${esc(caso.titulo)}</h2>
       </div>
       <button type="button" class="linkbtn" id="simOtra">Volver a empezar</button>
@@ -1655,14 +1666,14 @@ function vistaPreviaRiceBase(){return `<div class="rice-material"><a class="mini
 const ACTIVIDADES_EVALUACION = {"vf": [{"id": "ev1", "statement": "Si un estudiante se frustra y entrega la prueba en blanco o sale de la sala, corresponde ponerle un 1,0 inmediato.", "page": 14, "article": "Art. 6.5", "feedback": "Falso. El docente registra formativamente en el leccionario, indaga las causas y remite de inmediato a Convivencia Educativa y/o PIE. Superada la dificultad, ofrece una nueva oportunidad con compromiso firmado, fecha y hora. El artículo contempla la posibilidad de nota mínima ante el incumplimiento de ese compromiso. No autoriza el 1,0 automático al ocurrir la desregulación.", "answer": false, "area": "En el aula"}, {"id": "ev2", "statement": "Las actividades formativas de proceso se promedian al final de la unidad para sacar una nota coeficiente 1.", "page": 11, "article": "Art. 4.2", "feedback": "Falso. La evaluación formativa monitorea y retroalimenta descriptivamente. La información de autoevaluación y coevaluación no se promedia mecánicamente como nota sumativa. Solo puede traducirse en calificación si constituye evidencia de desempeño terminal debidamente retroalimentada y consolidada.", "answer": false, "area": "En el aula"}, {"id": "ev5", "area": "En el aula", "answer": true, "statement": "Un estudiante con evaluación diferenciada puede obtener un 7,0.", "page": 14, "article": "Art. 5.2", "feedback": "Verdadero. A quien se evalúa en forma diferenciada no le está impedida la nota máxima. El reglamento recuerda que la calificación es una medida relativa: dice relación solo con los objetivos medidos en ese momento, no con el techo que puede alcanzar la persona."}, {"id": "ev6", "area": "En el aula", "answer": false, "statement": "Si sorprendo a alguien usando el celular en una prueba, basta con retirarle la prueba y dejarlo ahí.", "page": 15, "article": "Art. 6.8", "feedback": "Falso. Faltan dos pasos que el reglamento sí exige: dejar registro de la situación en la hoja de vida y dejar constancia del hecho en el libro de clases. Recién entonces corresponde la calificación mínima. Sin esos registros, la medida no se puede sostener después."}, {"id": "ev7", "area": "Registro y plazos", "answer": true, "statement": "Para corregir una nota ya registrada en el libro hay que pedir autorización a UTP o a Dirección.", "page": 15, "article": "Art. 6.12", "feedback": "Verdadero. Cualquier error, modificación o corrección en los registros de calificaciones se hace previa supervisión y autorización de UTP y/o Dirección, según corresponda. El mismo artículo fija el plazo para registrar: 10 días hábiles después de aplicada la evaluación."}, {"id": "ev8", "area": "Registro y plazos", "answer": false, "statement": "Se pueden tomar dos evaluaciones coeficiente uno el mismo día si el curso está de acuerdo.", "page": 16, "article": "Art. 6.18", "feedback": "Falso. No pueden efectuarse dos evaluaciones individuales coeficiente uno durante el mismo día, y el acuerdo del curso no cambia eso. Quedan excluidas de la regla las diagnósticas, las formativas, las guías y los trabajos grupales. El calendario de evaluaciones de UTP existe justamente para que esto no ocurra."}, {"id": "ev9", "area": "Registro y plazos", "answer": false, "statement": "El instrumento de evaluación se le puede entregar a UTP el mismo día en que se aplica.", "page": 15, "article": "Art. 6.9", "feedback": "Falso. Todo diseño de experiencia evaluativa e instrumento se analiza técnicamente con al menos 3 días hábiles de anticipación. En esa revisión se verifica la pertinencia curricular, la diversificación del instrumento y la adecuación para estudiantes con necesidades educativas especiales."}, {"id": "ev10", "area": "Cuando falta alguien", "answer": true, "statement": "Si el profesor falta el día fijado para una prueba, la puede aplicar el docente reemplazante o la educadora diferencial del PIE.", "page": 16, "article": "Art. 6.17", "feedback": "Verdadero, con una condición: el instrumento tiene que estar previamente elaborado, visado por UTP y disponible para su aplicación. Si no se cumple, la evaluación se reprograma en el calendario."}, {"id": "ev3", "statement": "Si más de la mitad del curso se saca rojo en una prueba, debo subir las notas al libro y luego avisar a UTP.", "page": 16, "article": "Art. 6.14", "feedback": "Falso. Con 50% o más de insuficientes entre quienes rindieron la sumativa, se informa a UTP ANTES del registro. UTP, docente y PIE cuando corresponda analizan el instrumento, las estrategias de enseñanza y las necesidades del curso. Definen remediales y dejan acuerdos escritos. El umbral incluye exactamente 50%.", "answer": false, "area": "Cuando el curso se cae"}, {"id": "ev4", "statement": "Un estudiante que falta a una prueba por turno laboral puede rendirla después, pero con un 60% o 70% de exigencia.", "page": 14, "article": "Arts. 6.4, 6.6 y 6.7", "feedback": "Falso. Ante una inasistencia justificada se mantiene escala 1,0–7,0 y exigencia institucional de 50%. El respaldo se presenta en hasta 5 días hábiles desde el primer día de inasistencia. La evaluación pendiente se rinde dentro de 10 días hábiles desde la reincorporación. La reiteración sin justificación exige derivación y gestiones documentadas con Convivencia y SAAT antes de cerrar con nota mínima.", "answer": false, "area": "Inasistencias y plazos"}, {"id": "ev14", "area": "Evaluación diferenciada", "answer": false, "statement": "La evaluación diferenciada se aplica en un horario distinto al del resto del curso.", "page": 11, "article": "Art. 4.4", "feedback": "Falso. Entre las formas de evaluación diferenciada que describe el reglamento, la última dice expresamente que se aplica en el mismo momento que al resto del curso. Lo que cambia es el instrumento o la forma de responder, no el horario ni el lugar."}, {"id": "ev11", "area": "Derechos del estudiante", "answer": false, "statement": "El estudiante puede pedir revisar su prueba corregida en cualquier momento del semestre.", "page": 16, "article": "Art. 6.16", "feedback": "Falso. El derecho a revisar la evaluación y hacer los alcances que estime necesarios se ejerce el día en que se entregan los resultados, antes de que la nota quede registrada en el leccionario. Por eso importa entregar y revisar en la misma clase."}, {"id": "ev12", "area": "Derechos del estudiante", "answer": true, "statement": "Un reclamo por una nota se presenta primero al profesor de la asignatura.", "page": 15, "article": "Art. 6.10", "feedback": "Verdadero. El primer paso es el profesor de la asignatura. Si no hay solución, queda un registro en UTP, que resuelve la situación junto con la Dirección y las partes. Saltarse el primer paso deja el reclamo sin la conversación que suele resolverlo."}, {"id": "ev13", "area": "Fin de año", "answer": true, "statement": "Un estudiante con menos del 80% de asistencia puede ser promovido igual.", "page": 16, "article": "Art. 7", "feedback": "Verdadero, pero no de forma automática: lo autoriza el Director o Directora cuando se acreditan razones de salud u otras circunstancias justificadas. El respaldo lo reúne y presenta el equipo psicosocial, en un informe formal a Dirección, con al menos dos días hábiles de anticipación al término del período escolar."}], "cases": [{"id": "1", "title": "Desregulación y contención", "article": "Art. 6.5", "page": 14, "text": "En 1° Nivel Medio HC de Parral, un estudiante joven con historial de frustración escolar recibe una prueba escrita de Matemática, la arruga y abandona la sala diciendo que no sirve para esto.", "challenge": "Definir el paso a paso, el registro en leccionario, la derivación a Convivencia/PIE y el compromiso de nueva fecha.", "guide": "Registrar el hecho formativamente e indagar causas pedagógicas o socioemocionales. Remitir de inmediato a Convivencia Educativa y/o PIE para contención y acompañamiento. Superada la dificultad, recoger evidencia en una nueva oportunidad con compromiso firmado, fecha y hora. Distinguir esta respuesta del 1,0 automático. Revisar también el alcance del inciso c ante incumplimiento del compromiso.", "image": "img/caso-1.svg", "alt": "Una prueba arrugada sobre el pupitre y la puerta de la sala abierta."}, {"id": "2", "title": "58% de reprobación en una sumativa", "article": "Art. 6.14", "page": 16, "text": "En un módulo de 3° Medio Electricidad del CEIA, el 58% de quienes rindieron una evaluación sumativa obtiene nota inferior a 4,0. La misma situación puede analizarse en un módulo de Atención de Párvulos.", "challenge": "Diseñar la ruta antes de registrar notas, las evidencias para UTP y PIE y las medidas remediales.", "guide": "Informar a UTP antes del registro. Llevar instrumento, pauta o rúbrica, objetivos trabajados y resultados por objetivo, junto con antecedentes de enseñanza y apoyos. Analizar pertinencia y claridad del instrumento y necesidades del curso con UTP y PIE cuando corresponda. Definir retroalimentación, reforzamiento, ajustes didácticos o una nueva oportunidad evaluativa. Registrar por escrito los acuerdos. El 58% supera el umbral de 50% del artículo.", "image": "img/caso-2.svg", "alt": "Gráfico de barras: más de la mitad del curso queda bajo la línea del 4,0."}, {"id": "3", "title": "Guías de proceso y autoevaluación", "article": "Art. 4.2", "page": 11, "text": "Un docente realiza tres guías de proceso y una autoevaluación durante el mes. Quiere promediarlas directamente como nota final de unidad.", "challenge": "Reformular la práctica para conservar la función descriptiva de la evaluación formativa e identificar la condición para calificar.", "guide": "Usar las guías y la autoevaluación para identificar avances, retroalimentar y ajustar la enseñanza. Evitar el promedio mecánico. Si la información va a traducirse en calificación, debe constituir evidencia de desempeño terminal debidamente retroalimentada y consolidada. Explicar qué producto o desempeño final permitirá demostrar los aprendizajes y con qué criterios se valorará.", "image": "img/caso-3.svg", "alt": "Tres guías de proceso con visto bueno y una flecha hacia una nota con signo de pregunta."}, {"id": "4", "title": "Trabajo de temporada y solicitud de cierre", "article": "Art. 4.5 y Anexo 1", "page": 28, "text": "Una estudiante de 2° Nivel Medio trabaja en temporada agrícola en los alrededores de Parral. Deja de asistir en octubre y solicita finalizar anticipadamente el año. Como variante, analizar una licencia médica prolongada.", "challenge": "Distinguir la evaluación especial con apoyo pedagógico de la finalización anticipada del año, y ordenar el camino: quién recibe la solicitud por escrito, quién la analiza técnicamente, quién resuelve y cómo se le comunica a la estudiante.", "guide": "Primero reunir antecedentes y precisar si la estudiante puede continuar con un plan de apoyo. Art. 4.5: Dupla y/o profesor jefe reciben solicitud escrita y firmada, remiten por correo a UTP, esta analiza y Dirección autoriza condiciones, plazos y evaluaciones. Si solicita cierre anticipado, aplicar Anexo 1: solicitud escrita a Dirección, revisión por UTP, informe integrado con asistencia de Inspectoría, antecedentes de Dupla y PIE si corresponde, resolución fundada y comunicación formal. El cierre no promueve automáticamente. No confundir estos procedimientos con la evaluación de fin de año del Art. 10. En TP u Oficio, los módulos requieren análisis particular de competencias y seguridad.", "image": "img/caso-4.svg", "alt": "Calendario de octubre con un día marcado, junto a un campo de temporada."}]};
 
 function vistaPreviaEvaluacion() {
-  return `<p class="muted">Revisa la presentación y desarrolla la matriz de tu dosier. Las cuatro afirmaciones quedan como práctica de consulta. La fecha inicial de esta jornada es el lunes 7 de diciembre y puede reprogramarse.</p>
+  // Igual que en el PEI y el RICE: el dosier entrega el material y el caso
+  // que le toca a esa función. Los otros casos no se ofrecen para mirar.
+  return `<p class="muted">Revisa la presentación y desarrolla la matriz de tu dosier. Las afirmaciones de verdadero o falso quedan como práctica: no se califican ni se envían.</p>
     <a class="mini" style="display:block;max-width:720px;margin-bottom:14px" href="evaluacion/index.html" target="_blank" rel="noopener" aria-label="Abrir presentación narrada del Reglamento de Evaluación">
       <span class="lienzo"><img style="display:block;width:100%;height:100%;object-fit:contain" src="evaluacion/slide-01.webp" alt="Reglamento de Evaluación y Promoción 2027–2030" loading="lazy"><span class="play" aria-hidden="true">▶</span><span class="dur">8:27</span></span>
       <span class="miniPie"><b>Reglamento de Evaluación y Promoción</b><small>13 láminas con audio en español · MiniMax</small></span>
     </a>
-    <div class="rice-part-links"><a href="evaluacion/index.html#practica" target="_blank" rel="noopener">Practicar verdadero o falso</a><a href="evaluacion/index.html#casos" target="_blank" rel="noopener">Consultar los cuatro casos</a><a href="evaluacion/Reglamento_Evaluacion_CEIA_2027-2030.pdf" target="_blank" rel="noopener">Ver reglamento PDF</a><a href="evaluacion/Reglamento_Evaluacion_CEIA_2027-2030.pdf" download>Descargar PDF</a></div>
-    <h3>Resolución de casos</h3><p class="muted">Casos de práctica contextualizados en Parral. En sesión grupal, formar cuatro equipos mixtos de HC, Electricidad, Atención de Párvulos y PIE/Dupla. En trabajo asincrónico, el dosier muestra un caso según tu función y las mismas cuatro partes de las jornadas PEI y RICE: documento, caso, función y compromiso. Desde una función de apoyo, identifica tu aporte y con quién coordinar.</p>
-    ${ACTIVIDADES_EVALUACION.cases.map(c=>`<details style="padding:12px 0;border-top:1px solid #d4e2e9"><summary><b>Caso ${c.id} · ${esc(c.title)}</b></summary><p>${esc(c.text)}</p><p><b>Desafío:</b> ${esc(c.challenge)}</p><a href="evaluacion/Reglamento_Evaluacion_CEIA_2027-2030.pdf#page=${c.page}" target="_blank" rel="noopener">${esc(c.article)} · página ${c.page}</a></details>`).join('')}`;
+    <div class="rice-part-links"><a href="evaluacion/index.html#practica" target="_blank" rel="noopener">Practicar verdadero o falso</a><a href="evaluacion/Reglamento_Evaluacion_CEIA_2027-2030.pdf" target="_blank" rel="noopener">Ver reglamento PDF</a><a href="evaluacion/Reglamento_Evaluacion_CEIA_2027-2030.pdf" download>Descargar PDF</a></div>`;
 }
 
 function prepararAyudaEvaluacion(j) {
@@ -1674,39 +1685,21 @@ function prepararAyudaEvaluacion(j) {
   app.chat[j.id]=app.chat[j.id]||[{rol:'tutor',texto:'Ayuda de consulta del Reglamento de Evaluación. Selecciona una pregunta para ver su explicación, el artículo de referencia o una pauta para revisar tu propuesta. Las dudas que requieran una interpretación institucional se registran para UTP o Dirección.',guardado:true}];pintarChat(j);
 }
 
-function casoEvaluacionActual() {
-  const reparto={aula:'3',linea:'1',pie:'2',convivencia:'4',soporte:'1',direccion:'4'};
-  const asignado=app.datos?.casos?.['evaluacion-dia-1'];
-  const id=asignado?.id?.replace(/^eval-/,'') || reparto[app.datos?.perfil?.id] || '3';
-  const c=ACTIVIDADES_EVALUACION.cases.find(c=>c.id===id)||ACTIVIDADES_EVALUACION.cases[2];
-  return {...c,dbid:'eval-'+c.id};
+/** Los datos de apoyo del caso de Evaluación (artículo, página y las
+ *  orientaciones) viven en evaluacion/contenido.json, no en la base.
+ *  El caso que le toca lo decide el reparto por perfil, igual que en las
+ *  otras jornadas; aquí solo se buscan sus textos de apoyo. */
+function apoyoCasoEvaluacion() {
+  const asignado = casoDe('evaluacion-dia-1');
+  const id = (asignado?.id || '').replace(/^eval-/, '');
+  return ACTIVIDADES_EVALUACION.cases.find(c => c.id === id) || null;
 }
 
-function mostrarCasoEvaluacion() {
-  sim=null;const c=casoEvaluacionActual();$('#jCaso').hidden=false;
-  $('#jCaso').innerHTML=`
-    <div class="simCab"><div>
-      <p class="eyebrow">Caso ${esc(c.id)} de 4 · análisis del procedimiento</p>
-      <h2 style="margin:2px 0 0">${esc(c.title)}</h2>
-    </div></div>
-    <article class="fichaCaso">
-      ${c.image ? `<img class="fcImg" src="evaluacion/${esc(c.image)}" alt="${esc(c.alt||'')}" loading="lazy">` : ''}
-      <div class="fcTx">
-        <p class="lead" style="margin:0">${esc(c.text)}</p>
-        <p class="fcReto"><b>Desafío:</b> ${esc(c.challenge)}</p>
-        <p class="fcPie">
-          <a href="evaluacion/Reglamento_Evaluacion_CEIA_2027-2030.pdf#page=${c.page}" target="_blank" rel="noopener">${esc(c.article)} · página ${c.page}</a>
-        </p>
-      </div>
-    </article>
-    <div class="aviso" style="margin:12px 0 0"><b>Caso de práctica contextualizado en Parral.</b>
-      Analiza el procedimiento desde tu función, sin identificar personas. El dosier usa los mismos tipos
-      de respuesta y las mismas cuatro partes del PEI y del RICE.</div>`;
-}
 
 function ayudaEvaluacion(modo,p,borrador,respuestas) {
   if(modo==='explicar')return p.ayuda||p.enunciado;
-  const caso=casoEvaluacionActual();
+  const caso=apoyoCasoEvaluacion();
+  if(!caso)return p.ayuda||p.enunciado;
   if(modo==='revisar')return (borrador?'Pauta para contrastar tu borrador:\n':'Escribe primero una propuesta. Después contrástala con esta pauta:\n')+'- Relaciona tu respuesta con el caso y tu función.\n- En la regla propuesta, identifica el artículo, los pasos, los actores y los registros.\n- En el compromiso, distingue lo que depende de ti y el efecto esperado.\n\n'+caso.article+' · página '+caso.page;
   if(p.tipo==='confirmacion')return 'Marca la declaración cuando hayas revisado y completado tus respuestas.';
   if(modo==='pista')return (p.pistas||[])[0]||p.ayuda||'Responde desde tu función y la situación del caso.';
