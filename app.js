@@ -474,7 +474,7 @@ function verDia(j) {
   if ((j.sigla || 'PEI') === 'RICE') {
     $('#diaMaterial').innerHTML = `<h2>Material de la jornada · RICE</h2>
       <p class="muted">Recorre la presentación general antes de responder. Las tres partes incluyen 50 láminas con narración de Silvana.</p>
-      <a class="btn pri" href="rice/index.html" target="_blank" rel="noopener">▶ Abrir presentación del RICE con audio</a>
+      ${vistaPreviaRice()}
       <p>Parte A: Comunidad y funcionamiento · Parte B: Seguridad y convivencia · Parte C: Protocolos y anexos.</p>
       <p class="muted">Duración de las locuciones: 22 minutos. Puedes pausar, avanzar y volver a cualquier lámina.</p>`;
   }
@@ -598,9 +598,9 @@ function verJornada(j) {
   $('#jDosier').innerHTML = `
     ${banda}
     <h2${pf?' style="margin-top:18px"':''}>Dosier del día</h2>
-    ${mat ? `<a class="btn" style="width:100%;margin-bottom:8px" href="${esc(mat.url)}" target="_blank" rel="noopener">
+    ${mat ? ((j.sigla || 'PEI') === 'RICE' ? vistaPreviaRice() : `<a class="btn" style="width:100%;margin-bottom:8px" href="${esc(mat.url)}" target="_blank" rel="noopener">
       ▶ ${esc(mat.titulo)}</a>
-    <p class="muted" style="margin:0">${esc(mat.nota)}</p>`
+    <p class="muted" style="margin:0">${esc(mat.nota)}</p>`)
     : `<div class="aviso" style="margin:0">La presentación y los videos de esta jornada se publican aquí
       antes del día. Puedes responder igual: las preguntas no dependen de ese material.</div>`}`;
 
@@ -1553,3 +1553,5 @@ function resumenSim() {
   return (mi >= 0 ? `Su punto de acción fue ${hitos[mi].cuando}. ` : 'No habría intervenido en ningún mes. ')
     + partes.join(' | ');
 }
+
+function vistaPreviaRice(){return `<div class="rice-material"><a class="mini rice-preview" href="rice/index.html?parte=A" target="_blank" rel="noopener" aria-label="Abrir presentación del RICE con audio"><span class="lienzo"><span class="rice-cover"><span class="rice-cover-tag">CEIA Juanita Zúñiga Fuentes · Parral</span><span class="rice-cover-title">Reglamento Interno y de Convivencia Escolar</span><span class="rice-cover-sub">A · Comunidad y funcionamiento<br>B · Seguridad y convivencia<br>C · Protocolos y anexos</span></span><span class="rice-cover-play" aria-hidden="true">▶</span><span class="dur">22:11</span></span><span class="miniPie"><b>Presentación general del RICE con audio</b><small>50 láminas · Voz de Silvana · Toca la miniatura para abrir</small></span></a><nav class="rice-part-links" aria-label="Comenzar la presentación del RICE por una parte"><a href="rice/index.html?parte=A" target="_blank" rel="noopener">Comenzar parte A</a><a href="rice/index.html?parte=B" target="_blank" rel="noopener">Comenzar parte B</a><a href="rice/index.html?parte=C" target="_blank" rel="noopener">Comenzar parte C</a></nav></div>`;}
