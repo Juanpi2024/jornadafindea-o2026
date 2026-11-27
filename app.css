@@ -9,15 +9,15 @@
   --azul-osc:#014A86;
   --amarillo:#FFF00F;    /* el amarillo del logo */
   --oro:#C79400;         /* el amarillo, legible sobre blanco */
-  --fondo:#EEF3F9; --panel:#FFFFFF; --borde:#D3E0EE;
-  --tinta:#0F2C47; --tinta2:#3B5A76; --tinta3:#566C80;
+  --fondo:#DDE8F3; --panel:#FFFFFF; --borde:#C3D6E8;
+  --tinta:#0F2C47; --tinta2:#3B5A76; --tinta3:#4E6275;
   --verde:#0F8A5F; --verde-tx:#0B6B4F; --ambar:#C77A00; --ambar-tx:#8F5A00; --rojo:#C62828;
 }
 html,body{margin:0;padding:0}
 body{background:var(--fondo);color:var(--tinta);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;min-height:100vh}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:
-  radial-gradient(1000px 640px at 10% -8%,rgba(1,94,169,.11),transparent 62%),
-  radial-gradient(820px 560px at 96% 4%,rgba(255,240,15,.30),transparent 60%)}
+  radial-gradient(1000px 640px at 10% -8%,rgba(1,94,169,.18),transparent 62%),
+  radial-gradient(820px 560px at 96% 4%,rgba(255,240,15,.38),transparent 60%)}
 h1,h2,h3{margin:0 0 8px;line-height:1.2}
 h1{font-size:clamp(24px,5vw,36px);letter-spacing:-.02em}
 h2{font-size:19px}
@@ -39,7 +39,8 @@ header.top .in{max-width:1060px;margin:auto;padding:12px 18px;display:flex;align
 @media(max-width:560px){.marca .logo{height:34px}.marca{font-size:13.5px}}
 header.top nav{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 
-.card{background:var(--panel);border:1px solid var(--borde);border-radius:16px;padding:20px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--borde);border-radius:16px;padding:20px;
+  margin-bottom:16px;box-shadow:0 2px 10px rgba(13,44,71,.07)}
 .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta3);font-weight:700;margin:0 0 6px}
 .muted{color:var(--tinta3);font-size:14px}
 .lead{color:var(--tinta2)}
@@ -72,16 +73,18 @@ textarea.in{resize:vertical;min-height:110px;line-height:1.5}
 .mes h3{color:var(--tinta2);text-transform:capitalize;font-size:14px;letter-spacing:.04em}
 .sem,.dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .sem span{font-size:10.5px;font-weight:700;color:var(--tinta3);text-align:center;padding-bottom:4px;letter-spacing:.06em}
-.dia{min-height:62px;border-radius:11px;background:#F7FAFD;border:1px solid #E2EAF3;padding:6px 7px;
-  font-size:14px;color:#5E6C8C;display:flex;flex-direction:column;gap:3px}
-.dia.vacio{background:transparent;border-color:transparent}
+.dia{min-height:62px;border-radius:11px;background:#F4F9FD;border:2px solid #CBDCEB;padding:6px 7px;
+  font-size:14px;color:#4E6275;display:flex;flex-direction:column;gap:3px}
+.dia.vacio{background:transparent;border-color:transparent;box-shadow:none}
 .dia.hoy{box-shadow:inset 0 0 0 2px var(--oro)}
-a.dia{text-decoration:none;color:var(--tinta);border-color:rgba(1,94,169,.45);background:rgba(1,94,169,.13)}
+a.dia{text-decoration:none;color:var(--tinta);border-color:var(--azul);background:#C8DFF4;
+  box-shadow:0 3px 10px rgba(1,94,169,.26)}
+a.dia:hover{background:#B7D4EF;box-shadow:0 5px 14px rgba(1,94,169,.3)}
 a.dia .num{font-weight:800;font-size:17px;color:#14395C}
-a.dia .eti{font-size:9.5px;font-weight:700;line-height:1.2;color:#AFBEEA}
-a.dia.abierta{border-color:var(--ambar);background:rgba(230,150,0,.17)}
+a.dia .eti{font-size:9.5px;font-weight:700;line-height:1.2;color:var(--tinta2)}
+a.dia.abierta{border-color:var(--ambar);background:#F8E0B4;box-shadow:0 3px 10px rgba(199,122,0,.28)}
 a.dia.abierta .num,a.dia.abierta .eti{color:#8A5A00}
-a.dia.lista{border-color:rgba(15,138,95,.5);background:rgba(15,138,95,.13)}
+a.dia.lista{border-color:var(--verde);background:#C4E7D8;box-shadow:0 3px 10px rgba(15,138,95,.26)}
 a.dia.lista .num,a.dia.lista .eti{color:#0B5C42}
 .leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--tinta2);margin-top:4px}
 .leyenda span{display:flex;align-items:center;gap:6px}
@@ -505,10 +508,11 @@ tr.grp td{background:#F3F7FC;font-size:11px;font-weight:800;letter-spacing:.06em
 .dia.jor.abierta .num{color:var(--azul-osc);font-weight:800}
 
 /* Cerrada: se ve, se entiende, pero no llama */
-.dia.jor.trancada{border-color:#D3E0EE;background:rgba(1,94,169,.04)}
-.dia.jor.trancada .num,.dia.jor.trancada .eti{color:var(--tinta3)}
-.dia.jor.trancada .cand{opacity:.6}
-a.dia.jor.trancada:hover{border-color:#9FBBD8}
+.dia.jor.trancada{border-color:#7FAAD4;background:#D5E6F5}
+.dia.jor.trancada .num{color:#14395C;font-weight:800}
+.dia.jor.trancada .eti{color:var(--tinta2)}
+.dia.jor.trancada .cand{opacity:.85}
+a.dia.jor.trancada:hover{border-color:var(--azul);background:#C3DCF1}
 
 .dia.jor.lista{background:rgba(15,138,95,.16);border-color:rgba(15,138,95,.55)}
 
@@ -518,7 +522,7 @@ a.dia.jor.trancada:hover{border-color:#9FBBD8}
 .dia.feriado .eti{color:#A31515}
 
 /* Día hábil con actividad todavía por definir */
-.dia.porprogramar{border-style:dashed;border-color:#BCCEE2;background:rgba(1,94,169,.04);padding-top:20px}
+.dia.porprogramar{border-style:dashed;border-color:#B4C8DD;background:#F4F9FD;padding-top:20px;box-shadow:none}
 .dia.porprogramar .num{color:var(--tinta3)}
 .dia.porprogramar .eti{color:var(--tinta3);font-size:10px}
 .dia.porprogramar .cand{opacity:.38}
@@ -590,3 +594,13 @@ a.dia.jor.trancada:hover{border-color:#9FBBD8}
    muestra entera porque es un dibujo y no una foto. */
 .tarjeta.apertura .apImg{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;
   padding:14px;background:#EAF2FA;border-bottom:1px solid #D3E0EE}
+
+/* Pictograma de los cinco elementos: un cuadrito por persona. */
+.elem{padding:13px 0;border-top:1px solid var(--borde)}
+.elem:first-of-type{border-top:0;padding-top:4px}
+.elemCab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.elemCab b{font-size:14.5px;color:var(--tinta)}
+.elemCab .muted{font-size:12px;white-space:nowrap}
+.pict{display:flex;flex-wrap:wrap;gap:4px}
+.pict i{display:block;width:15px;height:15px;border-radius:4px}
+.pin{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin:0 1px 0 6px}

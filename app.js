@@ -219,6 +219,18 @@ async function cargar(silencioso) {
 /* Presentación de un bloque, cuando necesita decir de dónde viene y para qué.
    Se muestra bajo el título de la parte, antes de la primera pregunta. */
 const NOTA_PARTE = {
+  '3 · Los cinco elementos': `<div class="solicita">
+    <p class="sqk">Los cinco elementos de la cultura educativa</p>
+    <p>Son los cinco elementos que define el Mineduc para mirar la cultura de un establecimiento.
+      La pregunta no es si tú lo haces bien: es <b>qué tan cerca está lo que el PEI declara de lo
+      que vivimos todos los días</b>. Responde por el CEIA completo, desde donde tú lo ves.</p>
+    <p class="sqf">Es anónimo: del panel solo sale cuántas personas marcaron cada opción, nunca quién.</p>
+  </div>`,
+  '4 · Ticket de salida': `<div class="solicita">
+    <p class="sqk">La última, y la que más pesa</p>
+    <p>De los cinco elementos, cuál está <b>más lejos</b> de lo que declaramos. Los tickets de los 35
+      orientan la decisión; el foco 2027 lo define el equipo directivo con todo lo demás a la vista.</p>
+  </div>`,
   '2 · Condiciones de seguridad': `<div class="solicita">
     <p class="sqk">Solicitud del Comité Paritario de Higiene y Seguridad</p>
     <p>Aprovechamos esta jornada para pedirte algo del comité: que mires tu propio puesto de trabajo.
@@ -244,7 +256,7 @@ const FERIADOS = {
 };
 const MEDIA_JORNADA = {
   '2026-12-24': 'Solo jornada de mañana',
-  '2026-12-30': 'Solo jornada de mañana'
+  '2026-12-31': 'Solo jornada de mañana'
 };
 const esViernes = (f) => new Date(f + 'T12:00:00').getDay() === 5;
 const esFinDeSemana = (f) => [0,6].includes(new Date(f + 'T12:00:00').getDay());
@@ -257,7 +269,7 @@ const MODO_REVISION = true;
 /* Hasta dónde llega el calendario de trabajo. Los días hábiles de este tramo
    que todavía no tienen actividad igual muestran su candado, para que se vea
    la forma completa del plan. */
-const ULTIMO_DIA = '2026-12-30';
+const ULTIMO_DIA = '2026-12-31';
 
 function hechas(jornadaId) {
   if (!app.datos) return null;
@@ -1074,6 +1086,75 @@ function columnas(datos, {alto = 150} = {}) {
     </div>`).join('')}</div>`;
 }
 
+/** Los cinco elementos de la cultura educativa y el ticket de salida.
+ *  Es la evidencia que pide la guía de cierre del Mineduc: un pictograma por
+ *  elemento y el conteo de dónde está la brecha más grande. */
+const ELEMENTOS = [
+  {cod:'e1', nom:'Creencias'},
+  {cod:'e2', nom:'Lenguaje'},
+  {cod:'e3', nom:'Organización del ambiente'},
+  {cod:'e4', nom:'Gestión de aula'},
+  {cod:'e5', nom:'Liderazgo y desarrollo profesional'},
+];
+const NIVEL_COLOR = {'Casi siempre':'#0F8A5F', 'A veces':'#C77A00', 'Casi nunca':'#C62828'};
+
+function culturaBloque(rs) {
+  const de = (cod) => {
+    const m = {};
+    rs.filter(r => r.jornadaId === 'pei-dia-1').forEach(r =>
+      (r.items||[]).forEach(it => { if (it.id === cod && it.respuesta) m[it.respuesta] = (m[it.respuesta]||0)+1; }));
+    return m;
+  };
+  const filas = ELEMENTOS.map(e => ({...e, m: de(e.cod), n: Object.values(de(e.cod)).reduce((a,c)=>a+c,0)}));
+  const total = filas.reduce((a,f) => a + f.n, 0);
+  if (!total) return `<div class="card"><h2>Los cinco elementos de la cultura educativa</h2>
+    <p class="muted"><em>Aparece cuando respondan el día 1.</em></p></div>`;
+
+  // El pictograma: un cuadrito por persona, del color de lo que marcó.
+  const pict = filas.map(f => {
+    const puntos = ['Casi siempre','A veces','Casi nunca'].flatMap(k =>
+      Array.from({length: f.m[k]||0}, () => `<i style="background:${NIVEL_COLOR[k]}" title="${esc(k)}"></i>`)).join('');
+    const nunca = (f.m['Casi nunca']||0) + (f.m['A veces']||0);
+    return `<div class="elem">
+      <div class="elemCab"><b>${esc(f.nom)}</b>
+        <span class="muted">${f.n ? Math.round(nunca / f.n * 100) + '% lejos de lo declarado' : '—'}</span></div>
+      <div class="pict">${puntos || '<span class="muted">sin respuestas</span>'}</div>
+    </div>`;
+  }).join('');
+
+  // El ticket: dónde ve la comunidad la brecha más grande.
+  const tick = {};
+  rs.filter(r => r.jornadaId === 'pei-dia-1').forEach(r =>
+    (r.items||[]).forEach(it => { if (it.id === 't1' && it.respuesta) tick[it.respuesta] = (tick[it.respuesta]||0)+1; }));
+  const votos = ELEMENTOS.map(e => ({k: e.nom, v: tick[e.nom] || 0})).sort((a,b) => b.v - a.v);
+  const ganador = votos[0] && votos[0].v ? votos[0] : null;
+  const porques = [];
+  rs.filter(r => r.jornadaId === 'pei-dia-1').forEach(r =>
+    (r.items||[]).forEach(it => { if (it.id === 't2' && it.respuesta) porques.push(it.respuesta); }));
+
+  return `<div class="card">
+      <h2>Los cinco elementos de la cultura educativa</h2>
+      <p class="muted">Un cuadrito por persona.
+        <span class="pin" style="background:#0F8A5F"></span> casi siempre ·
+        <span class="pin" style="background:#C77A00"></span> a veces ·
+        <span class="pin" style="background:#C62828"></span> casi nunca.
+        El porcentaje es cuánta gente no marcó “casi siempre”.</p>
+      ${pict}
+    </div>
+    <div class="rejilla">
+      <div class="card"><h2>Ticket de salida · dónde está la brecha</h2>
+        ${barrasH(votos, {max: Math.max(1, ...votos.map(v => v.v))})}
+        ${ganador ? `<p class="aviso" style="margin:12px 0 0"><b>${esc(ganador.k)}</b> concentra
+          ${ganador.v} de ${votos.reduce((a,v)=>a+v.v,0)} tickets. Orienta el foco 2027;
+          la decisión es del equipo directivo.</p>` : ''}
+      </div>
+      <div class="card"><h2>Por qué ese elemento</h2>
+        ${porques.length ? `<ul>${porques.slice(0,40).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`
+                         : '<p class="muted"><em>Sin respuestas todavía.</em></p>'}
+      </div>
+    </div>`;
+}
+
 function pintarPanel() {
   const d = panelDatos;
   const js = d.jornadas;
@@ -1158,6 +1239,8 @@ function pintarPanel() {
         ${barrasH(porPerfil, {max: 100, sufijo: '%'})}
         <p class="muted" style="margin:10px 0 0">El número es cuántos de ese perfil ya participaron.</p></div>
     </div>
+
+    ${culturaBloque(rs)}
 
     <div class="card"><h2>En qué punto habría actuado cada uno</h2>
       <p class="muted">Del recorrido del caso. Es el dato que no existía antes:
