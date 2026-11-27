@@ -479,6 +479,10 @@ function verDia(j) {
       <p class="muted">Duración de las locuciones: 22 minutos. Puedes pausar, avanzar y volver a cualquier lámina.</p>`;
   }
 
+  if (j.id === 'pei-dia-2') {
+    $('#diaMaterial').insertAdjacentHTML('beforeend', videosPeiDia2());
+  }
+
   // Los videos propios se cargan solo al tocarlos.
   document.querySelectorAll('#diaMaterial .corto .tapa').forEach(b =>
     b.addEventListener('click', () => {
@@ -603,6 +607,10 @@ function verJornada(j) {
     <p class="muted" style="margin:0">${esc(mat.nota)}</p>`)
     : `<div class="aviso" style="margin:0">La presentación y los videos de esta jornada se publican aquí
       antes del día. Puedes responder igual: las preguntas no dependen de ese material.</div>`}`;
+
+  if (j.id === 'pei-dia-2') {
+    $('#jDosier').insertAdjacentHTML('beforeend', videosPeiDia2());
+  }
 
   // El caso, mes a mes
   $('#jCaso').hidden = !usaCaso;
@@ -1532,12 +1540,28 @@ function pintarCierre() {
 }
 
 /** El mes en que habría movido la ficha, suelto, para poder graficarlo. */
+function videosPeiDia2() {
+  const videos = [
+    {id:'k1ILVDKI8Vo', titulo:'El engranaje oculto que hace funcionar un colegio'},
+    {id:'v2qqLMlZXgI', titulo:'Paradocentes y auxiliares'}
+  ];
+  return `<section aria-label="Videos complementarios del PEI día 2" style="margin-top:20px">
+    <h3>Videos complementarios · PEI día 2</h3>
+    <div class="materiales">${videos.map(v => `
+      <a class="mini" href="https://www.youtube.com/shorts/${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
+        <span class="lienzo">
+          <img style="display:block;width:100%;height:100%;object-fit:contain" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="Miniatura del video: ${esc(v.titulo)}" loading="lazy">
+          <span class="play" aria-hidden="true">▶</span><span class="dur">Short</span>
+        </span>
+        <span class="miniPie"><b>${esc(v.titulo)}</b><small>Ver Short en YouTube</small></span>
+      </a>`).join('')}</div>
+  </section>`;
+}
+
 function vistaPreviaRice() {
   const videos = [
     {id:'tnFxLXMon7s', titulo:'Protocolos de seguridad 2026–2027', duracion:'8:14'},
     {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'},
-    {id:'k1ILVDKI8Vo', titulo:'El engranaje oculto que hace funcionar un colegio', duracion:'Short', short:true},
-    {id:'v2qqLMlZXgI', titulo:'Paradocentes y auxiliares', duracion:'Short', short:true},
     {id:'CUPt6-kLHII', titulo:'Higiene y Seguridad CEIA', duracion:'6:38'},
     {id:'03rXRMsbI4E', titulo:'Faltas CEIA 2026–2027', duracion:'5:59'}
   ];
