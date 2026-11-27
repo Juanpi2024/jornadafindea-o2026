@@ -1532,6 +1532,25 @@ function pintarCierre() {
 }
 
 /** El mes en que habría movido la ficha, suelto, para poder graficarlo. */
+function vistaPreviaRice() {
+  const videos = [
+    {id:'tnFxLXMon7s', titulo:'Protocolos de seguridad 2026–2027', duracion:'8:14'},
+    {id:'ZpR4jasVdQs', titulo:'Horarios y atrasos', duracion:'4:44'}
+  ];
+  return vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
+    <h3>Videos complementarios del RICE</h3>
+    <div class="materiales">${videos.map(v => `
+      <a class="mini" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
+        <span class="lienzo">
+          <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="Miniatura del video: ${esc(v.titulo)}" loading="lazy">
+          <span class="play" aria-hidden="true">▶</span>
+          <span class="dur">${v.duracion}</span>
+        </span>
+        <span class="miniPie"><b>${esc(v.titulo)}</b><small>Ver en YouTube · ${v.duracion} min</small></span>
+      </a>`).join('')}</div>
+  </section>`;
+}
+
 function mesEnQueActuaria() {
   if (!sim || !sim.caso) return null;
   const hitos = sim.caso.hitos || [];
@@ -1554,5 +1573,5 @@ function resumenSim() {
     + partes.join(' | ');
 }
 
-function vistaPreviaRice(){return `<div class="rice-material"><a class="mini rice-preview" href="rice/index.html?parte=A" target="_blank" rel="noopener" aria-label="Abrir presentación del RICE con audio"><span class="lienzo"><span class="rice-cover"><span class="rice-cover-tag">CEIA Juanita Zúñiga Fuentes · Parral</span><span class="rice-cover-title">Reglamento Interno y de Convivencia Escolar</span><span class="rice-cover-sub">A · Comunidad y funcionamiento<br>B · Seguridad y convivencia<br>C · Protocolos y anexos</span></span><span class="rice-cover-play" aria-hidden="true">▶</span><span class="dur">22:11</span></span><span class="miniPie"><b>Presentación general del RICE con audio</b><small>50 láminas · Voz de Silvana · Toca la miniatura para abrir</small></span></a><nav class="rice-part-links" aria-label="Comenzar la presentación del RICE por una parte"><a href="rice/index.html?parte=A" target="_blank" rel="noopener">Comenzar parte A</a><a href="rice/index.html?parte=B" target="_blank" rel="noopener">Comenzar parte B</a><a href="rice/index.html?parte=C" target="_blank" rel="noopener">Comenzar parte C</a></nav><div class="rice-part-links" aria-label="Consultar el reglamento"><a href="reglamento/index.html" target="_blank" rel="noopener">Consultar reglamento navegable</a><a href="reglamento/Reglamento_CEIA_2026-2027.pdf" target="_blank" rel="noopener">Ver PDF original</a><a href="reglamento/Reglamento_CEIA_2026-2027.pdf" download>Descargar PDF</a></div></div>`;}
+function vistaPreviaRiceBase(){return `<div class="rice-material"><a class="mini rice-preview" href="rice/index.html?parte=A" target="_blank" rel="noopener" aria-label="Abrir presentación del RICE con audio"><span class="lienzo"><span class="rice-cover"><span class="rice-cover-tag">CEIA Juanita Zúñiga Fuentes · Parral</span><span class="rice-cover-title">Reglamento Interno y de Convivencia Escolar</span><span class="rice-cover-sub">A · Comunidad y funcionamiento<br>B · Seguridad y convivencia<br>C · Protocolos y anexos</span></span><span class="rice-cover-play" aria-hidden="true">▶</span><span class="dur">22:11</span></span><span class="miniPie"><b>Presentación general del RICE con audio</b><small>50 láminas · Voz de Silvana · Toca la miniatura para abrir</small></span></a><nav class="rice-part-links" aria-label="Comenzar la presentación del RICE por una parte"><a href="rice/index.html?parte=A" target="_blank" rel="noopener">Comenzar parte A</a><a href="rice/index.html?parte=B" target="_blank" rel="noopener">Comenzar parte B</a><a href="rice/index.html?parte=C" target="_blank" rel="noopener">Comenzar parte C</a></nav><div class="rice-part-links" aria-label="Consultar el reglamento"><a href="reglamento/index.html" target="_blank" rel="noopener">Consultar reglamento navegable</a><a href="reglamento/Reglamento_CEIA_2026-2027.pdf" target="_blank" rel="noopener">Ver PDF original</a><a href="reglamento/Reglamento_CEIA_2026-2027.pdf" download>Descargar PDF</a></div></div>`;}
 
