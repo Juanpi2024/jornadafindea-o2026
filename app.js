@@ -471,6 +471,14 @@ function verDia(j) {
       ${esc(fdateLarga(j.fecha))}. Respóndela dentro de tu turno de trabajo.
     </div>`;
 
+  if ((j.sigla || 'PEI') === 'RICE') {
+    $('#diaMaterial').innerHTML = `<h2>Material de la jornada · RICE</h2>
+      <p class="muted">Recorre la presentación general antes de responder. Las tres partes incluyen 50 láminas con narración de Silvana.</p>
+      <a class="btn pri" href="rice/index.html" target="_blank" rel="noopener">▶ Abrir presentación del RICE con audio</a>
+      <p>Parte A: Comunidad y funcionamiento · Parte B: Seguridad y convivencia · Parte C: Protocolos y anexos.</p>
+      <p class="muted">Duración de las locuciones: 22 minutos. Puedes pausar, avanzar y volver a cualquier lámina.</p>`;
+  }
+
   // Los videos propios se cargan solo al tocarlos.
   document.querySelectorAll('#diaMaterial .corto .tapa').forEach(b =>
     b.addEventListener('click', () => {
@@ -989,6 +997,8 @@ async function abrirPanel(e) {
 
 // El dosier de cada tema. El de RICE se agrega cuando llegue el material.
 const MATERIAL = {
+  RICE: {url:'rice/index.html', titulo:'Presentación general del RICE con audio · 50 láminas',
+        nota:'Tres partes con locución de Silvana. Puedes pausar y volver a cualquier lámina.'},
   PEI: {url:'pei/index.html', titulo:'Presentación del PEI con audio · 44 láminas, 15:50',
         nota:'Escúchala antes de responder. Puedes pausarla y seguir donde quedaste.'},
 };
