@@ -611,3 +611,12 @@ a.dia.jor.trancada:hover{border-color:var(--azul);background:#C3DCF1}
 .pict{display:flex;flex-wrap:wrap;gap:4px}
 .pict i{display:block;width:15px;height:15px;border-radius:4px}
 .pin{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin:0 1px 0 6px}
+
+/* La ronda de condiciones: el trabajo en terreno de primera línea y soporte. */
+.ronda{margin-top:18px;border:2px solid var(--azul);border-radius:10px;padding:16px 18px;background:#F4F9FE}
+.ronda h3{margin:0 0 6px;font-size:17px;color:var(--azul-osc)}
+.ronda p{margin:0 0 10px;color:var(--tinta2)}
+.ronda ul{margin:0 0 14px;padding-left:20px;color:var(--tinta2)}
+.ronda li{margin:4px 0}
+.ronda .btn{width:100%}
+.ronda .rpie{margin:10px 0 0;font-size:14px;color:var(--tinta3)}

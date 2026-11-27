@@ -665,6 +665,11 @@ function verJornada(j) {
     $('#jDosier').insertAdjacentHTML('beforeend', videosPeiDia2());
   }
 
+  // La ronda es trabajo en terreno: solo la ven quienes la hacen.
+  if (j.id === 'aula-dia-1' && pf && (pf.id === 'linea' || pf.id === 'soporte')) {
+    $('#jDosier').insertAdjacentHTML('beforeend', bloqueRonda());
+  }
+
   if (j.id === 'evaluacion-dia-1') {
     $('#jDosier').innerHTML = banda + `<h2${pf?' style="margin-top:18px"':''}>Dosier del día</h2>` + vistaPreviaEvaluacion();
   }
@@ -1669,8 +1674,10 @@ function casoDe(jornadaId) { return (app.datos.casos || {})[jornadaId] || app.da
 const casoDeLaJornada = (jornadaId) => (casoDe(jornadaId) || {}).id || '';
 
 /** Cuántos casos tiene el juego al que pertenece este: el PEI y el RICE
- *  tienen tres, la jornada de Evaluación cuatro. */
-function totalCasos(caso) { return caso.tema === 'evaluacion' ? 4 : 3; }
+ *  tienen tres; Evaluación cuatro, y AULA cuatro porque la primera línea y
+ *  soporte tienen el suyo, el de la cadena que sostiene la clase. */
+const CUANTOS_CASOS = {evaluacion: 4, aula: 4};
+function totalCasos(caso) { return CUANTOS_CASOS[caso.tema] || 3; }
 
 function pintarApertura() {
   const {caso} = sim;
@@ -1759,6 +1766,28 @@ function pintarCierre() {
     <p class="muted" style="margin:14px 0 0">${esc(g(caso,'pie'))}</p>`;
 
   $('#simOtra').addEventListener('click', () => { sim.paso = -1; sim.abierto = false; sim.decidido = []; pintarCaso(); });
+}
+
+/** La ronda de condiciones: lo que primera línea y soporte levantan en terreno
+ *  el mismo día. Es la mitad del consolidado que no se midió, porque pasa
+ *  fuera de la sala. */
+function bloqueRonda() {
+  return `<section class="ronda" aria-label="Ronda de condiciones">
+    <h3>Tu trabajo en terreno · la ronda de condiciones</h3>
+    <p>El consolidado midió lo que pasa dentro de la sala. Lo que pasa fuera no lo midió nadie, y de ahí
+      salieron <b>4 de cada 10 pérdidas de tiempo de clase</b>. Antes de responder, recorran salas, talleres,
+      bodega y fotocopiadora con la pauta, y vuelvan con los números.</p>
+    <ul>
+      <li>Cuántas salas tienen proyector que sirva un lunes a primera hora.</li>
+      <li>Cuántas admiten la disposición en U con el mobiliario que hay.</li>
+      <li>Dónde está hoy la protección: en bodega o en la sala donde se usa.</li>
+      <li>Cuánto demora de verdad una fotocopia pedida hoy.</li>
+      <li>Si el timbre puede dar un aviso de corte doce minutos antes.</li>
+    </ul>
+    <a class="btn" href="aula/ronda.html" target="_blank" rel="noopener">▶ Abrir la pauta para imprimir</a>
+    <p class="rpie">Sin estos números las tres propuestas de la jornada no se pueden aprobar ni descartar:
+      quedan en intención. Es el único dato que nadie más del colegio puede levantar.</p>
+  </section>`;
 }
 
 /** El mes en que habría movido la ficha, suelto, para poder graficarlo. */
