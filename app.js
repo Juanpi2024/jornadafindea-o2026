@@ -1586,19 +1586,21 @@ function vistaPreviaRice(jornadaId = 'rice-dia-1') {
   // otros. Falta el número 1 de la serie.
   const dia2 = jornadaId === 'rice-dia-2';
   const videos = dia2 ? [
-    {id:'RxGSzvIO8is', titulo:'3 · Derecho a descargos', duracion:'6:45',
+    {id:'RxGSzvIO8is', titulo:'Derecho a descargos', duracion:'6:46',
      porque:'Garantizar que la persona pueda defenderse. Es el eje del caso del hecho grave.'},
-    {id:'CUPt6-kLHII', titulo:'5 · Emergencias y registros', duracion:'6:38',
+    {id:'CUPt6-kLHII', titulo:'Emergencias y registros', duracion:'6:38',
      porque:'Qué se hace y qué queda escrito cuando pasa algo que nadie esperaba.'},
-    {id:'Hvdi_kfsu2k', titulo:'¿Qué sucede tras controlar la crisis?', duracion:'8:14',
+    {id:'Hvdi_kfsu2k', titulo:'¿Qué sucede tras controlar la crisis?', duracion:'8:15',
      porque:'Lo que viene después: informes, procedimiento y los documentos que respaldan la actuación.'}
   ] : [
-    {id:'IYW3k7bgCLo', titulo:'2 · Diálogo en conjunto', duracion:'5:53',
+    {id:'tT7Q1yMFqcU', titulo:'Admisión y matrícula', duracion:'5:30',
+     porque:'Cómo se entra al CEIA, incluidos los ingresos excepcionales.'},
+    {id:'IYW3k7bgCLo', titulo:'Diálogo en conjunto', duracion:'5:54',
      porque:'Límites y participación: cómo se sostiene la convivencia antes de que haya que aplicar nada.'},
-    {id:'03rXRMsbI4E', titulo:'4 · Padres y apoderados', duracion:'5:59',
+    {id:'03rXRMsbI4E', titulo:'Padres y apoderados', duracion:'6:00',
      porque:'Estándares de la comunidad y quién es el adulto responsable. Ojo con nuestros estudiantes adultos.'},
-    {id:'ZpR4jasVdQs', titulo:'80% · Asistencia y promoción', duracion:'4:44',
-     porque:'Ingreso, atrasos e inasistencias, y el mínimo de asistencia para ser promovido.'}
+    {id:'ZpR4jasVdQs', titulo:'Asistencia y promoción', duracion:'4:45',
+     porque:'Ingreso, atrasos e inasistencias, y el 80% mínimo para ser promovido.'}
   ];
   // El video destacado solo va en el día 2: es lo que ocurre después del hecho.
   const extracto = dia2 ? `<section aria-label="Video principal del día" style="margin-bottom:24px">
@@ -1611,8 +1613,8 @@ function vistaPreviaRice(jornadaId = 'rice-dia-1') {
   return extracto + vistaPreviaRiceBase() + `<section aria-label="Videos complementarios del RICE" style="margin-top:20px">
     <h3>Videos de este día · ${dia2 ? 'actuar y dejar respaldo' : 'reconocer y prevenir'}</h3>
     <p class="muted" style="margin:-4px 0 12px">${dia2
-      ? 'Los tres apuntan al procedimiento: qué medida corresponde, qué pasos tiene y qué queda por escrito.'
-      : 'Los tres apuntan a reconocer: quiénes somos la comunidad, qué se espera y cómo funciona el día a día.'}</p>
+      ? 'Todos apuntan al procedimiento: qué medida corresponde, qué pasos tiene y qué queda por escrito.'
+      : 'Todos apuntan a reconocer: cómo se entra, cómo convivimos, quiénes somos la comunidad y qué se exige para avanzar.'}</p>
     <div class="materiales">${videos.map(v => `
       <a class="mini" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
         <span class="lienzo">
