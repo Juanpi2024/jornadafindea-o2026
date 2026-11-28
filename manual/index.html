@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual de uso · APP CEIA 2027</title>
+<style>
+  :root{ --azul:#015EA9; --azul-osc:#014A86; --amarillo:#FFF00F; --oro:#C79400;
+         --fondo:#DDE8F3; --panel:#fff; --borde:#C3D6E8;
+         --tinta:#0F2C47; --tinta2:#3B5A76; --tinta3:#4E6275;
+         --verde:#0F8A5F; --ambar:#C77A00; --ambar-tx:#8F5A00; --morado:#7A4EA8; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--tinta);
+       font:16.5px/1.6 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+  .caja{max-width:860px;margin:0 auto;padding:0 20px}
+  header.top{background:var(--azul);color:#fff;border-bottom:7px solid var(--amarillo)}
+  header.top .caja{padding:30px 20px 26px}
+  header.top p.eyebrow{margin:0;font-size:12px;letter-spacing:.15em;text-transform:uppercase;opacity:.9}
+  header.top h1{margin:8px 0 6px;font-size:33px;line-height:1.1}
+  header.top .lead{margin:0;font-size:17px;opacity:.96;max-width:620px}
+
+  nav.indice{background:#fff;border-bottom:1px solid var(--borde)}
+  nav.indice ol{max-width:860px;margin:0 auto;padding:14px 20px;list-style:none;
+    display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14.5px}
+  nav.indice a{color:var(--azul);text-decoration:none;font-weight:600}
+  nav.indice a:hover{text-decoration:underline}
+
+  section.parte{background:#fff;margin:22px auto;max-width:860px;border-radius:12px;
+    padding:28px 30px 32px;box-shadow:0 1px 4px rgba(1,94,169,.10)}
+  section.parte > p.num{margin:0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta3)}
+  section.parte > h2{margin:5px 0 4px;font-size:25px;color:var(--azul-osc)}
+  section.parte > p.sub{margin:0 0 20px;color:var(--tinta2)}
+
+  .paso{border-top:1px solid var(--borde);padding:20px 0 4px}
+  .paso:first-of-type{border-top:0;padding-top:4px}
+  .paso h3{margin:0 0 5px;font-size:19px;display:flex;align-items:baseline;gap:11px}
+  .paso h3 i{flex:none;font-style:normal;width:28px;height:28px;border-radius:8px;
+    background:var(--azul);color:#fff;font-size:14px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;transform:translateY(2px)}
+  .paso p{margin:0 0 10px;color:var(--tinta2)}
+  .paso p:last-child{margin-bottom:0}
+
+  figure{margin:14px 0 4px}
+  video{width:100%;display:block;border-radius:10px;border:1px solid var(--borde);background:#000}
+  figcaption{margin-top:7px;font-size:13.5px;color:var(--tinta3)}
+
+  .ojo{border-left:5px solid var(--oro);background:#FFFBE6;border-radius:0 8px 8px 0;
+    padding:12px 15px;margin:14px 0;font-size:15.5px}
+  .ojo b{color:var(--ambar-tx)}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+  th{background:var(--azul);color:#fff;text-align:left;padding:8px 11px;font-size:13.5px;
+     font-weight:600;letter-spacing:.02em}
+  td{padding:9px 11px;border-bottom:1px solid var(--borde);vertical-align:top;color:var(--tinta2)}
+  td b{color:var(--tinta)}
+  tr:last-child td{border-bottom:0}
+
+  .fichas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .ficha{border:1px solid var(--borde);border-radius:10px;padding:14px 16px;background:#FBFDFF}
+  .ficha h4{margin:0 0 3px;font-size:16.5px;color:var(--azul-osc);display:flex;gap:8px;align-items:center}
+  .ficha h4 span{flex:none;width:24px;height:24px;border-radius:7px;background:var(--azul);color:#fff;
+    font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+  .ficha .n{font-size:12.5px;color:var(--tinta3);text-transform:uppercase;letter-spacing:.07em}
+  .ficha p{margin:7px 0 0;font-size:14.5px;color:var(--tinta2)}
+  .ficha dl{margin:9px 0 0;font-size:14px}
+  .ficha dt{color:var(--tinta3);font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-top:7px}
+  .ficha dd{margin:1px 0 0;color:var(--tinta2)}
+
+  .sig{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.09em;color:#fff;
+    padding:3px 7px;border-radius:5px;background:var(--azul);vertical-align:2px}
+  .sig.rice{background:#0B6B4F}.sig.eval{background:var(--morado)}.sig.aula{background:#8A4B20}
+  .sig.saat{background:#0E6E75}.sig.plan{background:#8F5A00}.sig.adp{background:#9B3357}
+  .sig.slep{background:#3A52A0}
+
+  .enconstr{background:#F4F7FA;border:1px dashed var(--borde);border-radius:10px;
+    padding:13px 16px;margin-top:16px;font-size:15px;color:var(--tinta3)}
+
+  footer{max-width:860px;margin:10px auto 40px;padding:0 20px;
+    font-size:13.5px;color:var(--tinta3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  footer a{color:var(--azul)}
+
+  @media (max-width:680px){
+    .fichas{grid-template-columns:1fr}
+    header.top h1{font-size:26px}
+    section.parte{padding:22px 18px 26px;border-radius:0;margin:14px 0}
+  }
+  @media print{
+    body{background:#fff}
+    nav.indice{display:none}
+    section.parte{box-shadow:none;border:1px solid var(--borde);break-inside:avoid;margin:10px 0}
+    video{display:none}
+    figure::after{content:"▶ El video de este paso está en la versión web del manual.";
+      display:block;font-size:13px;color:#4E6275;border:1px dashed #C3D6E8;border-radius:8px;padding:10px}
+    .paso,.ficha,table{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="caja">
+    <p class="eyebrow">CEIA Juanita Zúñiga Fuentes · Parral · SLEP Los Álamos</p>
+    <h1>Cómo se usa la aplicación</h1>
+    <p class="lead">Manual de la APP CEIA 2027 · "Jornadas fin de año". Está ordenado por tema y no por fecha:
+      el calendario puede cambiar, los módulos no.</p>
+  </div>
+</header>
+
+<nav class="indice">
+  <ol>
+    <li><a href="#p1">1 · Para los 35</a></li>
+    <li><a href="#p2">2 · Las seis funciones</a></li>
+    <li><a href="#p3">3 · Los módulos</a></li>
+    <li><a href="#p4">4 · Equipo directivo</a></li>
+    <li><a href="#p5">5 · Quien administra</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================ PARTE 1 -->
+<section class="parte" id="p1">
+  <p class="num">Parte 1</p>
+  <h2>Para los 35</h2>
+  <p class="sub">Lo que necesita saber cualquiera que vaya a responder, sea docente o no.</p>
+
+  <div class="paso">
+    <h3><i>1</i> Qué es esto y por qué se responde en horario de trabajo</h3>
+    <p>Es la plataforma donde cada funcionario deja por escrito su parte del trabajo de fin de año.
+      Lo que usted escribe no lo ve el resto del equipo: lo ve el equipo directivo, y sirve de evidencia
+      del convenio de desempeño del director.</p>
+    <p>La actividad es parte de la jornada laboral. No se responde en la casa.</p>
+  </div>
+
+  <div class="paso">
+    <h3><i>2</i> Entrar</h3>
+    <p>No hay usuario ni contraseña que memorizar. Busca tu nombre en la nómina del día y escribes
+      los <b>cuatro dígitos de tu RUT antes del guion</b>. Si tu RUT es 12.545.717-7, escribes 5717.</p>
+    <figure>
+      <video src="video/1-entrar.mp4" poster="video/1-entrar.jpg" controls playsinline preload="none"></video>
+      <figcaption>Del calendario a tu dosier, en tres toques.</figcaption>
+    </figure>
+    <div class="ojo"><b>Si tu nombre no aparece:</b> avisa al equipo directivo. No es que te falte un permiso,
+      es que falta tu nombre en la nómina.</div>
+  </div>
+
+  <div class="paso">
+    <h3><i>3</i> Leer el calendario</h3>
+    <p>Cada día de trabajo tiene su recuadro con una sigla: PEI, RICE, EVAL y así. El candado
+      significa que esa jornada todavía no abre. Las jornadas abren a las 08:00 del día que
+      corresponde y cierran a medianoche.</p>
+    <figure>
+      <video src="video/2-calendario.mp4" poster="video/2-calendario.jpg" controls playsinline preload="none"></video>
+      <figcaption>Las siglas dicen de qué es cada jornada sin tener que abrirla.</figcaption>
+    </figure>
+    <p>Puedes mirar el material de un día antes de que abra. Lo que no puedes es enviar antes de tiempo.</p>
+  </div>
+
+  <div class="paso">
+    <h3><i>4</i> Qué hay dentro de un día</h3>
+    <table>
+      <tr><td style="width:30%"><b>Tu perfil</b></td><td>Arriba de todo: qué función te tocó y con cuántas personas la compartes.</td></tr>
+      <tr><td><b>Dosier del día</b></td><td>La presentación con audio y los videos del tema. Se puede pausar y volver.</td></tr>
+      <tr><td><b>El caso</b></td><td>Una situación que recorres paso a paso. Cada perfil tiene el suyo.</td></tr>
+      <tr><td><b>Las matrices</b></td><td>Las preguntas: unas comunes a todos y otras propias de tu función.</td></tr>
+      <tr><td><b>El quiz</b></td><td>Verdadero o falso, se corrige al momento y explica la razón.</td></tr>
+      <tr><td><b>Enviar</b></td><td>Al final, con una declaración de participación.</td></tr>
+    </table>
+    <p>Lo que escribes se guarda solo en este equipo mientras avanzas. Si cierras y vuelves, sigue ahí.
+      El máximo por respuesta son 2.000 palabras, de sobra.</p>
+  </div>
+
+  <div class="paso">
+    <h3><i>5</i> Recorrer el caso</h3>
+    <p>El caso no se lee de corrido: se recorre. En cada punto ves solo lo que se sabía hasta ahí,
+      decides qué harías tú desde tu función, y recién entonces se abre lo que pasó. Al final ves tu
+      propio recorrido.</p>
+    <figure>
+      <video src="video/3-caso.mp4" poster="video/3-caso.jpg" controls playsinline preload="none"></video>
+      <figcaption>Un caso completo, de principio a fin.</figcaption>
+    </figure>
+    <div class="ojo"><b>No hay respuesta correcta y no se compara con nadie.</b> Cada función ve la señal
+      en un momento distinto, y esa diferencia es justamente lo que interesa.</div>
+    <p>Hay casos de dos clases. Los de <b>análisis</b> parten de algo que ya ocurrió y buscan dónde una
+      regla simple habría cambiado el curso. Los de <b>diseño</b> no son de nadie: se arma entre todos
+      una rutina que todavía no existe, y en cada punto se decide qué hacemos con la propuesta.</p>
+  </div>
+
+  <div class="paso">
+    <h3><i>6</i> El quiz</h3>
+    <p>Cuatro o cinco afirmaciones del tema del día, algunas tuyas según tu función. Se corrige apenas
+      marcas y siempre dice por qué. No es una prueba: puedes cambiar la respuesta las veces que quieras.</p>
+    <figure>
+      <video src="video/4-quiz.mp4" poster="video/4-quiz.jpg" controls playsinline preload="none"></video>
+      <figcaption>Verde cuando acertaste, ámbar cuando no, y la razón escrita en los dos casos.</figcaption>
+    </figure>
+  </div>
+
+  <div class="paso">
+    <h3><i>7</i> El tutor</h3>
+    <p>El globo de abajo a la derecha es un tutor con inteligencia artificial. Sirve para tres cosas:
+      explicarte qué pide una pregunta, darte pistas para pensar la tuya, y revisar tu borrador y
+      decirte qué le falta.</p>
+    <div class="ojo"><b>No escribe la respuesta por ti, aunque se lo pidas.</b> La respuesta tiene que ser
+      tuya porque es tu evidencia. Si insistes, te va a devolver preguntas guía.</div>
+  </div>
+
+  <div class="paso">
+    <h3><i>8</i> Enviar, y qué pasa después</h3>
+    <p>Al final marcas la declaración y envías. Puedes volver a entrar y reenviar las veces que quieras:
+      se guarda la última versión. Si envías después del día que correspondía, queda marcado como fuera
+      de plazo, pero tu participación igual cuenta.</p>
+  </div>
+</section>
+
+<!-- ============================================ PARTE 2 -->
+<section class="parte" id="p2">
+  <p class="num">Parte 2</p>
+  <h2>Las seis funciones</h2>
+  <p class="sub">La aplicación no trata a todos como docentes. Cada funcionario pertenece a un perfil, y el
+    perfil decide qué caso le toca y qué preguntas propias responde, además del trabajo común.</p>
+
+  <div class="fichas">
+    <div class="ficha">
+      <h4><span>✎</span> Aula</h4>
+      <p class="n">11 personas</p>
+      <p>Docentes de asignatura y de especialidad, y las coordinaciones TP y vespertina.
+        Ven al estudiante en clases y en el libro.</p>
+    </div>
+    <div class="ficha">
+      <h4><span>◉</span> Primera línea</h4>
+      <p class="n">10 personas</p>
+      <p>Asistentes de la educación, portería, inspectoría de turno y nochero. Son quienes ven llegar,
+        ven atrasarse y ven dejar de venir.</p>
+    </div>
+    <div class="ficha">
+      <h4><span>◈</span> Apoyo al aprendizaje</h4>
+      <p class="n">4 personas · equipo PIE</p>
+      <p>Trabajan con quienes necesitan más apoyo para sostener el aprendizaje.</p>
+    </div>
+    <div class="ficha">
+      <h4><span>♦</span> Convivencia y psicosocial</h4>
+      <p class="n">4 personas</p>
+      <p>Inspectoría General, Convivencia Escolar y la dupla psicosocial. Reciben la derivación cuando
+        algo se sale de lo pedagógico.</p>
+    </div>
+    <div class="ficha">
+      <h4><span>⚙</span> Soporte y operaciones</h4>
+      <p class="n">4 personas</p>
+      <p>Auxiliares e informática. Sostienen el espacio y los medios con los que funciona el CEIA.</p>
+    </div>
+    <div class="ficha">
+      <h4><span>▲</span> Dirección</h4>
+      <p class="n">2 personas</p>
+      <p>Dirección y UTP. Les corresponde que el procedimiento exista y se cumpla.</p>
+    </div>
+  </div>
+
+  <div class="ojo" style="margin-top:18px"><b>Nadie compara perfiles entre sí.</b> Si dos personas de
+    funciones distintas responden distinto, eso no es un error de ninguna de las dos: es el dato que se
+    está buscando.</div>
+</section>
+
+<!-- ============================================ PARTE 3 -->
+<section class="parte" id="p3">
+  <p class="num">Parte 3</p>
+  <h2>Los módulos</h2>
+  <p class="sub">Uno por tema. Aquí no hay fechas a propósito: el calendario de la aplicación manda, y
+    puede cambiar sin que este manual quede viejo.</p>
+
+  <table>
+    <thead><tr><th style="width:20%">Módulo</th><th style="width:36%">Qué se trabaja</th><th style="width:44%">Qué produce</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sig">PEI</span> <b>Proyecto Educativo</b></td>
+        <td>El PEI 2027–2030: diagnóstico de la comunidad, y después casos y compromisos.</td>
+        <td>Fortalezas, brechas y los compromisos de cada función para 2027. Dos jornadas.</td></tr>
+      <tr><td><span class="sig rice">RICE</span> <b>Reglamento Interno y de Convivencia</b></td>
+        <td>El reglamento vigente, qué funciona y qué no se puede aplicar tal como está escrito.</td>
+        <td>Reglas concretas a incorporar en 2027. Dos jornadas: lectura y casos.</td></tr>
+      <tr><td><span class="sig eval">EVAL</span> <b>Reglamento de Evaluación</b></td>
+        <td>El Reglamento de Evaluación y Promoción 2027–2030, con sus artículos.</td>
+        <td>Criterios acordados y casos resueltos por función.</td></tr>
+      <tr><td><span class="sig aula">AULA</span> <b>Acompañamiento al aula</b></td>
+        <td>El consolidado del ciclo de visitas al aula: gestión del tiempo, seguridad y ritmos.</td>
+        <td>Tres acuerdos con responsable y fecha, más la ronda de condiciones en terreno.</td></tr>
+      <tr><td><span class="sig saat">SAAT</span> <b>Inventario</b></td>
+        <td>Revisión del inventario de recursos del establecimiento.</td>
+        <td>En preparación.</td></tr>
+      <tr><td><span class="sig plan">PLAN</span> <b>Planificación 2027</b></td>
+        <td>Planificación del año escolar que viene.</td>
+        <td>En preparación.</td></tr>
+      <tr><td><span class="sig adp">ADP</span> <b>Convenio de desempeño</b></td>
+        <td>Revisión del convenio y sus metas.</td>
+        <td>En preparación.</td></tr>
+      <tr><td><span class="sig slep">SLEP</span> <b>Jornadas del Servicio Local</b></td>
+        <td>Lo que llega desde el SLEP Los Álamos. Dos jornadas.</td>
+        <td>En preparación.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="enconstr"><b>"En preparación"</b> significa que el día ya está reservado en el calendario con
+    su candado, pero el material todavía no se carga. Cuando se cargue, el candado se abre y aparece el
+    dosier, igual que en los demás.</div>
+</section>
+
+<!-- ============================================ PARTE 4 -->
+<section class="parte" id="p4">
+  <p class="num">Parte 4</p>
+  <h2>Para el equipo directivo</h2>
+  <p class="sub">El botón "Equipo directivo" de arriba a la derecha pide una clave y abre el panel.</p>
+
+  <table>
+    <tr><td style="width:28%"><b>Quién respondió</b></td><td>La nómina completa con lo que lleva hecho cada persona, por jornada, y quién va atrasado.</td></tr>
+    <tr><td><b>Las respuestas</b></td><td>Agrupadas por pregunta y por perfil, con los promedios de las escalas y el conteo de las alternativas.</td></tr>
+    <tr><td><b>La cultura educativa</b></td><td>El pictograma de los cinco elementos y los porqués que escribió la gente.</td></tr>
+    <tr><td><b>La síntesis</b></td><td>Un borrador de la Ficha de Registro de Evidencia ADP redactado con inteligencia artificial a partir de las respuestas, con fortalezas, áreas de mejora, acciones e impacto.</td></tr>
+  </table>
+
+  <div class="ojo"><b>La síntesis es un borrador, no el informe.</b> Agrupa lo que la gente escribió y no
+    inventa, pero hay que leerla y corregirla antes de firmarla.</div>
+</section>
+
+<!-- ============================================ PARTE 5 -->
+<section class="parte" id="p5">
+  <p class="num">Parte 5</p>
+  <h2>Para quien administra el contenido</h2>
+  <p class="sub">Lo que hay que saber para agregar o cambiar una jornada.</p>
+
+  <table>
+    <tr><td style="width:30%"><b>Agregar una jornada</b></td>
+      <td>Se crea en la tabla <i>jornadas</i>, con su fecha, su sigla y sus minutos. Aparece sola en el
+        calendario, con candado, hasta que tenga preguntas.</td></tr>
+    <tr><td><b>El candado</b></td>
+      <td>Una jornada sin preguntas se muestra como "en preparación". Con preguntas, se abre el día que
+        le corresponde.</td></tr>
+    <tr><td><b>Modo revisión</b></td>
+      <td>Mientras está activo, los candados se ven pero no trancan: cualquiera puede entrar a revisar
+        antes de tiempo. Se apaga cuando el material está listo.</td></tr>
+    <tr><td><b>Escribir un caso</b></td>
+      <td>Cada caso tiene su ficha, sus puntos y su resultado. El eje decide cómo se recorre: mes a mes,
+        paso a paso o minuto a minuto.</td></tr>
+    <tr><td><b>Repartir por perfil</b></td>
+      <td>En <i>perfil_caso</i> se dice qué caso le toca a cada perfil en cada jornada. Dos perfiles
+        pueden compartir caso.</td></tr>
+    <tr><td><b>Preguntas propias</b></td>
+      <td>Una pregunta sin perfil la ve todo el mundo. Con perfil, solo esa función.</td></tr>
+    <tr><td><b>El quiz</b></td>
+      <td>Preguntas de tipo <i>vf</i>. Llevan la respuesta correcta y la explicación que se muestra al
+        marcar.</td></tr>
+  </table>
+</section>
+
+<footer>
+  <span>Manual de uso · APP CEIA 2027 "Jornadas fin de año"</span>
+  <span><a href="../index.html">← Volver a la aplicación</a></span>
+</footer>
+
+</body>
+</html>

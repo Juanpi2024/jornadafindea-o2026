@@ -632,3 +632,8 @@ a.dia.jor.trancada:hover{border-color:var(--azul);background:#C3DCF1}
   font-size:14.5px;color:var(--tinta2)}
 .vf.bien .vfr b{color:var(--verde-tx)}
 .vf.mal .vfr b{color:var(--ambar-tx)}
+
+/* Enlace al manual desde la portada. */
+.linkManual{color:var(--azul);font-weight:600;text-decoration:none;
+  border-bottom:2px solid var(--amarillo);padding-bottom:1px}
+.linkManual:hover{color:var(--azul-osc)}
