@@ -1609,6 +1609,21 @@ const GUION = {
 };
 const g = (caso, k) => (GUION[(caso||{}).tema] || {})[k] ?? GUION._[k];
 
+/* Un hito con alternativas propias (h.alts) no pregunta qué haría la persona:
+   pregunta qué manda el documento. Una sola es la correcta y la respuesta se
+   justifica con el anexo o el artículo, nunca con una interpretación. */
+const esNorma = (h) => Array.isArray(h && h.alts) && h.alts.length > 0;
+const alternativas = (h) => h.alts.map((t, i) => ({id: 'a' + i, txt: t, sub: ''}));
+const correcta = (h) => (h.alts || [])[h.ok];
+/** Cuántas acertó, de las que tienen respuesta correcta. */
+function puntaje(caso, decidido) {
+  const hs = (caso.hitos || []).filter(esNorma);
+  if (!hs.length) return null;
+  let ok = 0;
+  (caso.hitos || []).forEach((h, i) => { if (esNorma(h) && decidido[i] === correcta(h)) ok++; });
+  return {ok, de: hs.length};
+}
+
 function pintarCaso() {
   const {caso, paso, decidido, abierto} = sim;
   const hitos = caso.hitos || [];
@@ -1633,11 +1648,22 @@ function pintarCaso() {
       ${d.pct != null ? `<span class="dbar"><i style="width:${Math.max(3,Math.min(100,d.pct))}%;background:${col}"></i></span>` : ''}
     </div>`).join('');
 
-  const opciones = opcionesDe(caso).map(o => `
-    <button type="button" class="opc${decidido[paso]===o.id?' sel':''}" data-o="${o.id}" ${abierto?'disabled':''}>
+  const norma = esNorma(h);
+  const lista = norma ? alternativas(h) : opcionesDe(caso);
+  // En los casos de reglamento se guarda el texto de la alternativa, no su id:
+  // así la respuesta queda legible en el informe sin tener que descifrar nada.
+  const marca = (o) => norma ? o.txt : o.id;
+  const opciones = lista.map(o => {
+    const elegida = decidido[paso] === marca(o);
+    const buena = norma && o.txt === correcta(h);
+    const cl = ['opc', elegida ? 'sel' : '',
+                abierto && norma && buena ? 'esOk' : '',
+                abierto && norma && elegida && !buena ? 'esNo' : ''].filter(Boolean).join(' ');
+    return `<button type="button" class="${cl}" data-o="${esc(marca(o))}" ${abierto?'disabled':''}>
       <span class="mk"></span>
-      <span><b>${esc(o.txt)}</b><small>${esc(o.sub)}</small></span>
-    </button>`).join('');
+      <span><b>${esc(o.txt)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</span>
+    </button>`;
+  }).join('');
 
   $('#jCaso').innerHTML = `
     <div class="simCab">
@@ -1655,21 +1681,26 @@ function pintarCaso() {
     <article class="tarjeta" style="--acento:${col}">
       <header>
         <span class="mes">${esc(h.cuando)}</span>
-        <span class="nivel" style="background:${col}">${NIVEL[h.nivel] || 'Decisión'}</span>
+        <span class="nivel" style="background:${norma ? 'var(--azul-osc)' : col}">${norma ? 'Según el reglamento' : (NIVEL[h.nivel] || 'Decisión')}</span>
       </header>
       <p class="rel">${esc(h.que)}</p>
       ${datos ? `<div class="datos">${datos}</div>` : ''}
 
       <div class="pregunta">
-        <p class="pq">${g(caso,'pq')}</p>
-        <p class="pqn">${g(caso,'pqn')}</p>
+        <p class="pq">${norma ? esc(h.pregunta || 'Según el reglamento, ¿qué corresponde hacer aquí?') : g(caso,'pq')}</p>
+        <p class="pqn">${norma
+          ? 'Hay una sola respuesta correcta y está escrita en el documento. No se pregunta qué harías, sino qué manda el reglamento.'
+          : g(caso,'pqn')}</p>
         <div class="opciones">${opciones}</div>
       </div>
 
       ${abierto ? `
         <div class="revela">
-          <p class="rk">${esc(g(caso,'revelaK'))}</p>
+          <p class="rk">${norma
+            ? (decidido[paso] === correcta(h) ? 'Correcto · lo que dice el documento' : 'No era esa · lo que dice el documento')
+            : esc(g(caso,'revelaK'))}</p>
           <p class="rt">${esc(h.quien || g(caso,'revelaVacio'))}</p>
+          ${norma && h.fuente ? `<p class="fuenteN">${esc(h.fuente)}</p>` : ''}
         </div>
         ${h.oportunidad ? `<div class="oport">
           <p class="ok">${esc(g(caso,'oportK'))}</p>
@@ -1681,7 +1712,7 @@ function pintarCaso() {
         ${abierto
           ? `<button type="button" class="btn pri" id="simSig">${paso+1 < total ? g(caso,'sigBtn')(caso.eje || 'mes a mes') : g(caso,'finBtn')}</button>`
           : `<button type="button" class="btn pri" id="simVer" ${yaDecidio?'':'disabled'}>
-               ${yaDecidio ? g(caso,'verBtn') : 'Elige una opción para continuar'}</button>`}
+               ${yaDecidio ? (norma ? 'Ver qué dice el reglamento' : g(caso,'verBtn')) : 'Elige una opción para continuar'}</button>`}
       </footer>
     </article>`;
 
@@ -1754,11 +1785,26 @@ function pintarCierre() {
   const miMes = decidido.findIndex(d => MUEVE[d]);
   const nombre = (hitos[miMes] || {}).cuando;
 
-  const lectura = miMes < 0 ? g(caso,'sinMover') : g(caso,'conMover')(esc(nombre));
+  const pts = puntaje(caso, decidido);
+  const lectura = pts
+    ? `<p class="vt">Acertaste <b>${pts.ok} de ${pts.de}</b> según el documento.</p>
+       <p class="vs">${pts.ok === pts.de
+         ? 'Las ' + pts.de + ' respuestas calzan con lo que dice el reglamento. Esto no era de criterio: era de haberlo leído.'
+         : 'Abajo está cada punto con lo que elegiste y lo que manda el documento. Lo que no calzó indica qué anexo conviene releer antes de marzo.'}</p>`
+    : (miMes < 0 ? g(caso,'sinMover') : g(caso,'conMover')(esc(nombre)));
 
   const linea = hitos.map((h, i) => {
-    const col = COLOR[h.nivel] || 'var(--azul)';
     const d = decidido[i];
+    if (esNorma(h)) {
+      const bien = d === correcta(h);
+      return `<div class="fila norma ${d ? (bien?'ok':'no') : ''}">
+        <span class="fm">${esc(h.cuando)}</span>
+        <span class="fb" style="background:${bien ? 'var(--verde)' : d ? 'var(--ambar)' : 'var(--borde)'}"></span>
+        <span class="fd">${d ? esc(d) : '—'}${d && !bien ? `<i>Correcta: ${esc(correcta(h))}</i>` : ''}
+          ${h.fuente ? `<em>${esc(h.fuente)}</em>` : ''}</span>
+      </div>`;
+    }
+    const col = COLOR[h.nivel] || 'var(--azul)';
     const act = !!MUEVE[d];
     return `<div class="fila">
       <span class="fm">${esc(h.cuando)}</span>
@@ -1779,11 +1825,13 @@ function pintarCierre() {
     <article class="tarjeta cierre">
       ${lectura}
       <div class="linea">${linea}</div>
-      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>${esc(g(caso,'resultadoK'))}</b> ${esc(caso.resultado)}</div>` : ''}
+      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>${esc(pts ? 'En resumen:' : g(caso,'resultadoK'))}</b> ${esc(caso.resultado)}</div>` : ''}
 
       <div class="cierrePreg">
         <p class="cpk">${esc(g(caso,'cierreK'))}</p>
-        ${g(caso,'cierreTx')}
+        ${pts ? `<p>Esto no medía criterio: medía si el documento está leído. Cada punto de arriba trae el
+          anexo donde está escrito, así que lo que no calzó ya tiene dónde ir a verificarlo.</p>`
+              : g(caso,'cierreTx')}
         <p style="margin-top:9px"><b>Elige uno solo y escríbelo abajo.</b> El que te parezca más fácil
           de cumplir desde marzo, no el más ambicioso. De ahí salen los acuerdos del año.</p>
       </div>

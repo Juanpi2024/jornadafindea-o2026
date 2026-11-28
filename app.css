@@ -637,3 +637,14 @@ a.dia.jor.trancada:hover{border-color:var(--azul);background:#C3DCF1}
 .linkManual{color:var(--azul);font-weight:600;text-decoration:none;
   border-bottom:2px solid var(--amarillo);padding-bottom:1px}
 .linkManual:hover{color:var(--azul-osc)}
+
+/* Casos anclados en el reglamento: una alternativa es la correcta. */
+.opc.esOk{border-color:var(--verde);background:rgba(15,138,95,.10)}
+.opc.esOk .mk{border-color:var(--verde);background:var(--verde)}
+.opc.esNo{border-color:var(--ambar);background:rgba(199,122,0,.10)}
+.opc.esNo .mk{border-color:var(--ambar);background:var(--ambar)}
+.fuenteN{margin:9px 0 0;font-size:13.5px;font-weight:600;color:var(--azul-osc);
+  border-top:1px solid var(--borde);padding-top:8px}
+.linea .fila.norma .fd{display:block}
+.linea .fila.norma .fd i{display:block;font-style:normal;font-size:13px;color:var(--ambar-tx);margin-top:2px}
+.linea .fila.norma .fd em{display:block;font-style:normal;font-size:12.5px;color:var(--tinta3);margin-top:2px}
