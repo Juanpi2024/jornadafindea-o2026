@@ -450,7 +450,7 @@ function verDia(j) {
     <h2>Material de la jornada</h2>
     <p class="muted">Puedes verlo y escucharlo ahora mismo, sin identificarte.
       Es el documento sobre el que vas a trabajar.</p>
-    <div class="materiales">
+    <div class="materiales destacada">
       <a class="mini" href="pei/index.html" target="_blank" rel="noopener">
         <span class="lienzo">
           <span class="lam">
@@ -466,35 +466,8 @@ function verDia(j) {
           <small>44 láminas con audio · avanza a tu ritmo, puedes pausar y volver atrás</small>
         </span>
       </a>
-
-      <div class="mini" id="videoPei">
-        <button class="lienzo tapa" type="button" data-yt="${VIDEO_PEI}"
-                aria-label="Reproducir el resumen en video del PEI">
-          <img src="https://i.ytimg.com/vi/${VIDEO_PEI}/hqdefault.jpg" alt="" loading="lazy">
-          <span class="play" aria-hidden="true">▶</span>
-          <span class="dur">YouTube</span>
-        </button>
-        <span class="miniPie">
-          <b>Resumen del PEI en video</b>
-          <small>Versión corta y conversada, si prefieres escuchar antes de leer</small>
-        </span>
-      </div>
     </div>
 
-    <h3 class="subt">Videos de apoyo</h3>
-    <p class="muted" style="margin:0 0 10px">Dos cápsulas cortas para ver antes de responder.
-      Se reproducen aquí mismo, sin salir de la página.</p>
-    <div class="materiales vert">
-      ${APOYO.map(v => `
-        <div class="mini corto" data-vid="${esc(v.archivo)}">
-          <button class="lienzo tapa" type="button" aria-label="Reproducir ${esc(v.titulo)}">
-            <img src="video/${esc(v.archivo)}.jpg" alt="" loading="lazy">
-            <span class="play" aria-hidden="true">▶</span>
-            <span class="dur">${esc(v.dur)}</span>
-          </button>
-          <span class="miniPie"><b>${esc(v.titulo)}</b><small>${esc(v.bajada)}</small></span>
-        </div>`).join('')}
-    </div>
     ${j.descripcion ? `<div class="info" style="margin-top:12px">${esc(j.descripcion)}</div>` : ''}
     <div class="aviso" style="margin-top:12px">
       <b>Horario de esta jornada:</b> abre a las 08:00 y cierra a la medianoche del
@@ -517,32 +490,15 @@ function verDia(j) {
       <p class="muted">Duración de las locuciones: 22 minutos. Puedes pausar, avanzar y volver a cualquier lámina.</p>`;
   }
 
-  if (j.id === 'pei-dia-2') {
-    $('#diaMaterial').insertAdjacentHTML('beforeend', videosPeiDia2());
+  if (j.sigla === 'PEI') {
+    $('#diaMaterial').insertAdjacentHTML('beforeend', videosPei());
   }
 
   if (j.id === 'evaluacion-dia-1') {
     $('#diaMaterial').innerHTML = '<h2>Material de la jornada · Evaluación</h2>' + vistaPreviaEvaluacion();
   }
 
-  // Los videos propios se cargan solo al tocarlos.
-  document.querySelectorAll('#diaMaterial .corto .tapa').forEach(b =>
-    b.addEventListener('click', () => {
-      const id = b.closest('.corto').dataset.vid;
-      const d = document.createElement('div');
-      d.className = 'lienzo';
-      d.innerHTML = `<video src="video/${id}.mp4" poster="video/${id}.jpg" controls autoplay playsinline></video>`;
-      b.replaceWith(d);
-    }, {once:true}));
-
-  const tapa = document.querySelector('#videoPei .tapa');
-  if (tapa) tapa.addEventListener('click', () => {
-    const d = document.createElement('div');
-    d.className = 'lienzo';
-    d.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${tapa.dataset.yt}?autoplay=1&rel=0"
-      title="Resumen del PEI en video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    tapa.replaceWith(d);
-  }, {once:true});
+  activarVideos('#diaMaterial');
 
   $('#buscaNomina').value = '';
   pintarNomina(j, '');
@@ -661,8 +617,9 @@ function verJornada(j) {
     : `<div class="aviso" style="margin:0">La presentación y los videos de esta jornada se publican aquí
       antes del día. Puedes responder igual: las preguntas no dependen de ese material.</div>`}`;
 
-  if (j.id === 'pei-dia-2') {
-    $('#jDosier').insertAdjacentHTML('beforeend', videosPeiDia2());
+  if (j.sigla === 'PEI') {
+    $('#jDosier').insertAdjacentHTML('beforeend', videosPei());
+    activarVideos('#jDosier');
   }
 
   // La ronda es trabajo en terreno: solo la ven quienes la hacen.
@@ -1940,21 +1897,71 @@ function bloqueRonda() {
 }
 
 /** El mes en que habría movido la ficha, suelto, para poder graficarlo. */
-function videosPeiDia2() {
-  const videos = [
-    {id:'k1ILVDKI8Vo', titulo:'El engranaje oculto que hace funcionar un colegio'},
-    {id:'v2qqLMlZXgI', titulo:'Paradocentes y auxiliares'}
-  ];
-  return `<section aria-label="Videos complementarios del PEI día 2" style="margin-top:20px">
-    <h3>Videos complementarios · PEI día 2</h3>
-    <div class="materiales">${videos.map(v => `
-      <a class="mini" href="https://www.youtube.com/shorts/${v.id}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
-        <span class="lienzo">
-          <img style="display:block;width:100%;height:100%;object-fit:contain" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="Miniatura del video: ${esc(v.titulo)}" loading="lazy">
-          <span class="play" aria-hidden="true">▶</span><span class="dur">Short</span>
-        </span>
-        <span class="miniPie"><b>${esc(v.titulo)}</b><small>Ver Short en YouTube</small></span>
-      </a>`).join('')}</div>
+/* Material de consulta del PEI. Va igual en los dos días: lo del día 1 y lo
+   del día 2 sirven para ambos. No son los protagonistas de la jornada, así que
+   van en viñetas chicas; para sumar material basta agregarlo a esta lista. */
+const MATERIAL_PEI = [
+  {tipo:'yt',   id:VIDEO_PEI,      titulo:'Resumen del PEI en video',                     etq:'YouTube'},
+  {tipo:'prop', id:'ensenar-jovenes-adultos',  titulo:'Cómo enseñar a jóvenes y adultos',     etq:'1:09'},
+  {tipo:'prop', id:'escuela-futuros-rotos',    titulo:'La escuela que reescribe futuros rotos', etq:'0:57'},
+  {tipo:'short',id:'k1ILVDKI8Vo',   titulo:'El engranaje oculto de un colegio',            etq:'Short'},
+  {tipo:'short',id:'v2qqLMlZXgI',   titulo:'Paradocentes y auxiliares',                    etq:'Short'}
+];
+
+/* Las vi\u00f1etas de video no cargan nada hasta que alguien las toca: la p\u00e1gina
+   abre liviana aunque la lista de material siga creciendo. */
+function activarVideos(raiz) {
+  const cont = document.querySelector(raiz);
+  if (!cont) return;
+  cont.querySelectorAll('.corto .tapa').forEach(b =>
+    b.addEventListener('click', () => {
+      const id = b.closest('.corto').dataset.vid;
+      const d = document.createElement('div');
+      d.className = 'lienzo';
+      d.innerHTML = `<video src="video/${id}.mp4" poster="video/${id}.jpg" controls autoplay playsinline></video>`;
+      b.replaceWith(d);
+    }, {once:true}));
+  cont.querySelectorAll('.tapa[data-yt]').forEach(b =>
+    b.addEventListener('click', () => {
+      const d = document.createElement('div');
+      d.className = 'lienzo';
+      d.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0"
+        title="Video del PEI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      b.replaceWith(d);
+    }, {once:true}));
+}
+
+function videosPei() {
+  if (!MATERIAL_PEI.length) return '';
+  const vineta = (v) => {
+    const pie = `<span class="miniPie"><b>${esc(v.titulo)}</b></span>`;
+    const tapa = (img, extra = '') => `<span class="lienzo">
+        <img src="${img}" alt="" loading="lazy">
+        <span class="play" aria-hidden="true">\u25b6</span><span class="dur">${esc(v.etq)}</span>
+      </span>`;
+    if (v.tipo === 'prop') {
+      // Video propio: se reproduce aqu\u00ed mismo, sin salir de la p\u00e1gina.
+      return `<div class="mini corto" data-vid="${esc(v.id)}">
+        <button class="lienzo tapa" type="button" aria-label="Reproducir ${esc(v.titulo)}">
+          <img src="video/${esc(v.id)}.jpg" alt="" loading="lazy">
+          <span class="play" aria-hidden="true">\u25b6</span><span class="dur">${esc(v.etq)}</span>
+        </button>${pie}</div>`;
+    }
+    if (v.tipo === 'yt') {
+      return `<div class="mini">
+        <button class="lienzo tapa" type="button" data-yt="${esc(v.id)}" aria-label="Reproducir ${esc(v.titulo)}">
+          <img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy">
+          <span class="play" aria-hidden="true">\u25b6</span><span class="dur">${esc(v.etq)}</span>
+        </button>${pie}</div>`;
+    }
+    return `<a class="mini" href="https://www.youtube.com/shorts/${esc(v.id)}" target="_blank" rel="noopener" aria-label="Ver ${esc(v.titulo)} en YouTube">
+      ${tapa(`https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg`)}${pie}</a>`;
+  };
+  return `<section aria-label="Material de consulta del PEI" style="margin-top:18px">
+    <h3 class="hCons">Para consultar</h3>
+    <p class="muted" style="margin:0 0 10px">Acompa\u00f1an la presentaci\u00f3n y est\u00e1n los dos d\u00edas.
+      No hace falta verlos para responder.</p>
+    <div class="materiales compacta">${MATERIAL_PEI.map(vineta).join('')}</div>
   </section>`;
 }
 
