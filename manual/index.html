@@ -41,7 +41,7 @@
   .paso p:last-child{margin-bottom:0}
 
   figure{margin:14px 0 4px}
-  video{width:100%;display:block;border-radius:10px;border:1px solid var(--borde);background:#000}
+  figure img{width:100%;display:block;border-radius:10px;border:1px solid var(--borde);background:#fff}
   figcaption{margin-top:7px;font-size:13.5px;color:var(--tinta3)}
 
   .ojo{border-left:5px solid var(--oro);background:#FFFBE6;border-radius:0 8px 8px 0;
@@ -84,18 +84,34 @@
     header.top h1{font-size:26px}
     section.parte{padding:22px 18px 26px;border-radius:0;margin:14px 0}
   }
+  /* Salida siempre a la vista: antes el único enlace de vuelta estaba
+     al final de la página y se quedaba uno atrapado. */
+  .salida{position:sticky;top:0;z-index:30;display:flex;gap:16px;flex-wrap:wrap;
+    align-items:center;justify-content:space-between;
+    background:#fff;border-bottom:1px solid var(--borde);
+    padding:10px 20px;margin:0 0 4px}
+  .salida a{font-size:14px;font-weight:600;text-decoration:none;color:var(--azul)}
+  .salida a:hover{text-decoration:underline}
+  .volverApp{background:#F3F7FC;border:1px solid #C1D5E6;border-radius:8px;padding:8px 13px}
+  .volverFin{margin:26px 0 0;padding-top:14px;border-top:1px solid var(--borde)}
+  .volverFin a{font-size:14px;font-weight:600;color:var(--azul);text-decoration:none}
+  .volverFin a:hover{text-decoration:underline}
+
   @media print{
+    .salida,.volverFin{display:none}
     body{background:#fff}
     nav.indice{display:none}
     section.parte{box-shadow:none;border:1px solid var(--borde);break-inside:avoid;margin:10px 0}
-    video{display:none}
-    figure::after{content:"▶ El video de este paso está en la versión web del manual.";
-      display:block;font-size:13px;color:#4E6275;border:1px dashed #C3D6E8;border-radius:8px;padding:10px}
     .paso,.ficha,table{break-inside:avoid}
   }
 </style>
 </head>
 <body>
+
+<div class="salida">
+  <a class="volverApp" href="../index.html">← Volver a la aplicación</a>
+  <a class="volverIdx" href="#indice">↑ Índice del manual</a>
+</div>
 
 <header class="top">
   <div class="caja">
@@ -106,7 +122,7 @@
   </div>
 </header>
 
-<nav class="indice">
+<nav class="indice" id="indice">
   <ol>
     <li><a href="#p1">1 · Para los 35</a></li>
     <li><a href="#p2">2 · Las seis funciones</a></li>
@@ -135,7 +151,7 @@
     <p>No hay usuario ni contraseña que memorizar. Busca tu nombre en la nómina del día y escribes
       los <b>cuatro dígitos de tu RUT antes del guion</b>. Si tu RUT es 12.545.717-7, escribes 5717.</p>
     <figure>
-      <video src="video/1-entrar.mp4" poster="video/1-entrar.jpg" controls playsinline preload="none"></video>
+      <img src="video/1-entrar.jpg" alt="Pantalla para escribir los cuatro dígitos del RUT" loading="lazy">
       <figcaption>Del calendario a tu dosier, en tres toques.</figcaption>
     </figure>
     <div class="ojo"><b>Si tu nombre no aparece:</b> avisa al equipo directivo. No es que te falte un permiso,
@@ -148,7 +164,7 @@
       significa que esa jornada todavía no abre. Las jornadas abren a las 08:00 del día que
       corresponde y cierran a medianoche.</p>
     <figure>
-      <video src="video/2-calendario.mp4" poster="video/2-calendario.jpg" controls playsinline preload="none"></video>
+      <img src="video/2-calendario.jpg" alt="El calendario del mes con las jornadas marcadas" loading="lazy">
       <figcaption>Las siglas dicen de qué es cada jornada sin tener que abrirla.</figcaption>
     </figure>
     <p>Puedes mirar el material de un día antes de que abra. Lo que no puedes es enviar antes de tiempo.</p>
@@ -174,7 +190,7 @@
       decides qué harías tú desde tu función, y recién entonces se abre lo que pasó. Al final ves tu
       propio recorrido.</p>
     <figure>
-      <video src="video/3-caso.mp4" poster="video/3-caso.jpg" controls playsinline preload="none"></video>
+      <img src="video/3-caso.jpg" alt="Un paso del caso con la respuesta correcta destacada y la cita del reglamento" loading="lazy">
       <figcaption>Un caso completo, de principio a fin.</figcaption>
     </figure>
     <p>Hay casos de tres clases, y conviene saber en cuál estás porque la pregunta cambia.</p>
@@ -201,7 +217,7 @@
       marcas y siempre dice por qué, citando el artículo o el anexo cuando el tema es un reglamento.
       No es una prueba: puedes cambiar la respuesta las veces que quieras.</p>
     <figure>
-      <video src="video/4-quiz.mp4" poster="video/4-quiz.jpg" controls playsinline preload="none"></video>
+      <img src="video/4-quiz.jpg" alt="Una afirmación del quiz respondida, con la corrección" loading="lazy">
       <figcaption>Verde cuando acertaste, ámbar cuando no, y la razón escrita en los dos casos.</figcaption>
     </figure>
   </div>
@@ -221,6 +237,7 @@
       se guarda la última versión. Si envías después del día que correspondía, queda marcado como fuera
       de plazo, pero tu participación igual cuenta.</p>
   </div>
+  <p class="volverFin"><a href="#indice">↑ Volver al índice</a></p>
 </section>
 
 <!-- ============================================ PARTE 2 -->
@@ -269,6 +286,7 @@
   <div class="ojo" style="margin-top:18px"><b>Nadie compara perfiles entre sí.</b> Si dos personas de
     funciones distintas responden distinto, eso no es un error de ninguna de las dos: es el dato que se
     está buscando.</div>
+  <p class="volverFin"><a href="#indice">↑ Volver al índice</a></p>
 </section>
 
 <!-- ============================================ PARTE 3 -->
@@ -311,6 +329,7 @@
   <div class="enconstr"><b>"En preparación"</b> significa que el día ya está reservado en el calendario con
     su candado, pero el material todavía no se carga. Cuando se cargue, el candado se abre y aparece el
     dosier, igual que en los demás.</div>
+  <p class="volverFin"><a href="#indice">↑ Volver al índice</a></p>
 </section>
 
 <!-- ============================================ PARTE 4 -->
@@ -328,6 +347,7 @@
 
   <div class="ojo"><b>La síntesis es un borrador, no el informe.</b> Agrupa lo que la gente escribió y no
     inventa, pero hay que leerla y corregirla antes de firmarla.</div>
+  <p class="volverFin"><a href="#indice">↑ Volver al índice</a></p>
 </section>
 
 <!-- ============================================ PARTE 5 -->
@@ -358,6 +378,7 @@
       <td>Preguntas de tipo <i>vf</i>. Llevan la respuesta correcta y la explicación que se muestra al
         marcar.</td></tr>
   </table>
+  <p class="volverFin"><a href="#indice">↑ Volver al índice</a></p>
 </section>
 
 <footer>
