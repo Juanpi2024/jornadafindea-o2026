@@ -247,6 +247,128 @@ const NOTA_PARTE = {
   </div>`
 };
 
+/* ---------------------------------------------------------- mini curso
+   Las tres piezas que convierten cada jornada en un mini curso, y que son
+   iguales en las once: qué vas a poder hacer al terminar (objetivo), qué se
+   espera de una respuesta escrita (criterio) y qué te llevas (cierre).
+   Al cargar una jornada nueva basta agregar su entrada aquí. */
+const CURSO = {
+  'pei-dia-1': {
+    objetivo: 'Vas a poder decir con tus palabras qué promete el PEI del CEIA, y en qué se nota —o no se nota— ese sello en tu puesto de trabajo.',
+    criterio: 'Una buena respuesta es concreta: en vez de "falta compromiso", describe una situación que viste este año. No se evalúa tu opinión, se necesita tu dato.',
+    lleva: ['Los sellos y la visión del PEI, y dónde están escritos',
+            'Qué condiciones de tu puesto de trabajo hay que levantar',
+            'Los cinco elementos de la cultura educativa'],
+    releer: 'La presentación del PEI: las láminas de sellos, visión y perfil de egreso.'
+  },
+  'pei-dia-2': {
+    objetivo: 'Vas a poder ubicar el caso que te tocó dentro del perfil de egreso del CEIA, y dejar escrito un compromiso tuyo para 2027.',
+    criterio: 'Una buena respuesta nombra el sello o el rasgo del perfil de egreso al que apunta, y propone algo que dependa de ti, no del resto del equipo.',
+    lleva: ['Qué cambiarías del PEI y por qué',
+            'Cómo se lee un caso desde el perfil de egreso',
+            'Tu compromiso escrito para 2027'],
+    releer: 'El perfil de egreso, en la presentación del PEI.'
+  },
+  'saat-dia-1': {
+    objetivo: 'Vas a saber en qué estado está el inventario de recursos del establecimiento y qué falta levantar en tu área.',
+    criterio: 'Una buena respuesta dice dónde está la cosa, en qué estado y quién la usa. Un "faltan materiales" no se puede inventariar.',
+    lleva: ['Qué hay y dónde está', 'Qué falta o está en mal estado',
+            'Quién responde por cada bodega o dependencia'],
+    releer: 'El inventario SAAT del año.'
+  },
+  'evaluacion-dia-1': {
+    objetivo: 'Vas a poder decir qué manda el Reglamento de Evaluación en las situaciones más frecuentes —inasistencia justificada, curso con muchos insuficientes, evaluación diferenciada— y en qué artículo está escrito.',
+    criterio: 'Una buena respuesta nombra el artículo o el plazo, no solo la idea. "Hay que avisar a UTP" queda a medias; "se informa a UTP antes del registro, Art. 6.14" está completa.',
+    lleva: ['Qué hacer cuando la mitad del curso reprueba, y en qué orden',
+            'Los plazos: diez días hábiles para registrar, tres para visar el instrumento',
+            'Que la evaluación diferenciada no tiene techo de nota'],
+    releer: 'Reglamento de Evaluación, artículos 6.4 a 6.18.'
+  },
+  'rice-dia-1': {
+    objetivo: 'Vas a saber cómo el RICE clasifica las faltas, qué medida corresponde a cada grado, y dónde está escrito.',
+    criterio: 'Una buena respuesta distingue lo que dice el documento de lo que pasa en la práctica. Las dos cosas sirven: déjalas por separado.',
+    lleva: ['La gradación de faltas: leve, grave, gravísima',
+            'Qué medida corresponde a cada grado',
+            'Dónde el documento está claro y dónde deja dudas'],
+    releer: 'RICE, Capítulo 8 y los anexos de procedimiento.'
+  },
+  'rice-dia-2': {
+    objetivo: 'Vas a poder recorrer un procedimiento de convivencia completo —de la primera falta leve a la condicionalidad— sabiendo quién actúa, en qué plazo y con qué registro.',
+    criterio: 'Una buena respuesta nombra el anexo y el plazo. Si dice "se notifica al apoderado" sin decir cómo ni cuándo, falta la mitad.',
+    lleva: ['Quién cita en la segunda falta y quién en la tercera',
+            'Que todo lo de Aula Segura es el Anexo 16.2, con sus propios plazos',
+            'Cómo se notifica cuando el estudiante es adulto'],
+    releer: 'RICE, Anexos 16.1 y 16.2.'
+  },
+  'aula-dia-1': {
+    objetivo: 'Vas a tener una propuesta concreta para los primeros minutos de clase, hecha desde tu función, y vas a saber qué condiciones hay que dejar listas para que esa clase parta a tiempo.',
+    criterio: 'Una buena respuesta propone algo que se pueda instalar en marzo: quién lo hace, cuándo y con qué. No se evalúa a ningún colega; se diseña la clase.',
+    lleva: ['Qué pasa hoy con los primeros minutos de clase',
+            'Una regla de inicio que el CEIA podría adoptar',
+            'Qué condiciones de sala y de turno hay que asegurar'],
+    releer: 'El consolidado del acompañamiento 2026, dimensión Gestión del Tiempo.'
+  },
+  'planificacion-dia-1': {
+    objetivo: 'Vas a dejar escrito lo que tu función necesita tener listo antes de marzo de 2027.',
+    criterio: 'Una buena respuesta dice qué, quién y cuándo. Una tarea sin fecha no se puede planificar.',
+    lleva: ['Qué queda cerrado este año y qué pasa a marzo',
+            'Los plazos del inicio de 2027',
+            'Lo que depende de ti y lo que hay que pedir'],
+    releer: 'El calendario escolar 2027.'
+  },
+  'adp-dia-1': {
+    objetivo: 'Vas a saber qué metas tiene el convenio de desempeño del director y cómo tu trabajo de este mes aparece en ellas.',
+    criterio: 'Una buena respuesta conecta algo que tú hiciste con una meta del convenio. No basta con nombrar la meta.',
+    lleva: ['Cuáles son las metas del convenio',
+            'Qué evidencia aporta cada jornada de diciembre',
+            'Qué falta documentar antes de cerrar el año'],
+    releer: 'El convenio de desempeño y sus metas.'
+  },
+  'slep-dia-1': {
+    objetivo: 'Vas a saber qué se trató en la jornada del SLEP y qué parte de eso aterriza en el CEIA.',
+    criterio: 'Una buena respuesta separa lo que informó el SLEP de lo que el CEIA tiene que hacer con eso.',
+    lleva: ['Lo que informó el SLEP', 'Lo que el CEIA debe implementar',
+            'Los plazos comprometidos'],
+    releer: 'El material de la jornada del SLEP.'
+  },
+  'slep-dia-2': {
+    objetivo: 'Vas a saber qué se trató en la jornada del SLEP y qué parte de eso aterriza en el CEIA.',
+    criterio: 'Una buena respuesta separa lo que informó el SLEP de lo que el CEIA tiene que hacer con eso.',
+    lleva: ['Lo que informó el SLEP', 'Lo que el CEIA debe implementar',
+            'Los plazos comprometidos'],
+    releer: 'El material de la jornada del SLEP.'
+  }
+};
+
+/** El objetivo, arriba del todo: un mini curso parte diciendo a qué se va. */
+function bloqueObjetivo(j) {
+  const c = CURSO[j.id];
+  if (!c || !c.objetivo) return '';
+  return `<div class="mcObj">
+    <p class="eyebrow">Al terminar este día</p>
+    <p>${esc(c.objetivo)}</p></div>`;
+}
+
+/** El criterio, encima de las preguntas: qué se espera de lo que escribas. */
+function bloqueCriterio(j) {
+  const c = CURSO[j.id];
+  if (!c || !c.criterio) return '';
+  if (!(j.preguntas || []).some(p => p.tipo === 'texto')) return '';
+  return `<div class="mcCrit">
+    <p class="eyebrow">Qué se espera de tus respuestas escritas</p>
+    <p>${esc(c.criterio)}</p></div>`;
+}
+
+/** El cierre, antes de enviar: qué te llevas y qué conviene releer. */
+function bloqueCierre(j) {
+  const c = CURSO[j.id];
+  if (!c || !(c.lleva || []).length) return '';
+  return `<div class="mcFin">
+    <p class="eyebrow">Antes de enviar · qué te llevas de hoy</p>
+    <ul>${c.lleva.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    ${c.releer ? `<p class="mcRel"><b>Si quieres repasar:</b> ${esc(c.releer)}</p>` : ''}</div>`;
+}
+
 /* ---------------------------------------------------------- calendario */
 
 /* Feriados y media jornada. Van aquí y no en la base porque son pocos, fijos
@@ -580,9 +702,13 @@ function verJornada(j) {
   if (!hayMaterial(j) || !(j.preguntas || []).length) {
     app.jornada = j; vista('vJornada');
     $('#jCab').innerHTML = `<button class="linkbtn" onclick="location.hash='#dia-${esc(j.id)}'">← Volver al día</button>
-      <p class="eyebrow">${esc(fdateLarga(j.fecha))}</p><h1>${esc(j.titulo)}</h1>`;
+      <p class="eyebrow">${esc(fdateLarga(j.fecha))}</p><h1>${esc(j.titulo)}</h1>
+      ${bloqueObjetivo(j)}`;
+    // Aunque el material no esté, el objetivo y el cierre ya se ven: la
+    // jornada tiene la misma forma que las demás desde el primer día.
     $('#jDosier').innerHTML = `<div class="aviso"><b>Todavía no hay nada que responder.</b>
-      Las preguntas de esta jornada se publican antes del día.</div>`;
+      Las preguntas de esta jornada se publican antes del día.</div>`
+      + bloqueCierre(j);
     ['#jCaso','#jMatrices'].forEach(sel => { const e = $(sel); if (e) e.hidden = true; });
     return;
   }
@@ -604,6 +730,7 @@ function verJornada(j) {
     <p class="eyebrow">${esc(fdateLarga(j.fecha))} · ${j.minutos} min</p>
     <h1>${esc(j.titulo)}</h1>
     <p class="lead">${esc(j.descripcion || '')}</p>
+    ${bloqueObjetivo(j)}
     ${reg ? `<div class="info">Ya respondiste esta jornada${reg.fecha?' el '+new Date(reg.fecha).toLocaleString('es-CL'):''}.
       Puedes corregir y volver a enviar.${reg.fueraDePlazo?' Quedó registrada fuera de plazo.':''}</div>` : ''}
     ${!reg && app.datos.hoy > j.fecha ? `<div class="aviso">El plazo venció, pero puedes responder igual:
@@ -670,10 +797,11 @@ function verJornada(j) {
     g.ps.push(p);
   });
   let n = 0;
-  $('#formJ').innerHTML = partes.map(g => `
+  $('#formJ').innerHTML = bloqueCriterio(j) + partes.map(g => `
     <fieldset class="q"><legend>${esc(g.nombre)}</legend>
     ${NOTA_PARTE[g.nombre] || ''}
     ${g.ps.map(p => campo(p, ++n, prev[p.id])).join('')}</fieldset>`).join('')
+    + bloqueCierre(j)
     + `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px">
         <button class="btn pri" type="submit">${reg ? 'Actualizar mis respuestas' : 'Enviar mis respuestas'}</button>
         <span class="muted">Se guarda en este equipo mientras escribes.</span></div>
