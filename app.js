@@ -373,17 +373,34 @@ function verCalendario() {
       ${num}<span class="sigla">${esc(sigla)}</span><span class="eti">${esc(recorta(resto, 18))}</span></a>`;
   };
 
-  const primero = (new Date(anio, mes, 1).getDay() + 6) % 7;
-  const total = new Date(anio, mes+1, 0).getDate();
-  let celdas = '';
-  for (let k = primero; k > 0; k--) {
-    const dd = new Date(anio, mes, 1 - k);
-    celdas += celda(dd, dd.getDate(), true);
-  }
-  for (let dd = 1; dd <= total; dd++) celdas += celda(new Date(anio, mes, dd), dd, false);
+  /* Los sábados y domingos no se usan nunca, así que no se dibujan: la grilla
+     va de lunes a viernes y deja de verse medio vacía. Si alguna vez una
+     jornada cae en fin de semana, vuelve a siete columnas para no esconderla. */
+  const finde = js.some(j => esFinDeSemana(j.fecha));
+  const cols = finde ? 7 : 5;
+  const saltar = (d) => !finde && [0, 6].includes(d.getDay());
+  const col = (d) => (d.getDay() + 6) % 7;
 
-  $('#calendario').innerHTML = `<div class="mes"><h3>${MESES[mes]} ${anio}</h3>
-    <div class="sem">${DIAS.map(x=>`<span>${x}</span>`).join('')}</div>
+  const total = new Date(anio, mes+1, 0).getDate();
+  const dentro = [];
+  for (let dd = 1; dd <= total; dd++) {
+    const d = new Date(anio, mes, dd);
+    if (!saltar(d)) dentro.push({d, num: dd, fuera: false});
+  }
+  // Relleno al inicio con los días del mes anterior, para que el primero
+  // del mes caiga en la columna que le toca.
+  const antes = [];
+  if (dentro.length) {
+    const cur = new Date(dentro[0].d);
+    while (antes.length < col(dentro[0].d)) {
+      cur.setDate(cur.getDate() - 1);
+      if (!saltar(cur)) antes.unshift({d: new Date(cur), num: cur.getDate(), fuera: true});
+    }
+  }
+  const celdas = antes.concat(dentro).map(x => celda(x.d, x.num, x.fuera)).join('');
+
+  $('#calendario').innerHTML = `<div class="mes" style="--cols:${cols}"><h3>${MESES[mes]} ${anio}</h3>
+    <div class="sem">${DIAS.slice(0, cols).map(x=>`<span>${x}</span>`).join('')}</div>
     <div class="dias">${celdas}</div></div>
     <div class="claves">
       <span><i class="mt abierta"></i>🔓 abierta ese día</span>
