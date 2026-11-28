@@ -1786,12 +1786,17 @@ function pintarCierre() {
   const nombre = (hitos[miMes] || {}).cuando;
 
   const pts = puntaje(caso, decidido);
-  const lectura = pts
+  // Un caso puede ser todo normativo (RICE, Evaluación) o mixto: una trayectoria
+  // de criterio que cierra con una pregunta sobre el documento (PEI).
+  const todoNorma = pts && pts.de === hitos.length;
+  const marcador = pts
     ? `<p class="vt">Acertaste <b>${pts.ok} de ${pts.de}</b> según el documento.</p>
        <p class="vs">${pts.ok === pts.de
-         ? 'Las ' + pts.de + ' respuestas calzan con lo que dice el reglamento. Esto no era de criterio: era de haberlo leído.'
-         : 'Abajo está cada punto con lo que elegiste y lo que manda el documento. Lo que no calzó indica qué anexo conviene releer antes de marzo.'}</p>`
-    : (miMes < 0 ? g(caso,'sinMover') : g(caso,'conMover')(esc(nombre)));
+         ? 'Las respuestas calzan con lo que dice el documento. Esto no era de criterio: era de haberlo leído.'
+         : 'Abajo está cada punto con lo que elegiste y lo que manda el documento. Lo que no calzó indica qué conviene releer antes de marzo.'}</p>`
+    : '';
+  const lectura = todoNorma ? marcador
+    : (miMes < 0 ? g(caso,'sinMover') : g(caso,'conMover')(esc(nombre))) + marcador;
 
   const linea = hitos.map((h, i) => {
     const d = decidido[i];
@@ -1825,11 +1830,11 @@ function pintarCierre() {
     <article class="tarjeta cierre">
       ${lectura}
       <div class="linea">${linea}</div>
-      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>${esc(pts ? 'En resumen:' : g(caso,'resultadoK'))}</b> ${esc(caso.resultado)}</div>` : ''}
+      ${caso.resultado ? `<div class="info" style="margin-top:14px"><b>${esc(todoNorma ? 'En resumen:' : g(caso,'resultadoK'))}</b> ${esc(caso.resultado)}</div>` : ''}
 
       <div class="cierrePreg">
         <p class="cpk">${esc(g(caso,'cierreK'))}</p>
-        ${pts ? `<p>Esto no medía criterio: medía si el documento está leído. Cada punto de arriba trae el
+        ${todoNorma ? `<p>Esto no medía criterio: medía si el documento está leído. Cada punto de arriba trae el
           anexo donde está escrito, así que lo que no calzó ya tiene dónde ir a verificarlo.</p>`
               : g(caso,'cierreTx')}
         <p style="margin-top:9px"><b>Elige uno solo y escríbelo abajo.</b> El que te parezca más fácil
