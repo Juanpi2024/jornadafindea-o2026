@@ -282,6 +282,24 @@ td.si{color:var(--verde-tx)}td.tarde{color:var(--ambar-tx)}td.no{color:#4E5C7C}
 /* En la portada con texto, el ▶ centrado tapaba el título: va abajo a la derecha. */
 .lam + .play{left:auto;right:20px;top:auto;bottom:44px;transform:none}
 .mini:hover .lam + .play{transform:scale(1.1)}
+
+/* --- Tutorial de la app, en la portada ------------------------------------
+   Lo primero que ve quien entra por primera vez. La miniatura no carga nada
+   de YouTube hasta que la tocan. */
+.tutorial{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:center}
+.tutorial .lienzo{position:relative;display:block;width:100%;aspect-ratio:16/9;padding:0;border:0;
+  border-radius:11px;overflow:hidden;background:#0F2C47;cursor:pointer}
+.tutorial .lienzo img{width:100%;height:100%;object-fit:cover;display:block}
+.tutorial .lienzo iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.tutorial .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:52px;height:52px;display:grid;place-items:center;border-radius:50%;
+  background:rgba(1,94,169,.92);border:2.5px solid #fff;color:#fff;font-size:19px;
+  transition:transform .15s ease}
+.tutorial .lienzo:hover .play{transform:translate(-50%,-50%) scale(1.1)}
+.tutorial .lienzo:focus-visible{outline:3px solid var(--azul);outline-offset:3px}
+.tutorial h2{margin:2px 0 7px}
+.tutorial .tutTx .lead{margin:0 0 10px}
+@media(max-width:620px){.tutorial{grid-template-columns:1fr;gap:14px}.tutorial .play{width:44px;height:44px;font-size:16px}}
 .hCons{font-size:14px;letter-spacing:.02em;text-transform:uppercase;color:var(--tinta3);margin:0 0 2px}
 @media(max-width:430px){.materiales.compacta{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}}
 .mini .tapa{display:block;width:100%;padding:0;border:0;cursor:pointer;background:#F7FAFD}

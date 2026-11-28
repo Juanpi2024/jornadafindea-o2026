@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#tutorBtn').addEventListener('click', () => abrirTutor());
   $('#tutorGlobo').addEventListener('click', () => abrirTutor($('#tutorGlobo').dataset.p || ''));
   $('#tutorCerrar').addEventListener('click', cerrarTutor);
+  activarVideos('#tutorialApp');
   window.addEventListener('hashchange', ruta);
   window.addEventListener('online', reintentar);
   arrancar();
