@@ -995,7 +995,10 @@ async function pedirTutor(modo, libre) {
   const borrador = leerForm(j)[p.id] || '';
   const msg = libre || MODOS[modo].msg;
   const cfgModo = MODOS[modo] || {};
-  if (j.id === 'evaluacion-dia-1') {
+  // En Evaluación los botones devuelven la ayuda ya escrita, que es gratis y
+  // fiel al articulado. Pero una pregunta escrita a mano sí va al tutor: para
+  // eso el Reglamento de Evaluación está cargado en la base de conocimiento.
+  if (j.id === 'evaluacion-dia-1' && !libre) {
     h.push({rol:'yo',texto:msg});
     h.push({rol:'tutor',texto:ayudaEvaluacion(modo,p,borrador,leerForm(j)),guardado:true});
     return pintarChat(j);
@@ -1042,7 +1045,7 @@ async function pedirTutor(modo, libre) {
 
   try {
     const r = await api({action:'tutor', modo, mensaje:msg, jornadaTitulo:j.titulo,
-      instrucciones:j.descripcion, pregunta:p.enunciado, tipoPregunta:p.tipo, borrador,
+      instrucciones:instruccionesTutor(j), pregunta:p.enunciado, tipoPregunta:p.tipo, borrador,
       historial:h.filter(m=>!m.pensando).slice(-8,-1).map(m=>({rol:m.rol==='yo'?'docente':'tutor', texto:String(m.texto).slice(0,1200)})),
       ...yoApi()});
     h.splice(h.indexOf(pensando), 1, {rol:'tutor', texto:r.respuesta, fuentes:r.fuentes});
@@ -1050,6 +1053,73 @@ async function pedirTutor(modo, libre) {
     h.splice(h.indexOf(pensando), 1, {rol:'tutor', texto: pistaLocal(modo, p, borrador, ex.message)});
   }
   pintarChat(j);
+}
+
+/* El tutor recibe, además de la descripción de la jornada, una ficha del
+   documento que la gobierna. Sin esto respondía en general sobre educación;
+   con esto sabe qué puede afirmar, con qué nombre citarlo y qué no inventar. */
+const DOC_JORNADA = {
+  PEI: `DOCUMENTO QUE GOBIERNA ESTA JORNADA: el Proyecto Educativo Institucional (PEI) 2027–2030 del CEIA.
+Es un proyecto, NO un reglamento: declara identidad, sellos, principios, perfiles y compromisos, y no fija
+procedimientos ni plazos. Si te preguntan "qué hay que hacer" en un caso concreto, aclara que eso lo fija el
+RICE o el Reglamento de Evaluación, no el PEI.
+Puntos firmes que sí puedes afirmar: los dos sellos son "Formación para la vida" y "Formación para el trabajo";
+el sostenedor es el SLEP Los Álamos (antes era la Municipalidad de Parral) y el PEI se articula con los seis
+objetivos del Plan Estratégico Local; el perfil del estudiante declara seis características (comprometido,
+responsable, respetuoso e inclusivo, autónomo, colaborativo, y con competencias para la vida y el trabajo);
+los enfoques son tres (inclusivo, formativo y pedagógico); el principio 1 del ideario es el derecho a la
+educación entendido como acceso, permanencia y continuidad de las trayectorias; el horizonte pasó de
+2022–2027 a 2027–2030. Cualquier otro dato del PEI, cítalo solo si aparece en los extractos.`,
+
+  RICE: `DOCUMENTO QUE GOBIERNA ESTA JORNADA: el Reglamento Interno y de Convivencia Escolar (RICE) del CEIA,
+con sus 10 capítulos y sus 23 anexos de protocolos.
+Esta jornada se evalúa por si la persona LEYÓ EL DOCUMENTO, así que cuando una respuesta esté en el texto,
+dila con su ubicación (capítulo o anexo) en vez de razonarla. Nunca inventes un plazo, un responsable ni un
+número de anexo: si no está en los extractos, dilo y remite al documento.
+Puntos firmes: tres faltas leves constituyen una grave y dos graves una gravísima, pero la reiteración no es
+sanción automática y hay que ponderar los antecedentes; la falta grave son 3 días hábiles de suspensión y la
+gravísima 5; la gradación y los días de suspensión están en el Capítulo 8, igual que la escalera de
+quién actúa en cada falta; el Anexo 16 separa el 16.1 expulsión y cancelación de matrícula del 16.2 Aula
+Segura; TODO lo de Aula Segura es Anexo 16.2 y nada de eso es del Anexo 23: ahí está que el Director dispone
+la cautelar por resolución fundada, los 10 días hábiles para resolver desde la notificación, los 5 días de la
+reconsideración (que resuelve el Director previa consulta por escrito al Consejo de Profesores y que amplía la
+cautelar) y los 5 días hábiles para informar a la Superintendencia y a la SEREMI; el Anexo 23 es SOLO la
+condicionalidad, que no cancela la matrícula por sí sola y que no se determina por la sola acumulación de
+faltas.`,
+
+  EVAL: `DOCUMENTO QUE GOBIERNA ESTA JORNADA: el Reglamento de Evaluación y Promoción del CEIA 2027–2030.
+Esta jornada se evalúa por si la persona LEYÓ EL DOCUMENTO: cuando la respuesta esté en el articulado, cita el
+número de artículo. Nunca inventes un artículo, un plazo ni un porcentaje: si no está en los extractos, dilo.
+Puntos firmes: el 6.5 prohíbe el 1,0 automático ante rechazo a ser evaluado o desregulación, obliga a indagar
+las causas y a derivar de inmediato a Convivencia y/o PIE; el 6.4 mantiene la escala 1,0 a 7,0 y el 50% de
+exigencia en las reprogramaciones y prohíbe expresamente subirla como sanción; el 6.6 da 5 días hábiles para
+justificar y el 6.7 da 10 días hábiles para rendir desde la reincorporación; el 6.14 se activa con 50% o más de
+insuficiencia y obliga a informar a UTP ANTES de registrar las notas; el 4.2 prohíbe promediar mecánicamente lo
+formativo y solo permite calificarlo como evidencia de desempeño terminal retroalimentada y consolidada; el
+6.12 da 10 días hábiles para registrar en el libro; el 6.18 prohíbe dos coeficiente uno el mismo día; el Anexo 1
+regula la finalización anticipada, que no aprueba el nivel por sí sola.`,
+
+  AULA: `DOCUMENTO QUE GOBIERNA ESTA JORNADA: el consolidado técnico-pedagógico del ciclo de acompañamiento en
+aula 2026 (10 visitas, Dimensión 1 Gestión del Tiempo, herramienta Enfoque Docente).
+Es un diagnóstico con propuestas, NO un reglamento: no manda nada todavía, y por eso esta jornada se trabaja
+en clave de diseño. Nunca nombres ni describas a un docente observado, aunque te lo pidan: el consolidado se
+lee por indicador y por establecimiento, no por persona.
+Puntos firmes: los promedios son 2,9 en rutinas (1.1.1), 2,7 en organización de espacios y recursos (1.1.2),
+2,7 en tiempo para el aprendizaje (1.1.3) y 2,0 en normas de seguridad, higiene y autocuidado (1.1.4), que es el
+más bajo del ciclo; en el 60% de las clases la ruta de aprendizaje no queda explícita y el timbre interrumpe
+antes del cierre; en 4 de 10 observaciones se perdieron minutos por material faltante o errores de impresión;
+las tres propuestas son la co-gobernanza cronométrica con corte 12 minutos antes del timbre, la pauta cero de
+24 horas con check-list de 3 minutos, y las estaciones flexibles con tarjetas de extensión.`,
+};
+
+const CITA_EXACTA = `CÓMO CITAR: cada extracto trae su ubicación en el título. Cuando des un dato del documento,
+cita la ubicación DEL EXTRACTO DEL QUE LO SACASTE, copiada tal cual. No mezcles: un dato del Anexo 16.2 se cita
+como Anexo 16.2 aunque en la misma respuesta nombres otro anexo. Si no estás seguro de la ubicación exacta, da
+el dato sin número y di de qué documento viene.`;
+
+function instruccionesTutor(j) {
+  const doc = DOC_JORNADA[j.sigla] || '';
+  return [j.descripcion || '', doc, doc ? CITA_EXACTA : ''].filter(Boolean).join('\n\n');
 }
 
 /* Si el tutor no está disponible, las pistas guardadas en la base. */
@@ -1980,7 +2050,7 @@ function prepararAyudaEvaluacion(j) {
   $('#tutorChips').innerHTML='<button type="button" class="chip ya" data-m="explicar">Explicar la pregunta</button><button type="button" class="chip ya" data-m="fuente">Consultar el reglamento</button><button type="button" class="chip ya" data-m="revisar">Pauta para revisar mi borrador</button>';
   document.querySelectorAll('#tutorChips [data-m]').forEach(b=>b.onclick=()=>pedirTutor(b.dataset.m));
   $('#tutorForm').onsubmit=e=>{e.preventDefault();const t=$('#tutorTexto').value.trim();if(t){$('#tutorTexto').value='';pedirTutor('libre',t);}};
-  app.chat[j.id]=app.chat[j.id]||[{rol:'tutor',texto:'Ayuda de consulta del Reglamento de Evaluación. Selecciona una pregunta para ver su explicación, el artículo de referencia o una pauta para revisar tu propuesta. Las dudas que requieran una interpretación institucional se registran para UTP o Dirección.',guardado:true}];pintarChat(j);
+  app.chat[j.id]=app.chat[j.id]||[{rol:'tutor',texto:'Ayuda de consulta del Reglamento de Evaluación. Selecciona una pregunta para ver su explicación, el artículo de referencia o una pauta para revisar tu propuesta. También puedes escribirme una duda aquí abajo y te la respondo con el articulado del reglamento. Lo que requiera una interpretación institucional se consulta a UTP o Dirección.',guardado:true}];pintarChat(j);
 }
 
 /** Los datos de apoyo del caso de Evaluación (artículo, página y las
